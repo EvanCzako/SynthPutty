@@ -139,7 +139,11 @@ export function useSynthEngine() {
 
 				osc.type = waveform;
 				osc.frequency.value = freq;
-				osc.detune.value = spread ?? 0;
+				if (spread) {
+					osc.detune.setTargetAtTime(spread, audioCtx.currentTime, 0.05);
+				} else {
+					osc.detune.value = 0;
+				}
 
 				filter.type = filterType;
 				filter.frequency.value = filterCutoff;
@@ -163,7 +167,27 @@ export function useSynthEngine() {
 			playingNotes[note] = chains;
 
         }
-    }, [waveform, detune, voices, activeNotes]);
+    }, [waveform, voices, activeNotes]);
+
+	// For detune
+	useEffect(() => {
+		const playingNotes = playingNotesRef.current;
+		for (const chains of Object.values(playingNotes)) {
+			const numVoices = chains.length;
+
+			chains.forEach((chain, i) => {
+				const spread = (i - (numVoices - 1) / 2) * detune;
+				chain.oscillators.forEach((osc) => {
+					osc.detune.setTargetAtTime(
+						spread,
+						audioCtx.currentTime,
+						0.05
+					);
+				});
+			});
+		}
+	}, [detune]);
+
 
 	// For persisting lfos/vibratos
 	useEffect(() => {
@@ -255,7 +279,7 @@ export function useSynthEngine() {
 
                     osc.type = waveform;
                     osc.frequency.value = freq;
-                    osc.detune.value = spread;
+                    osc.detune.setTargetAtTime(spread, audioCtx.currentTime, 0.05);
 
                     filter.type = filterType;
                     filter.frequency.value = filterCutoff;
