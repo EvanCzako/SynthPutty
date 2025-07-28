@@ -14,6 +14,10 @@ export const OscillatorControls: React.FC = () => {
         setVibratoRate,
         vibratoDepth,
         setVibratoDepth,
+		attack,
+		setAttack,
+		release,
+		setRelease
     } = useSynthStore();
 
     return (
@@ -78,6 +82,34 @@ export const OscillatorControls: React.FC = () => {
                     value={vibratoDepth}
                     onChange={(e) =>
                         setVibratoDepth(parseFloat(e.target.value))
+                    }
+                />
+            </label>
+
+            <label>
+                Attack (sec): {attack}
+                <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={attack}
+                    onChange={(e) =>
+                        setAttack(parseFloat(e.target.value))
+                    }
+                />
+            </label>
+
+            <label>
+                Release (sec): {release}
+                <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={release}
+                    onChange={(e) =>
+                        setRelease(parseFloat(e.target.value))
                     }
                 />
             </label>

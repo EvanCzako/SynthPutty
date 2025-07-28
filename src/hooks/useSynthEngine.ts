@@ -67,12 +67,17 @@ export function useSynthEngine() {
         for (const note in playingNotes) {
             const chains = playingNotes[note];
             chains.forEach(({ oscillators, gain }) => {
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    audioCtx.currentTime + 0.1,
-                );
+				const now = audioCtx.currentTime;
+
+				gain.gain.cancelScheduledValues(now);
+				gain.gain.setValueAtTime(gain.gain.value, now);
+
+				// Release ramp down to near zero over release seconds
+				gain.gain.linearRampToValueAtTime(0.001, now + release);
+
+				
                 oscillators.forEach((osc) =>
-                    osc.stop(audioCtx.currentTime + 0.1),
+                    osc.stop(now + release + 0.05) // stop oscillator after release fades out
                 );
             });
         }
@@ -99,12 +104,17 @@ export function useSynthEngine() {
 
             // Fade out existing
             chains.forEach(({ oscillators, gain }) => {
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    audioCtx.currentTime + 0.05,
-                );
+
+				const now = audioCtx.currentTime;
+
+				gain.gain.cancelScheduledValues(now);
+				gain.gain.setValueAtTime(gain.gain.value, now);
+
+				// Release ramp down to near zero over release seconds
+				gain.gain.linearRampToValueAtTime(0.001, now + release);
+
                 oscillators.forEach((osc) =>
-                    osc.stop(audioCtx.currentTime + 0.05),
+                    osc.stop(now + release + 0.05) // stop oscillator after release fades out
                 );
             });
             delete playingNotes[note];
