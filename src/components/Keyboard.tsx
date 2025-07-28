@@ -5,8 +5,6 @@ import styles from "../styles/Keyboard.module.css";
 const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
 const blackKeys = ["C#", "D#", "", "F#", "G#", "A#", ""];
 
-const baseNote = 60; // MIDI note number for C4
-
 export const Keyboard: React.FC = () => {
     const { noteOn, noteOff, activeNotes } = useSynthStore();
 
@@ -33,11 +31,15 @@ export const Keyboard: React.FC = () => {
                     const noteLabel = keyNote + octaveIdx;
                     const label = noteLabel;
                     const note = freqArr.indexOf(noteLabel);
+					let classNames = `${styles.whiteKey}`;
+					if (activeNotes[note]) {
+						classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
+					}
 
                     return (
                         <div
                             key={note}
-                            className={styles.whiteKey}
+                            className={classNames}
                             onClick={() => noteClicked(note)}
                         >
                             {label}

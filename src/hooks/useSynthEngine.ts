@@ -97,11 +97,17 @@ export function useSynthEngine() {
                 const gain = audioCtx.createGain();
                 const filter = audioCtx.createBiquadFilter();
 
-                const spread = (i - (voices - 1) / 2) * detune;
+				let spread;
+				if(voices > 1){
+					const step = detune / (voices - 1);
+					spread = i * step - detune / 2;
+				}
+
+				console.log(spread);
 
                 osc.type = waveform;
                 osc.frequency.value = freq;
-                osc.detune.value = spread;
+                osc.detune.value = spread ?? 0;
 
                 filter.type = filterType;
                 filter.frequency.value = filterCutoff;
