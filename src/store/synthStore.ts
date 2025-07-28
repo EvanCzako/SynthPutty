@@ -15,8 +15,13 @@ interface SynthState {
     filterEnabled: boolean;
     vibratoRate: number;
     vibratoDepth: number;
+	vibratoOsc: OscillatorNode | null;
+	vibratoGain: GainNode | null;
 	analyserNode: AnalyserNode | null;
+	lfos: OscillatorNode[];
+	lfoGains: GainNode[];
 
+	setLFOs: (lfos: OscillatorNode[], gains: GainNode[]) => void;
 	setAnalyserNode: (node: AnalyserNode) => void;
     setVibratoRate: (rate: number) => void;
     setVibratoDepth: (depth: number) => void;
@@ -32,7 +37,7 @@ interface SynthState {
     setMasterVolume: (volume: number) => void;
 }
 
-export const useSynthStore = create<SynthState>((set) => ({
+export const useSynthStore = create<SynthState>((set, get) => ({
     waveform: "sine",
     filterType: "lowpass",
     filterCutoff: 800,
@@ -43,8 +48,13 @@ export const useSynthStore = create<SynthState>((set) => ({
     filterEnabled: true,
     vibratoRate: 0, // in Hz
     vibratoDepth: 0, // in cents (detune range)
+	vibratoOsc: null,
+	vibratoGain: null,
 	analyserNode: null,
+	lfos: [],
+	lfoGains: [],
 	
+	setLFOs: (lfos: OscillatorNode[], gains: GainNode[]) => set( { lfos, lfoGains: gains} ),
 	setAnalyserNode: (node) => set({ analyserNode: node }),
     setVibratoRate: (rate: number) => set({ vibratoRate: rate }),
     setVibratoDepth: (depth: number) => set({ vibratoDepth: depth }),
