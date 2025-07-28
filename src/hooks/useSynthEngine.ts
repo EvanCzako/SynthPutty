@@ -18,6 +18,9 @@ type VoiceChain = {
 
 const masterGain = audioCtx.createGain();
 masterGain.gain.value = 1;
+const analyser = audioCtx.createAnalyser();
+masterGain.connect(analyser);
+analyser.connect(audioCtx.destination);
 masterGain.connect(audioCtx.destination);
 
 export function useSynthEngine() {
@@ -33,9 +36,16 @@ export function useSynthEngine() {
         filterEnabled,
         vibratoRate,
         vibratoDepth,
+		setAnalyserNode,
+		analyserNode
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
+	
+	if(!analyserNode) {
+		setAnalyserNode(analyser);
+	}
+	
 
     // Clear function to manually stop all notes
     const clearAllNotes = () => {
@@ -126,8 +136,6 @@ export function useSynthEngine() {
                     const step = detune / (voices - 1);
                     spread = i * step - detune / 2;
                 }
-
-                console.log(spread);
 
                 osc.type = waveform;
                 osc.frequency.value = freq;

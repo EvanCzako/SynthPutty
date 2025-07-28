@@ -4,6 +4,7 @@ import { FilterControls } from "./components/FilterControls";
 import { useSynthEngine } from "./hooks/useSynthEngine";
 import { Keyboard } from "./components/Keyboard";
 import { MainControls } from "./components/MainControls";
+import { EQVisualizer } from "./components/EQVisualizer";
 // import { useMIDI } from './hooks/useMIDI';
 import styles from "./App.module.css";
 
@@ -19,7 +20,9 @@ export const App: React.FC = () => {
                 <MainControls />
                 <OscillatorControls />
                 <FilterControls />
+				<EQVisualizer/>
                 <Keyboard />
+				
             </div>
         </div>
     );

@@ -4,6 +4,7 @@
     padding: 12px;
     margin-bottom: 16px;
     background: #1e1e1e;
+	max-width: 600px;
 }
 
 label {

@@ -15,7 +15,9 @@ interface SynthState {
     filterEnabled: boolean;
     vibratoRate: number;
     vibratoDepth: number;
+	analyserNode: AnalyserNode | null;
 
+	setAnalyserNode: (node: AnalyserNode) => void;
     setVibratoRate: (rate: number) => void;
     setVibratoDepth: (depth: number) => void;
     setFilterEnabled: (enabled: boolean) => void;
@@ -41,10 +43,11 @@ export const useSynthStore = create<SynthState>((set) => ({
     filterEnabled: true,
     vibratoRate: 0, // in Hz
     vibratoDepth: 0, // in cents (detune range)
-
+	analyserNode: null,
+	
+	setAnalyserNode: (node) => set({ analyserNode: node }),
     setVibratoRate: (rate: number) => set({ vibratoRate: rate }),
     setVibratoDepth: (depth: number) => set({ vibratoDepth: depth }),
-
     setFilterEnabled: (enabled: boolean) => set({ filterEnabled: enabled }),
     setWaveform: (waveform) => set({ waveform }),
     setFilterType: (filterType) => set({ filterType }),
@@ -53,6 +56,7 @@ export const useSynthStore = create<SynthState>((set) => ({
     setVoices: (voices) => set({ voices }),
     setActiveNotes: (activeNotes: Record<number, { velocity: number }>) =>
         set({ activeNotes }),
+    setMasterVolume: (volume: number) => set({ masterVolume: volume }),
 
     noteOn: (note, velocity) =>
         set((state) => ({
@@ -65,5 +69,4 @@ export const useSynthStore = create<SynthState>((set) => ({
             delete newNotes[note];
             return { activeNotes: newNotes };
         }),
-    setMasterVolume: (volume: number) => set({ masterVolume: volume }),
 }));

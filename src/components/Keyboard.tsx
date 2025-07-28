@@ -27,10 +27,15 @@ export const Keyboard: React.FC = () => {
     return (
         <div className={styles.keyboard}>
             <div>
-                {[4, 5].map((octaveIdx) =>
+                {[3, 4, 5].map((octaveIdx) =>
                     blackKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
-                        const label = noteLabel;
+						let label;
+						if (keyNote === "C"){
+							label = noteLabel;
+						} else {
+							label = keyNote;
+						}
                         const note = freqArr.indexOf(noteLabel);
 
                         let classNames = `${styles.blackKey}`;
@@ -54,10 +59,15 @@ export const Keyboard: React.FC = () => {
             </div>
 
             <div>
-                {[4, 5].map((octaveIdx) =>
+                {[3, 4, 5].map((octaveIdx) =>
                     whiteKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
-                        const label = noteLabel;
+						let label;
+						if (keyNote === "C"){
+							label = noteLabel;
+						} else {
+							label = keyNote;
+						}
                         const note = freqArr.indexOf(noteLabel);
                         let classNames = `${styles.whiteKey}`;
                         if (activeNotes[note]) {
