@@ -26,27 +26,56 @@ export const Keyboard: React.FC = () => {
 
     return (
         <div className={styles.keyboard}>
-            {[3, 4, 5].map((octaveIdx) =>
-                whiteKeys.map((keyNote) => {
-                    const noteLabel = keyNote + octaveIdx;
-                    const label = noteLabel;
-                    const note = freqArr.indexOf(noteLabel);
-					let classNames = `${styles.whiteKey}`;
-					if (activeNotes[note]) {
-						classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
-					}
+            <div>
+                {[4, 5].map((octaveIdx) =>
+                    blackKeys.map((keyNote) => {
+                        const noteLabel = keyNote + octaveIdx;
+                        const label = noteLabel;
+                        const note = freqArr.indexOf(noteLabel);
 
-                    return (
-                        <div
-                            key={note}
-                            className={classNames}
-                            onClick={() => noteClicked(note)}
-                        >
-                            {label}
-                        </div>
-                    );
-                }),
-            )}
+                        let classNames = `${styles.blackKey}`;
+                        if (note < 0) {
+                            classNames = `${styles.blackKey} ${styles.invisibleKey}`;
+                        } else if (activeNotes[note]) {
+                            classNames = `${styles.blackKey} ${styles.blackKeyPressed}`;
+                        }
+
+                        return (
+                            <div
+                                key={note}
+                                className={classNames}
+                                onClick={() => noteClicked(note)}
+                            >
+                                {label}
+                            </div>
+                        );
+                    }),
+                )}
+            </div>
+
+            <div>
+                {[4, 5].map((octaveIdx) =>
+                    whiteKeys.map((keyNote) => {
+                        const noteLabel = keyNote + octaveIdx;
+                        const label = noteLabel;
+                        const note = freqArr.indexOf(noteLabel);
+                        let classNames = `${styles.whiteKey}`;
+                        if (activeNotes[note]) {
+                            classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
+                        }
+
+                        return (
+                            <div
+                                key={note}
+                                className={classNames}
+                                onClick={() => noteClicked(note)}
+                            >
+                                {label}
+                            </div>
+                        );
+                    }),
+                )}
+            </div>
         </div>
     );
 };

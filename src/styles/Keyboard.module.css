@@ -5,10 +5,11 @@
     justify-content: center;
     user-select: none;
     margin-top: 24px;
+    flex-direction: column;
 }
 
 .whiteKey {
-    width: 40px;
+    width: 5%;
     height: 160px;
     background: white;
     border: 1px solid #ccc;
@@ -21,19 +22,37 @@
 }
 
 .whiteKey:hover {
-	background-color: pink;
+    background-color: pink;
 }
 
 .whiteKeyPressed {
-	background-color: purple;
+    background-color: purple;
 }
 
 .blackKey {
-    position: absolute;
-    width: 28px;
+    width: 5%;
     height: 100px;
-    background: black;
-    z-index: 2;
+    background: rgb(20, 20, 20);
+    border: 1px solid #ccc;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
     cursor: pointer;
-    margin-left: -14px;
+    z-index: 1;
+    position: relative;
+    left: 2.5%;
+    top: 80%;
+    z-index: 2;
+}
+
+.blackKey:hover {
+    background-color: pink;
+}
+
+.blackKeyPressed {
+    background-color: purple;
+}
+
+.invisibleKey {
+    visibility: hidden;
 }

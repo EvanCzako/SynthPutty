@@ -13,7 +13,11 @@ interface SynthState {
     activeNotes: Record<number, { velocity: number }>;
     masterVolume: number;
     filterEnabled: boolean;
+    vibratoRate: number;
+    vibratoDepth: number;
 
+    setVibratoRate: (rate: number) => void;
+    setVibratoDepth: (depth: number) => void;
     setFilterEnabled: (enabled: boolean) => void;
     setWaveform: (waveform: WaveformType) => void;
     setFilterType: (type: FilterType) => void;
@@ -35,6 +39,11 @@ export const useSynthStore = create<SynthState>((set) => ({
     activeNotes: {},
     masterVolume: 1,
     filterEnabled: true,
+    vibratoRate: 0, // in Hz
+    vibratoDepth: 0, // in cents (detune range)
+
+    setVibratoRate: (rate: number) => set({ vibratoRate: rate }),
+    setVibratoDepth: (depth: number) => set({ vibratoDepth: depth }),
 
     setFilterEnabled: (enabled: boolean) => set({ filterEnabled: enabled }),
     setWaveform: (waveform) => set({ waveform }),
