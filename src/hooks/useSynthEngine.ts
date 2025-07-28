@@ -14,6 +14,10 @@ type VoiceChain = {
     gain: GainNode;
 };
 
+const masterGain = audioCtx.createGain();
+masterGain.gain.value = 1;
+masterGain.connect(audioCtx.destination);
+
 export function useSynthEngine() {
     const {
         waveform,
@@ -22,10 +26,33 @@ export function useSynthEngine() {
         detune,
         voices,
         activeNotes,
-		setActiveNotes
+        setActiveNotes,
+        masterVolume,
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
+
+    // Clear function to manually stop all notes
+    const clearAllNotes = () => {
+        const playingNotes = playingNotesRef.current;
+        for (const note in playingNotes) {
+            const chains = playingNotes[note];
+            chains.forEach(({ oscillators, gain }) => {
+                gain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    audioCtx.currentTime + 0.1
+                );
+                oscillators.forEach((osc) => osc.stop(audioCtx.currentTime + 0.1));
+            });
+        }
+        playingNotesRef.current = {};
+        setActiveNotes({});
+    };
+
+    // Update master volume
+    useEffect(() => {
+        masterGain.gain.setTargetAtTime(masterVolume, audioCtx.currentTime, 0.01);
+    }, [masterVolume]);
 
     // Cleanup and rebuild notes if waveform, voices, or detune change
     useEffect(() => {
@@ -46,7 +73,10 @@ export function useSynthEngine() {
             delete playingNotes[note];
         }
 
-        // Rebuild with new settings for all held notes
+        const totalActiveNotes = Object.keys(activeNotes).length || 1;
+        const totalOscillators = totalActiveNotes * voices;
+
+
         for (const noteStr of Object.keys(activeNotes)) {
             const note = Number(noteStr);
             const freq = midiToFreq(note);
@@ -67,11 +97,12 @@ export function useSynthEngine() {
                 filter.type = filterType;
                 filter.frequency.value = filterCutoff;
 
-                gain.gain.value = velocity / 127;
+                // Normalize gain by total oscillators and apply master volume
+                gain.gain.value = (velocity / 127) * (masterVolume / (totalOscillators + 1));
 
                 osc.connect(filter);
                 filter.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(masterGain);
 
                 osc.start();
 
@@ -80,7 +111,7 @@ export function useSynthEngine() {
 
             playingNotes[note] = chains;
         }
-    }, [waveform, detune, voices]);
+    }, [waveform, detune, voices, activeNotes]);
 
     // Apply real-time filter updates to active notes
     useEffect(() => {
@@ -123,7 +154,7 @@ export function useSynthEngine() {
 
                     osc.connect(filter);
                     filter.connect(gain);
-                    gain.connect(audioCtx.destination);
+                    gain.connect(masterGain);
 
                     osc.start();
 
@@ -150,24 +181,6 @@ export function useSynthEngine() {
             }
         }
     }, [activeNotes]);
-
-
-    // Clear function to manually stop all notes
-    const clearAllNotes = () => {
-        const playingNotes = playingNotesRef.current;
-        for (const note in playingNotes) {
-            const chains = playingNotes[note];
-            chains.forEach(({ oscillators, gain }) => {
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    audioCtx.currentTime + 0.1
-                );
-                oscillators.forEach((osc) => osc.stop(audioCtx.currentTime + 0.1));
-            });
-        }
-        playingNotesRef.current = {};
-        setActiveNotes({}); // Clear from store
-    };
 
     return { clearAllNotes };
 }

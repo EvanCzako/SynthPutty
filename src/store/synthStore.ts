@@ -11,6 +11,7 @@ interface SynthState {
     detune: number;
     voices: number;
     activeNotes: Record<number, { velocity: number }>;
+	masterVolume: number;
 
     setWaveform: (waveform: WaveformType) => void;
     setFilterType: (type: FilterType) => void;
@@ -20,6 +21,7 @@ interface SynthState {
     noteOn: (note: number, velocity: number) => void;
     noteOff: (note: number) => void;
 	setActiveNotes: (activeNotes: Record<number, { velocity: number }>) => void;
+	setMasterVolume: (volume: number) => void;
 }
 
 export const useSynthStore = create<SynthState>((set) => ({
@@ -29,6 +31,7 @@ export const useSynthStore = create<SynthState>((set) => ({
     detune: 0,
     voices: 1,
     activeNotes: {},
+	masterVolume: 1,
 
     setWaveform: (waveform) => set({ waveform }),
     setFilterType: (filterType) => set({ filterType }),
@@ -48,4 +51,5 @@ export const useSynthStore = create<SynthState>((set) => ({
             delete newNotes[note];
             return { activeNotes: newNotes };
         }),
+	setMasterVolume: (volume: number) => set({ masterVolume: volume })
 }));
