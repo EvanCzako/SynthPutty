@@ -1,31 +1,31 @@
 .keyboard {
-  position: relative;
-  height: 160px;
-  display: flex;
-  justify-content: center;
-  user-select: none;
-  margin-top: 24px;
+    position: relative;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    user-select: none;
+    margin-top: 24px;
 }
 
 .whiteKey {
-  width: 40px;
-  height: 160px;
-  background: white;
-  border: 1px solid #ccc;
-  display: inline-flex;
-  align-items: flex-end;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 1;
-  position: relative;
+    width: 40px;
+    height: 160px;
+    background: white;
+    border: 1px solid #ccc;
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+    position: relative;
 }
 
 .blackKey {
-  position: absolute;
-  width: 28px;
-  height: 100px;
-  background: black;
-  z-index: 2;
-  cursor: pointer;
-  margin-left: -14px;
+    position: absolute;
+    width: 28px;
+    height: 100px;
+    background: black;
+    z-index: 2;
+    cursor: pointer;
+    margin-left: -14px;
 }

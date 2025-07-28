@@ -1,55 +1,53 @@
-import React from 'react';
-import { useSynthStore } from '../store/synthStore';
-import styles from '../styles/Keyboard.module.css';
+import React from "react";
+import { useSynthStore } from "../store/synthStore";
+import styles from "../styles/Keyboard.module.css";
 
-const whiteKeys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-const blackKeys = ['C#', 'D#', '', 'F#', 'G#', 'A#', ''];
+const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
+const blackKeys = ["C#", "D#", "", "F#", "G#", "A#", ""];
 
 const baseNote = 60; // MIDI note number for C4
 
 export const Keyboard: React.FC = () => {
-  const { noteOn, noteOff, activeNotes } = useSynthStore();
+    const { noteOn, noteOff, activeNotes } = useSynthStore();
 
-  const playNote = (note: number) => {
-    noteOn(note, 100);
-  };
+    const playNote = (note: number) => {
+        noteOn(note, 100);
+    };
 
-  const stopNote = (note: number) => {
-    noteOff(note);
-  };
+    const stopNote = (note: number) => {
+        noteOff(note);
+    };
 
-  const noteClicked = (note: number) => {
-	if(activeNotes[note]) {
-		stopNote(note);
-	} else {
-		playNote(note);
-	}
-  }
+    const noteClicked = (note: number) => {
+        if (activeNotes[note]) {
+            stopNote(note);
+        } else {
+            playNote(note);
+        }
+    };
 
-  return (
-    <div className={styles.keyboard}>
-		{[3,4,5].map((octaveIdx) => (
-			whiteKeys.map((keyNote) => {
-			const noteLabel = keyNote+octaveIdx;
-			const label = noteLabel;
-			const note = freqArr.indexOf(noteLabel);
+    return (
+        <div className={styles.keyboard}>
+            {[3, 4, 5].map((octaveIdx) =>
+                whiteKeys.map((keyNote) => {
+                    const noteLabel = keyNote + octaveIdx;
+                    const label = noteLabel;
+                    const note = freqArr.indexOf(noteLabel);
 
-			return (
-			<div
-				key={note}
-				className={styles.whiteKey}
-				onClick={() => noteClicked(note)}
-			>
-				{label}
-			</div>
-			);	
-			})
-		))}
-    </div>
-  );
+                    return (
+                        <div
+                            key={note}
+                            className={styles.whiteKey}
+                            onClick={() => noteClicked(note)}
+                        >
+                            {label}
+                        </div>
+                    );
+                }),
+            )}
+        </div>
+    );
 };
-
-
 
 const freqMap: any = {
     C0: 16.35,

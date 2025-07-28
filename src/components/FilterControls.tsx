@@ -3,8 +3,14 @@ import { useSynthStore } from "../store/synthStore";
 import styles from "../styles/FilterControls.module.css";
 
 export const FilterControls: React.FC = () => {
-    const { filterType, filterCutoff, setFilterType, setFilterCutoff } =
-        useSynthStore();
+    const {
+        filterType,
+        filterCutoff,
+        setFilterType,
+        setFilterCutoff,
+        filterEnabled,
+        setFilterEnabled,
+    } = useSynthStore();
 
     return (
         <div className={styles.controls}>
@@ -34,6 +40,15 @@ export const FilterControls: React.FC = () => {
                     onChange={(e) => setFilterCutoff(Number(e.target.value))}
                 />
                 <span>{filterCutoff} Hz</span>
+            </label>
+
+            <label>
+                <input
+                    type="checkbox"
+                    checked={filterEnabled}
+                    onChange={(e) => setFilterEnabled(e.target.checked)}
+                />
+                Enable Filter
             </label>
         </div>
     );

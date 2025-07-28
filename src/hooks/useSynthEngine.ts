@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useSynthStore } from "../store/synthStore";
 
-const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+const audioCtx = new (window.AudioContext ||
+    (window as any).webkitAudioContext)();
 
 interface OscillatorVoice {
     osc: OscillatorNode;
@@ -28,6 +29,7 @@ export function useSynthEngine() {
         activeNotes,
         setActiveNotes,
         masterVolume,
+        filterEnabled,
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
@@ -40,9 +42,11 @@ export function useSynthEngine() {
             chains.forEach(({ oscillators, gain }) => {
                 gain.gain.exponentialRampToValueAtTime(
                     0.001,
-                    audioCtx.currentTime + 0.1
+                    audioCtx.currentTime + 0.1,
                 );
-                oscillators.forEach((osc) => osc.stop(audioCtx.currentTime + 0.1));
+                oscillators.forEach((osc) =>
+                    osc.stop(audioCtx.currentTime + 0.1),
+                );
             });
         }
         playingNotesRef.current = {};
@@ -51,7 +55,11 @@ export function useSynthEngine() {
 
     // Update master volume
     useEffect(() => {
-        masterGain.gain.setTargetAtTime(masterVolume, audioCtx.currentTime, 0.01);
+        masterGain.gain.setTargetAtTime(
+            masterVolume,
+            audioCtx.currentTime,
+            0.01,
+        );
     }, [masterVolume]);
 
     // Cleanup and rebuild notes if waveform, voices, or detune change
@@ -66,16 +74,17 @@ export function useSynthEngine() {
             chains.forEach(({ oscillators, gain }) => {
                 gain.gain.exponentialRampToValueAtTime(
                     0.001,
-                    audioCtx.currentTime + 0.05
+                    audioCtx.currentTime + 0.05,
                 );
-                oscillators.forEach((osc) => osc.stop(audioCtx.currentTime + 0.05));
+                oscillators.forEach((osc) =>
+                    osc.stop(audioCtx.currentTime + 0.05),
+                );
             });
             delete playingNotes[note];
         }
 
         const totalActiveNotes = Object.keys(activeNotes).length || 1;
         const totalOscillators = totalActiveNotes * voices;
-
 
         for (const noteStr of Object.keys(activeNotes)) {
             const note = Number(noteStr);
@@ -98,10 +107,15 @@ export function useSynthEngine() {
                 filter.frequency.value = filterCutoff;
 
                 // Normalize gain by total oscillators and apply master volume
-                gain.gain.value = (velocity / 127) * (masterVolume / (totalOscillators + 1));
+                gain.gain.value =
+                    (velocity / 127) * (masterVolume / (totalOscillators + 1));
 
-                osc.connect(filter);
-                filter.connect(gain);
+                if (filterEnabled) {
+                    osc.connect(filter);
+                    filter.connect(gain);
+                } else {
+                    osc.connect(gain);
+                }
                 gain.connect(masterGain);
 
                 osc.start();
@@ -113,16 +127,43 @@ export function useSynthEngine() {
         }
     }, [waveform, detune, voices, activeNotes]);
 
-    // Apply real-time filter updates to active notes
+    // When filterEnabled changes, update all playing notes connections
     useEffect(() => {
         const playingNotes = playingNotesRef.current;
         for (const chains of Object.values(playingNotes)) {
-            chains.forEach(({ filter }) => {
+            chains.forEach(({ oscillators, filter, gain }) => {
+                // Disconnect existing connections first
+                oscillators.forEach((osc) => {
+                    try {
+                        osc.disconnect();
+                    } catch {}
+                });
+                try {
+                    filter.disconnect();
+                } catch {}
+                try {
+                    gain.disconnect();
+                } catch {}
+
+                // Reconnect based on filterEnabled
+                if (filterEnabled) {
+                    oscillators.forEach((osc) => osc.connect(filter));
+                    filter.connect(gain);
+                } else {
+                    oscillators.forEach((osc) => osc.connect(gain));
+                }
+                gain.connect(masterGain);
+
+                // Update filter params anyway for safety
                 filter.type = filterType;
-                filter.frequency.setTargetAtTime(filterCutoff, audioCtx.currentTime, 0.01);
+                filter.frequency.setTargetAtTime(
+                    filterCutoff,
+                    audioCtx.currentTime,
+                    0.01,
+                );
             });
         }
-    }, [filterType, filterCutoff]);
+    }, [filterEnabled, filterType, filterCutoff]);
 
     // Start/stop notes based on activeNotes
     useEffect(() => {
@@ -173,9 +214,11 @@ export function useSynthEngine() {
                 chains.forEach(({ oscillators, gain }) => {
                     gain.gain.exponentialRampToValueAtTime(
                         0.001,
-                        audioCtx.currentTime + 0.1
+                        audioCtx.currentTime + 0.1,
                     );
-                    oscillators.forEach((osc) => osc.stop(audioCtx.currentTime + 0.1));
+                    oscillators.forEach((osc) =>
+                        osc.stop(audioCtx.currentTime + 0.1),
+                    );
                 });
                 delete playingNotes[note];
             }
