@@ -1,8 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSynthStore } from "../store/synthStore";
 
-const audioCtx = new (window.AudioContext ||
-    (window as any).webkitAudioContext)();
 
 interface OscillatorVoice {
     osc: OscillatorNode;
@@ -15,6 +13,21 @@ type VoiceChain = {
     gain: GainNode;
     lfos?: OscillatorNode[];
 };
+
+
+const audioCtx = new (window.AudioContext ||
+    (window as any).webkitAudioContext)();
+
+const vibOsc = audioCtx.createOscillator();
+const vibGain = audioCtx.createGain();
+
+vibOsc.type = "sine";
+vibOsc.frequency.value = useSynthStore.getState().vibratoRate;
+vibGain.gain.value = useSynthStore.getState().vibratoDepth;
+
+vibOsc.connect(vibGain);
+vibOsc.start();
+
 
 const masterGain = audioCtx.createGain();
 masterGain.gain.value = 1;
@@ -37,14 +50,22 @@ export function useSynthEngine() {
         vibratoRate,
         vibratoDepth,
 		setAnalyserNode,
-		analyserNode
+		analyserNode,
+		setVibratoOsc,
+		vibratoOsc,
+		vibratoGain,
+		
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
 	
-	if(!analyserNode) {
+	if (!analyserNode) {
 		setAnalyserNode(analyser);
 	}
+	if (!vibratoOsc) {
+		setVibratoOsc(vibOsc, vibGain);
+	}
+
 	
 
     // Clear function to manually stop all notes
@@ -111,59 +132,59 @@ export function useSynthEngine() {
             const velocity = activeNotes[note].velocity;
             const chains: VoiceChain[] = [];
 
-            for (let i = 0; i < voices; i++) {
-                const osc = audioCtx.createOscillator();
-                const lfo = audioCtx.createOscillator();
-                const lfoGain = audioCtx.createGain();
+			for (let i = 0; i < voices; i++) {
+				const osc = audioCtx.createOscillator();
+				if (vibratoGain) {
+					vibratoGain.connect(osc.detune);
+				}
+				const gain = audioCtx.createGain();
+				const filter = audioCtx.createBiquadFilter();
 
-                // LFO setup
-                lfo.type = "sine";
-                lfo.frequency.value = vibratoRate;
-                lfoGain.gain.value = vibratoDepth;
+				const step = voices > 1 ? detune / (voices - 1) : 0;
+				const spread = i * step - detune / 2;
 
-                // Connect LFO to detune
-                lfo.connect(lfoGain);
-                lfoGain.connect(osc.detune);
+				osc.type = waveform;
+				osc.frequency.value = freq;
+				osc.detune.value = spread ?? 0;
 
-                // Start LFO
-                lfo.start();
+				filter.type = filterType;
+				filter.frequency.value = filterCutoff;
 
-                const gain = audioCtx.createGain();
-                const filter = audioCtx.createBiquadFilter();
+				gain.gain.value =
+					(velocity / 127) * (masterVolume / (totalOscillators + 1));
 
-                let spread;
-                if (voices > 1) {
-                    const step = detune / (voices - 1);
-                    spread = i * step - detune / 2;
-                }
+				if (filterEnabled) {
+					osc.connect(filter);
+					filter.connect(gain);
+				} else {
+					osc.connect(gain);
+				}
 
-                osc.type = waveform;
-                osc.frequency.value = freq;
-                osc.detune.value = spread ?? 0;
+				gain.connect(masterGain);
+				osc.start();
 
-                filter.type = filterType;
-                filter.frequency.value = filterCutoff;
+				chains.push({ oscillators: [osc], filter, gain });
+			}
 
-                // Normalize gain by total oscillators and apply master volume
-                gain.gain.value =
-                    (velocity / 127) * (masterVolume / (totalOscillators + 1));
+			playingNotes[note] = chains;
 
-                if (filterEnabled) {
-                    osc.connect(filter);
-                    filter.connect(gain);
-                } else {
-                    osc.connect(gain);
-                }
-                gain.connect(masterGain);
-
-                osc.start();
-
-                chains.push({ oscillators: [osc], filter, gain, lfos: [lfo] });
-            }
-
-            playingNotes[note] = chains;
         }
-    }, [waveform, detune, voices, activeNotes, vibratoRate, vibratoDepth]);
+    }, [waveform, detune, voices, activeNotes]);
+
+	// For persisting lfos/vibratos
+	useEffect(() => {
+		if (vibratoOsc) {
+			vibratoOsc.frequency.setTargetAtTime(vibratoRate, audioCtx.currentTime, 0.05);
+		}
+	}, [vibratoRate]);
+
+	useEffect(() => {
+		if (vibratoGain) {
+			vibratoGain.gain.setTargetAtTime(vibratoDepth, audioCtx.currentTime, 0.05);
+		}
+	}, [vibratoDepth]);
+
+
 
     // When filterEnabled changes, update all playing notes connections
     useEffect(() => {

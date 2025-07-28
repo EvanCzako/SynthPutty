@@ -15,13 +15,11 @@ interface SynthState {
     filterEnabled: boolean;
     vibratoRate: number;
     vibratoDepth: number;
+	analyserNode: AnalyserNode | null;
 	vibratoOsc: OscillatorNode | null;
 	vibratoGain: GainNode | null;
-	analyserNode: AnalyserNode | null;
-	lfos: OscillatorNode[];
-	lfoGains: GainNode[];
 
-	setLFOs: (lfos: OscillatorNode[], gains: GainNode[]) => void;
+	setVibratoOsc: (osc: OscillatorNode, gain: GainNode) => void;
 	setAnalyserNode: (node: AnalyserNode) => void;
     setVibratoRate: (rate: number) => void;
     setVibratoDepth: (depth: number) => void;
@@ -48,16 +46,14 @@ export const useSynthStore = create<SynthState>((set, get) => ({
     filterEnabled: true,
     vibratoRate: 0, // in Hz
     vibratoDepth: 0, // in cents (detune range)
-	vibratoOsc: null,
-	vibratoGain: null,
 	analyserNode: null,
-	lfos: [],
-	lfoGains: [],
-	
-	setLFOs: (lfos: OscillatorNode[], gains: GainNode[]) => set( { lfos, lfoGains: gains} ),
+	vibratoOsc: null as OscillatorNode | null,
+	vibratoGain: null as GainNode | null,
+
+	setVibratoOsc: (osc: OscillatorNode, gain: GainNode) =>
+		set({ vibratoOsc: osc, vibratoGain: gain }),
+
 	setAnalyserNode: (node) => set({ analyserNode: node }),
-    setVibratoRate: (rate: number) => set({ vibratoRate: rate }),
-    setVibratoDepth: (depth: number) => set({ vibratoDepth: depth }),
     setFilterEnabled: (enabled: boolean) => set({ filterEnabled: enabled }),
     setWaveform: (waveform) => set({ waveform }),
     setFilterType: (filterType) => set({ filterType }),
@@ -79,4 +75,13 @@ export const useSynthStore = create<SynthState>((set, get) => ({
             delete newNotes[note];
             return { activeNotes: newNotes };
         }),
+
+	setVibratoRate: (rate: number) => {
+		set({ vibratoRate: rate });
+	},
+
+	setVibratoDepth: (depth: number) => {
+		set({ vibratoDepth: depth });
+	},
+
 }));
