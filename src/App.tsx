@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { OscillatorControls } from "./components/OscillatorControls";
+import { FilterControls } from "./components/FilterControls";
+import { useSynthEngine } from './hooks/useSynthEngine';
+import { Keyboard } from './components/Keyboard';
+// import { useMIDI } from './hooks/useMIDI';
+import styles from "./App.module.css";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export const App: React.FC = () => {
+      useSynthEngine();  // audio engine responds to state
+    //   useMIDI();         // optional for now — no-op if not implemented yet
 
-export default App;
+    return (
+        <div className={styles.app}>
+            <h1 className={styles.header}>Dough Synths</h1>
+
+            <div className={styles.panel}>
+                <OscillatorControls />
+                <FilterControls />
+				<Keyboard />
+            </div>
+        </div>
+    );
+};

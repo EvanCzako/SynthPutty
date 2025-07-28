@@ -1,0 +1,12 @@
+.controls {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    background: #1e1e1e;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
