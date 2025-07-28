@@ -27,6 +27,7 @@ export const FilterControls: React.FC = () => {
                     }
                 >
                     <option value="lowpass">Lowpass</option>
+					<option value="bandpass">Bandpass</option>
                     <option value="highpass">Highpass</option>
                 </select>
             </label>
