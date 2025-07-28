@@ -19,6 +19,7 @@ interface SynthState {
     setVoices: (voices: number) => void;
     noteOn: (note: number, velocity: number) => void;
     noteOff: (note: number) => void;
+	setActiveNotes: (activeNotes: Record<number, { velocity: number }>) => void;
 }
 
 export const useSynthStore = create<SynthState>((set) => ({
@@ -34,6 +35,7 @@ export const useSynthStore = create<SynthState>((set) => ({
     setFilterCutoff: (filterCutoff) => set({ filterCutoff }),
     setDetune: (detune) => set({ detune }),
     setVoices: (voices) => set({ voices }),
+	setActiveNotes: (activeNotes: Record<number, { velocity: number }>) => set({ activeNotes }),
 
     noteOn: (note, velocity) =>
         set((state) => ({
