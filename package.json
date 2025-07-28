@@ -2,7 +2,7 @@
     "name": "dough-synths",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://evanczako.github.io/synth-explorer",
+    "homepage": "https://evanczako.github.io/dough-synths",
     "dependencies": {
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.6.4",

@@ -1,5 +1,6 @@
 import React from "react";
 import { useSynthStore } from "../store/synthStore";
+import { useFontStore } from "../store/fontStore";
 import styles from "../styles/OscillatorControls.module.css";
 
 export const OscillatorControls: React.FC = () => {
@@ -20,8 +21,12 @@ export const OscillatorControls: React.FC = () => {
 		setRelease
     } = useSynthStore();
 
+	const {
+		fontSize
+	} = useFontStore();
+
     return (
-        <div className={styles.controls}>
+        <div className={styles.controls} style={{fontSize: fontSize}}>
             <h2>Oscillator</h2>
 
             <label>

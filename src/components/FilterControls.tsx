@@ -1,5 +1,6 @@
 import React from "react";
 import { useSynthStore } from "../store/synthStore";
+import { useFontStore } from "../store/fontStore";
 import styles from "../styles/FilterControls.module.css";
 
 export const FilterControls: React.FC = () => {
@@ -14,8 +15,12 @@ export const FilterControls: React.FC = () => {
 		setFilterQ
     } = useSynthStore();
 
+	const {
+		fontSize
+	} = useFontStore();
+
     return (
-        <div className={styles.controls}>
+        <div className={styles.controls} style={{fontSize: fontSize}}>
             <h2>Filter</h2>
 
             <label>
