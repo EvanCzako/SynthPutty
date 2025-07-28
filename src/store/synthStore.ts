@@ -48,7 +48,7 @@ export const useSynthStore = create<SynthState>((set, get) => ({
     detune: 0,
     voices: 1,
     activeNotes: {},
-    masterVolume: 1,
+    masterVolume: 0.6,
     filterEnabled: true,
     vibratoRate: 0, // in Hz
     vibratoDepth: 0, // in cents (detune range)

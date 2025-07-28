@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useSynthStore } from "../store/synthStore";
+import { useFontStore } from "../store/fontStore";
 import styles from "../styles/EQVisualizer.module.css";
 
 export function EQVisualizer() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const analyserNode = useSynthStore((s) => s.analyserNode);
-	const { filterType, filterCutoff } = useSynthStore();
+	const { filterType, filterCutoff, analyserNode } = useSynthStore();
+	const { fontSize } = useFontStore();
 
 	useEffect(() => {
 		if (!analyserNode) return;
@@ -16,6 +17,19 @@ export function EQVisualizer() {
 		const ctx = canvas.getContext("2d");
 		if (!ctx) return;
 
+		// Get layout size in CSS pixels
+		const cssWidth = canvas.clientWidth;
+		const cssHeight = canvas.clientHeight;
+
+		// Handle HiDPI displays
+		const dpr = window.devicePixelRatio || 1;
+
+
+
+		canvas.width = cssWidth * dpr;
+		canvas.height = cssHeight * dpr;
+		ctx.scale(dpr, dpr);
+
 		const bufferLength = analyserNode.frequencyBinCount;
 		const dataArray = new Uint8Array(bufferLength);
 
@@ -23,8 +37,9 @@ export function EQVisualizer() {
 			requestAnimationFrame(draw);
 			analyserNode.getByteFrequencyData(dataArray);
 
-			const width = canvas.width;
-			const height = canvas.height;
+			const width = cssWidth;
+			const height = cssHeight;
+
 
 			ctx.clearRect(0, 0, width, height);
 
@@ -41,7 +56,7 @@ export function EQVisualizer() {
 			ctx.strokeStyle = "#888";
 			ctx.fillStyle = "#aaa";
 			ctx.lineWidth = 1;
-			ctx.font = "12px sans-serif";
+			ctx.font = "24px sans-serif";
 			ctx.textAlign = "center";
 
 			const freqs = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
@@ -98,6 +113,14 @@ export function EQVisualizer() {
 			ctx.closePath();
 
 			// Fill the area under the curve
+			// Create a horizontal gradient from left (low freq) to right (high freq)
+			const fillGradient = ctx.createLinearGradient(0, 0, width, 0);
+			fillGradient.addColorStop(0.0, "rgba(149, 0, 255, 0.8)");   // Low freq - Blue
+			fillGradient.addColorStop(0.5, "rgba(255, 85, 0, 0.8)");   // Mid freq - Green
+			fillGradient.addColorStop(1.0, "rgba(255, 155, 240, 0.8)");   // High freq - Red
+
+			ctx.fillStyle = fillGradient;
+
 			ctx.fill();
 
 			// Then stroke the curve line on top
@@ -106,14 +129,12 @@ export function EQVisualizer() {
 		};
 
 		draw();
-	}, [analyserNode]);
+	}, [analyserNode, fontSize]);
 
 	return (
 		<canvas
 			ref={canvasRef}
 			className={styles.canvas}
-			width={600}
-			height={600}
 		/>
 	);
 }
