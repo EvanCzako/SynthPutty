@@ -23,7 +23,7 @@ export const FilterControls: React.FC = () => {
                 <select
                     value={filterType}
                     onChange={(e) =>
-                        setFilterType(e.target.value as "lowpass" | "highpass")
+                        setFilterType(e.target.value as "lowpass" | "bandpass" | "highpass")
                     }
                 >
                     <option value="lowpass">Lowpass</option>

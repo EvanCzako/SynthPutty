@@ -59,7 +59,6 @@ export function useSynthEngine() {
 	if (!vibratoOsc) {
 		setVibratoOsc(vibOsc, vibGain);
 	}
-
 	
 
     // Clear function to manually stop all notes
@@ -188,7 +187,6 @@ export function useSynthEngine() {
 		}
 	}, [detune]);
 
-
 	// For persisting lfos/vibratos
 	useEffect(() => {
 		if (vibratoOsc) {
@@ -201,8 +199,6 @@ export function useSynthEngine() {
 			vibratoGain.gain.setTargetAtTime(vibratoDepth, audioCtx.currentTime, 0.05);
 		}
 	}, [vibratoDepth]);
-
-
 
     // When filterEnabled changes, update all playing notes connections
     useEffect(() => {

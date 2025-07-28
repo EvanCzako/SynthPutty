@@ -2,7 +2,7 @@
 import { create } from "zustand";
 
 export type WaveformType = "sine" | "square" | "triangle" | "sawtooth";
-export type FilterType = "lowpass" | "highpass";
+export type FilterType = "lowpass" | "bandpass" | "highpass";
 
 interface SynthState {
     waveform: WaveformType;
