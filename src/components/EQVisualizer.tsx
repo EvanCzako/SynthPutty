@@ -48,7 +48,7 @@ export function EQVisualizer() {
 			const logMax = Math.log10(nyquist);
 
 			// Draw frequency tick marks BELOW the graph
-			const paddingBottom = 30; // reserve 30px for tick labels
+			const paddingBottom = 50; // reserve 30px for tick labels
 			const usableHeight = height - paddingBottom;
 			const tickY = usableHeight + 5; // position ticks below the graph
 			const tickHeight = 6;
@@ -75,6 +75,12 @@ export function EQVisualizer() {
 				const label = freq >= 1000 ? `${freq / 1000}k` : `${freq}`;
 				ctx.fillText(label, x, tickY + tickHeight + 12);
 			}
+
+			// Axis label for frequency (centered below ticks)
+			ctx.fillStyle = "#ccc";
+			ctx.font = "bold 20px sans-serif";
+			ctx.textAlign = "center";
+			ctx.fillText("Freq (Hz)", width / 2, height - 5);
 
 			// Draw horizontal center line
 			ctx.strokeStyle = "#444";
@@ -120,7 +126,6 @@ export function EQVisualizer() {
 			fillGradient.addColorStop(1.0, "rgba(255, 155, 240, 0.8)");   // High freq - Red
 
 			ctx.fillStyle = fillGradient;
-
 			ctx.fill();
 
 			// Then stroke the curve line on top

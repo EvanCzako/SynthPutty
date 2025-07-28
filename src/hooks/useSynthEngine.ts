@@ -178,7 +178,7 @@ export function useSynthEngine() {
 			playingNotes[note] = chains;
 
         }
-    }, [waveform, voices, activeNotes]);
+    }, [waveform, voices, activeNotes, masterVolume]);
 
 	// For detune
 	useEffect(() => {
