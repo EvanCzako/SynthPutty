@@ -1,12 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSynthStore } from "../store/synthStore";
 
-
-interface OscillatorVoice {
-    osc: OscillatorNode;
-    gain: GainNode;
-}
-
 type VoiceChain = {
     oscillators: OscillatorNode[];
     filter: BiquadFilterNode;
@@ -54,7 +48,7 @@ export function useSynthEngine() {
 		setVibratoOsc,
 		vibratoOsc,
 		vibratoGain,
-		
+		filterQ
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
@@ -220,9 +214,10 @@ export function useSynthEngine() {
                     audioCtx.currentTime,
                     0.01,
                 );
+				filter.Q.value = filterQ;
             });
         }
-    }, [filterEnabled, filterType, filterCutoff]);
+    }, [filterEnabled, filterType, filterCutoff, filterQ]);
 
     // Start/stop notes based on activeNotes
     useEffect(() => {

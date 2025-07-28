@@ -18,7 +18,9 @@ interface SynthState {
 	analyserNode: AnalyserNode | null;
 	vibratoOsc: OscillatorNode | null;
 	vibratoGain: GainNode | null;
+	filterQ: number;
 
+	setFilterQ: (q: number) => void;
 	setVibratoOsc: (osc: OscillatorNode, gain: GainNode) => void;
 	setAnalyserNode: (node: AnalyserNode) => void;
     setVibratoRate: (rate: number) => void;
@@ -49,10 +51,12 @@ export const useSynthStore = create<SynthState>((set, get) => ({
 	analyserNode: null,
 	vibratoOsc: null as OscillatorNode | null,
 	vibratoGain: null as GainNode | null,
+	filterQ: 1, // default value
+
+	setFilterQ: (q: number) => set({ filterQ: q }),
 
 	setVibratoOsc: (osc: OscillatorNode, gain: GainNode) =>
 		set({ vibratoOsc: osc, vibratoGain: gain }),
-
 	setAnalyserNode: (node) => set({ analyserNode: node }),
     setFilterEnabled: (enabled: boolean) => set({ filterEnabled: enabled }),
     setWaveform: (waveform) => set({ waveform }),

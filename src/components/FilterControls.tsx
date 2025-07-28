@@ -10,6 +10,8 @@ export const FilterControls: React.FC = () => {
         setFilterCutoff,
         filterEnabled,
         setFilterEnabled,
+		filterQ,
+		setFilterQ
     } = useSynthStore();
 
     return (
@@ -40,6 +42,19 @@ export const FilterControls: React.FC = () => {
                     onChange={(e) => setFilterCutoff(Number(e.target.value))}
                 />
                 <span>{filterCutoff} Hz</span>
+            </label>
+
+            <label>
+                Resonance (Q):
+                <input
+                    type="range"
+                    min={0.1}
+                    max={20}
+                    step={0.1}
+                    value={filterQ}
+                    onChange={(e) => setFilterQ(Number(e.target.value))}
+                />
+                <span>{filterQ.toFixed(1)}</span>
             </label>
 
             <label>
