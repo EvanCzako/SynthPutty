@@ -64,14 +64,10 @@ export function EQVisualizer() {
 			// Draw horizontal center line
 			ctx.strokeStyle = "#444";
 			ctx.lineWidth = 1;
-			ctx.beginPath();
-			ctx.moveTo(0, height / 2);
-			ctx.lineTo(width, height / 2);
-			ctx.stroke();
-
-			// Draw frequency spectrum
+			// Draw frequency spectrum with shading under the curve
 			ctx.beginPath();
 			ctx.strokeStyle = "#0af";
+			ctx.fillStyle = "rgba(0, 136, 255, 0.3)"; // semi-transparent blue
 			ctx.lineWidth = 2;
 
 			for (let x = 0; x < width; x++) {
@@ -90,11 +86,23 @@ export function EQVisualizer() {
 				const v = magnitude / 255;
 				const y = usableHeight - v * usableHeight;
 
-				if (x === 0) ctx.moveTo(x, y);
-				else ctx.lineTo(x, y);
+				if (x === 0) {
+					ctx.moveTo(x, y);
+				} else {
+					ctx.lineTo(x, y);
+				}
 			}
+			// Close path down to baseline and back to start
+			ctx.lineTo(width - 1, usableHeight);
+			ctx.lineTo(0, usableHeight);
+			ctx.closePath();
 
+			// Fill the area under the curve
+			ctx.fill();
+
+			// Then stroke the curve line on top
 			ctx.stroke();
+
 		};
 
 		draw();

@@ -17,3 +17,16 @@
     flex-direction: column;
     gap: 24px;
 }
+
+.mainControlPanel {
+	display: flex;
+	flex-direction: row;
+	border: 3px solid pink;
+}
+
+@media (orientation: portrait) {
+	.mainControlPanel {
+	display: flex;
+	flex-direction: column;
+}
+}
