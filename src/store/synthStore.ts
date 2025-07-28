@@ -15,18 +15,18 @@ interface SynthState {
     filterEnabled: boolean;
     vibratoRate: number;
     vibratoDepth: number;
-	analyserNode: AnalyserNode | null;
-	vibratoOsc: OscillatorNode | null;
-	vibratoGain: GainNode | null;
-	filterQ: number;
-	attack: number;  // seconds
-	release: number; // seconds
+    analyserNode: AnalyserNode | null;
+    vibratoOsc: OscillatorNode | null;
+    vibratoGain: GainNode | null;
+    filterQ: number;
+    attack: number; // seconds
+    release: number; // seconds
 
-	setAttack: (attack: number) => void;
-	setRelease: (release: number) => void;
-	setFilterQ: (q: number) => void;
-	setVibratoOsc: (osc: OscillatorNode, gain: GainNode) => void;
-	setAnalyserNode: (node: AnalyserNode) => void;
+    setAttack: (attack: number) => void;
+    setRelease: (release: number) => void;
+    setFilterQ: (q: number) => void;
+    setVibratoOsc: (osc: OscillatorNode, gain: GainNode) => void;
+    setAnalyserNode: (node: AnalyserNode) => void;
     setVibratoRate: (rate: number) => void;
     setVibratoDepth: (depth: number) => void;
     setFilterEnabled: (enabled: boolean) => void;
@@ -42,29 +42,29 @@ interface SynthState {
 }
 
 export const useSynthStore = create<SynthState>((set, get) => ({
-    waveform: "sine",
+    waveform: "sawtooth",
     filterType: "lowpass",
     filterCutoff: 800,
     detune: 0,
     voices: 1,
     activeNotes: {},
     masterVolume: 0.6,
-    filterEnabled: true,
+    filterEnabled: false,
     vibratoRate: 0, // in Hz
     vibratoDepth: 0, // in cents (detune range)
-	analyserNode: null,
-	vibratoOsc: null as OscillatorNode | null,
-	vibratoGain: null as GainNode | null,
-	filterQ: 1, // default value
-	attack: 0.01,
-	release: 0.3,
+    analyserNode: null,
+    vibratoOsc: null as OscillatorNode | null,
+    vibratoGain: null as GainNode | null,
+    filterQ: 1, // default value
+    attack: 0.05,
+    release: 0.3,
 
-	setAttack: (attack) => set({ attack }),
-	setRelease: (release) => set({ release }),
-	setFilterQ: (q: number) => set({ filterQ: q }),
-	setVibratoOsc: (osc: OscillatorNode, gain: GainNode) =>
-		set({ vibratoOsc: osc, vibratoGain: gain }),
-	setAnalyserNode: (node) => set({ analyserNode: node }),
+    setAttack: (attack) => set({ attack }),
+    setRelease: (release) => set({ release }),
+    setFilterQ: (q: number) => set({ filterQ: q }),
+    setVibratoOsc: (osc: OscillatorNode, gain: GainNode) =>
+        set({ vibratoOsc: osc, vibratoGain: gain }),
+    setAnalyserNode: (node) => set({ analyserNode: node }),
     setFilterEnabled: (enabled: boolean) => set({ filterEnabled: enabled }),
     setWaveform: (waveform) => set({ waveform }),
     setFilterType: (filterType) => set({ filterType }),
@@ -87,12 +87,11 @@ export const useSynthStore = create<SynthState>((set, get) => ({
             return { activeNotes: newNotes };
         }),
 
-	setVibratoRate: (rate: number) => {
-		set({ vibratoRate: rate });
-	},
+    setVibratoRate: (rate: number) => {
+        set({ vibratoRate: rate });
+    },
 
-	setVibratoDepth: (depth: number) => {
-		set({ vibratoDepth: depth });
-	},
-
+    setVibratoDepth: (depth: number) => {
+        set({ vibratoDepth: depth });
+    },
 }));

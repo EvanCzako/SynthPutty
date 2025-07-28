@@ -1,7 +1,7 @@
 .canvas {
-  width: 90vw;       /* responsive width */
-  height: 300px;     /* fixed height */
-  display: block;
-  border: 1px solid #444;
-  background-color: #111;
+    /* width: 96vw; responsive width */
+    height: 300px; /* fixed height */
+    display: block;
+    border: 1px solid #444;
+    background-color: #111;
 }

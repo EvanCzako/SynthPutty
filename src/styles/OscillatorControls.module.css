@@ -2,9 +2,8 @@
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 12px;
-    margin-bottom: 16px;
     background: #1e1e1e;
-	max-width: 600px;
+	min-width: 400px;
 }
 
 label {

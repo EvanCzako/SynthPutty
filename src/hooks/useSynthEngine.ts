@@ -20,7 +20,6 @@ vibGain.gain.value = useSynthStore.getState().vibratoDepth;
 vibOsc.connect(vibGain);
 vibOsc.start();
 
-
 const masterGain = audioCtx.createGain();
 masterGain.gain.value = 1;
 const analyser = audioCtx.createAnalyser();
@@ -41,25 +40,24 @@ export function useSynthEngine() {
         filterEnabled,
         vibratoRate,
         vibratoDepth,
-		setAnalyserNode,
-		analyserNode,
-		setVibratoOsc,
-		vibratoOsc,
-		vibratoGain,
-		filterQ,
-		attack,
-		release
+        setAnalyserNode,
+        analyserNode,
+        setVibratoOsc,
+        vibratoOsc,
+        vibratoGain,
+        filterQ,
+        attack,
+        release,
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
-	
-	if (!analyserNode) {
-		setAnalyserNode(analyser);
-	}
-	if (!vibratoOsc) {
-		setVibratoOsc(vibOsc, vibGain);
-	}
-	
+
+    if (!analyserNode) {
+        setAnalyserNode(analyser);
+    }
+    if (!vibratoOsc) {
+        setVibratoOsc(vibOsc, vibGain);
+    }
 
     // Clear function to manually stop all notes
     const clearAllNotes = () => {
@@ -67,17 +65,16 @@ export function useSynthEngine() {
         for (const note in playingNotes) {
             const chains = playingNotes[note];
             chains.forEach(({ oscillators, gain }) => {
-				const now = audioCtx.currentTime;
+                const now = audioCtx.currentTime;
 
-				gain.gain.cancelScheduledValues(now);
-				gain.gain.setValueAtTime(gain.gain.value, now);
+                gain.gain.cancelScheduledValues(now);
+                gain.gain.setValueAtTime(gain.gain.value, now);
 
-				// Release ramp down to near zero over release seconds
-				gain.gain.linearRampToValueAtTime(0.001, now + release);
+                // Release ramp down to near zero over release seconds
+                gain.gain.linearRampToValueAtTime(0.001, now + release);
 
-				
-                oscillators.forEach((osc) =>
-                    osc.stop(now + release + 0.05) // stop oscillator after release fades out
+                oscillators.forEach(
+                    (osc) => osc.stop(now + release + 0.05), // stop oscillator after release fades out
                 );
             });
         }
@@ -104,17 +101,16 @@ export function useSynthEngine() {
 
             // Fade out existing
             chains.forEach(({ oscillators, gain }) => {
+                const now = audioCtx.currentTime;
 
-				const now = audioCtx.currentTime;
+                gain.gain.cancelScheduledValues(now);
+                gain.gain.setValueAtTime(gain.gain.value, now);
 
-				gain.gain.cancelScheduledValues(now);
-				gain.gain.setValueAtTime(gain.gain.value, now);
+                // Release ramp down to near zero over release seconds
+                gain.gain.linearRampToValueAtTime(0.001, now + release);
 
-				// Release ramp down to near zero over release seconds
-				gain.gain.linearRampToValueAtTime(0.001, now + release);
-
-                oscillators.forEach((osc) =>
-                    osc.stop(now + release + 0.05) // stop oscillator after release fades out
+                oscillators.forEach(
+                    (osc) => osc.stop(now + release + 0.05), // stop oscillator after release fades out
                 );
             });
             delete playingNotes[note];
@@ -129,88 +125,98 @@ export function useSynthEngine() {
             const velocity = activeNotes[note].velocity;
             const chains: VoiceChain[] = [];
 
-			for (let i = 0; i < voices; i++) {
-				const osc = audioCtx.createOscillator();
-				if (vibratoGain) {
-					vibratoGain.connect(osc.detune);
-				}
-				const gain = audioCtx.createGain();
-				const filter = audioCtx.createBiquadFilter();
+            for (let i = 0; i < voices; i++) {
+                const osc = audioCtx.createOscillator();
+                if (vibratoGain) {
+                    vibratoGain.connect(osc.detune);
+                }
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
 
-				const step = voices > 1 ? detune / (voices - 1) : 0;
-				const spread = i * step - detune / 2;
+                const step = voices > 1 ? detune / (voices - 1) : 0;
+                const spread = i * step - detune / 2;
 
-				osc.type = waveform;
-				osc.frequency.value = freq;
-				if (spread) {
-					osc.detune.setTargetAtTime(spread, audioCtx.currentTime, 0.05);
-				} else {
-					osc.detune.value = 0;
-				}
+                osc.type = waveform;
+                osc.frequency.value = freq;
+                if (spread) {
+                    osc.detune.setTargetAtTime(
+                        spread,
+                        audioCtx.currentTime,
+                        0.05,
+                    );
+                } else {
+                    osc.detune.value = 0;
+                }
 
-				filter.type = filterType;
-				filter.frequency.value = filterCutoff;
+                filter.type = filterType;
+                filter.frequency.value = filterCutoff;
 
+                const now = audioCtx.currentTime;
+                const velocityGain =
+                    (velocity / 127) * (masterVolume / (totalOscillators + 1));
 
-				const now = audioCtx.currentTime;
-				const velocityGain = (velocity / 127) * (masterVolume / (totalOscillators + 1));
+                // Start gain at near zero to avoid clicks
+                gain.gain.setValueAtTime(0.001, now);
 
-				// Start gain at near zero to avoid clicks
-				gain.gain.setValueAtTime(0.001, now);
+                // Attack ramp up to full velocityGain over attack seconds
+                gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
 
-				// Attack ramp up to full velocityGain over attack seconds
-				gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
+                if (filterEnabled) {
+                    osc.connect(filter);
+                    filter.connect(gain);
+                } else {
+                    osc.connect(gain);
+                }
 
+                gain.connect(masterGain);
+                osc.start(now);
 
-				if (filterEnabled) {
-					osc.connect(filter);
-					filter.connect(gain);
-				} else {
-					osc.connect(gain);
-				}
+                chains.push({ oscillators: [osc], filter, gain });
+            }
 
-				gain.connect(masterGain);
-				osc.start(now);
-
-				chains.push({ oscillators: [osc], filter, gain });
-			}
-
-			playingNotes[note] = chains;
-
+            playingNotes[note] = chains;
         }
     }, [waveform, voices, activeNotes, masterVolume]);
 
-	// For detune
-	useEffect(() => {
-		const playingNotes = playingNotesRef.current;
-		for (const chains of Object.values(playingNotes)) {
-			const numVoices = chains.length;
+    // For detune
+    useEffect(() => {
+        const playingNotes = playingNotesRef.current;
+        for (const chains of Object.values(playingNotes)) {
+            const numVoices = chains.length;
 
-			chains.forEach((chain, i) => {
-				const spread = (i - (numVoices - 1) / 2) * detune;
-				chain.oscillators.forEach((osc) => {
-					osc.detune.setTargetAtTime(
-						spread,
-						audioCtx.currentTime,
-						0.05
-					);
-				});
-			});
-		}
-	}, [detune]);
+            chains.forEach((chain, i) => {
+                const spread = (i - (numVoices - 1) / 2) * detune;
+                chain.oscillators.forEach((osc) => {
+                    osc.detune.setTargetAtTime(
+                        spread,
+                        audioCtx.currentTime,
+                        0.05,
+                    );
+                });
+            });
+        }
+    }, [detune]);
 
-	// For persisting vibrato
-	useEffect(() => {
-		if (vibratoOsc) {
-			vibratoOsc.frequency.setTargetAtTime(vibratoRate, audioCtx.currentTime, 0.05);
-		}
-	}, [vibratoRate]);
+    // For persisting vibrato
+    useEffect(() => {
+        if (vibratoOsc) {
+            vibratoOsc.frequency.setTargetAtTime(
+                vibratoRate,
+                audioCtx.currentTime,
+                0.05,
+            );
+        }
+    }, [vibratoRate]);
 
-	useEffect(() => {
-		if (vibratoGain) {
-			vibratoGain.gain.setTargetAtTime(vibratoDepth, audioCtx.currentTime, 0.05);
-		}
-	}, [vibratoDepth]);
+    useEffect(() => {
+        if (vibratoGain) {
+            vibratoGain.gain.setTargetAtTime(
+                vibratoDepth,
+                audioCtx.currentTime,
+                0.05,
+            );
+        }
+    }, [vibratoDepth]);
 
     // When filterEnabled changes, update all playing notes connections
     useEffect(() => {
@@ -246,7 +252,7 @@ export function useSynthEngine() {
                     audioCtx.currentTime,
                     0.01,
                 );
-				filter.Q.value = filterQ;
+                filter.Q.value = filterQ;
             });
         }
     }, [filterEnabled, filterType, filterCutoff, filterQ]);

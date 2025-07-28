@@ -2,6 +2,7 @@ import React from "react";
 import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/OscillatorControls.module.css";
+import appStyles from "../App.module.css";
 
 export const OscillatorControls: React.FC = () => {
     const {
@@ -15,18 +16,16 @@ export const OscillatorControls: React.FC = () => {
         setVibratoRate,
         vibratoDepth,
         setVibratoDepth,
-		attack,
-		setAttack,
-		release,
-		setRelease
+        attack,
+        setAttack,
+        release,
+        setRelease,
     } = useSynthStore();
 
-	const {
-		fontSize
-	} = useFontStore();
+    const { fontSize } = useFontStore();
 
     return (
-        <div className={styles.controls} style={{fontSize: fontSize}}>
+        <div className={styles.controls} style={{ fontSize: fontSize }}>
             <h2>Oscillator</h2>
 
             <label>
@@ -53,8 +52,8 @@ export const OscillatorControls: React.FC = () => {
                 />
             </label>
 
-            <label>
-                Detune (cents):
+            <label className={appStyles.controlsSliderContainer}>
+                Detune (cents): {detune}
                 <input
                     type="range"
                     min={0}
@@ -62,10 +61,9 @@ export const OscillatorControls: React.FC = () => {
                     value={detune}
                     onChange={(e) => setDetune(Number(e.target.value))}
                 />
-                <span>{detune}¢</span>
             </label>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Vibrato Rate: {vibratoRate.toFixed(1)} Hz
                 <input
                     type="range"
@@ -77,7 +75,7 @@ export const OscillatorControls: React.FC = () => {
                 />
             </label>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Vibrato Depth: {vibratoDepth.toFixed(0)} cents
                 <input
                     type="range"
@@ -91,7 +89,7 @@ export const OscillatorControls: React.FC = () => {
                 />
             </label>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Attack (sec): {attack}
                 <input
                     type="range"
@@ -99,13 +97,11 @@ export const OscillatorControls: React.FC = () => {
                     max="1"
                     step="0.01"
                     value={attack}
-                    onChange={(e) =>
-                        setAttack(parseFloat(e.target.value))
-                    }
+                    onChange={(e) => setAttack(parseFloat(e.target.value))}
                 />
             </label>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Release (sec): {release}
                 <input
                     type="range"
@@ -113,9 +109,7 @@ export const OscillatorControls: React.FC = () => {
                     max="1"
                     step="0.01"
                     value={release}
-                    onChange={(e) =>
-                        setRelease(parseFloat(e.target.value))
-                    }
+                    onChange={(e) => setRelease(parseFloat(e.target.value))}
                 />
             </label>
         </div>

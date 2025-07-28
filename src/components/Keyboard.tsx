@@ -1,12 +1,14 @@
 import React from "react";
 import { useSynthStore } from "../store/synthStore";
+import { useFontStore } from "../store/fontStore";
 import styles from "../styles/Keyboard.module.css";
 
 const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
-const blackKeys = ["C#", "D#", "", "F#", "G#", "A#", ""];
+const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
 
 export const Keyboard: React.FC = () => {
     const { noteOn, noteOff, activeNotes } = useSynthStore();
+	const { octaves } = useFontStore();
 
     const playNote = (note: number) => {
         noteOn(note, 100);
@@ -27,15 +29,15 @@ export const Keyboard: React.FC = () => {
     return (
         <div className={styles.keyboard}>
             <div>
-                {[3, 4, 5].map((octaveIdx) =>
+                {octaves.map((octaveIdx) =>
                     blackKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
-						let label;
-						if (keyNote === "C"){
-							label = noteLabel;
-						} else {
-							label = keyNote;
-						}
+                        let label;
+                        if (keyNote === "C") {
+                            label = noteLabel;
+                        } else {
+                            label = keyNote;
+                        }
                         const note = freqArr.indexOf(noteLabel);
 
                         let classNames = `${styles.blackKey}`;
@@ -47,7 +49,7 @@ export const Keyboard: React.FC = () => {
 
                         return (
                             <div
-                                key={note}
+                                key={`black-${keyNote}-${octaveIdx}`}
                                 className={classNames}
                                 onClick={() => noteClicked(note)}
                             >
@@ -59,15 +61,15 @@ export const Keyboard: React.FC = () => {
             </div>
 
             <div>
-                {[3, 4, 5].map((octaveIdx) =>
+                {octaves.map((octaveIdx) =>
                     whiteKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
-						let label;
-						if (keyNote === "C"){
-							label = noteLabel;
-						} else {
-							label = keyNote;
-						}
+                        let label;
+                        if (keyNote === "C") {
+                            label = noteLabel;
+                        } else {
+                            label = keyNote;
+                        }
                         const note = freqArr.indexOf(noteLabel);
                         let classNames = `${styles.whiteKey}`;
                         if (activeNotes[note]) {
@@ -76,7 +78,7 @@ export const Keyboard: React.FC = () => {
 
                         return (
                             <div
-                                key={note}
+                                key={`white-${keyNote}-${octaveIdx}`}
                                 className={classNames}
                                 onClick={() => noteClicked(note)}
                             >

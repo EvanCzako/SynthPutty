@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { OscillatorControls } from "./components/OscillatorControls";
 import { FilterControls } from "./components/FilterControls";
 import { useSynthEngine } from "./hooks/useSynthEngine";
@@ -10,33 +10,30 @@ import { useFontStore } from "./store/fontStore";
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
-
     useSynthEngine(); // audio engine responds to state
     //   useMIDI();         // optional for now — no-op if not implemented yet
 
-	const updateFontSize = useFontStore(s => s.updateFontSize);
+    const updateFontSize = useFontStore((s) => s.updateFontSize);
 
-	useEffect(() => {
-		updateFontSize();
-		window.addEventListener('resize', updateFontSize);
-		return () => window.removeEventListener('resize', updateFontSize);
-	}, [updateFontSize]);
+    useEffect(() => {
+        updateFontSize();
+        window.addEventListener("resize", updateFontSize);
+        return () => window.removeEventListener("resize", updateFontSize);
+    }, [updateFontSize]);
 
     return (
         <div className={styles.app}>
             <h1 className={styles.header}>Dough Synths</h1>
 
             <div className={styles.panel}>
-				<MainControls />
-				<div className={styles.mainControlPanel}>
-					
-					<OscillatorControls />
-					<FilterControls />
-				</div>
+                <MainControls />
+                <div className={styles.mainControlPanel}>
+                    <OscillatorControls />
+                    <FilterControls />
+                </div>
 
-				<EQVisualizer/>
+                <EQVisualizer />
                 <Keyboard />
-				
             </div>
         </div>
     );
