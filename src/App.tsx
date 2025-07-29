@@ -31,7 +31,6 @@ export const App: React.FC = () => {
                     <OscillatorControls />
                     <FilterControls />
                 </div>
-
                 <EQVisualizer />
                 <Keyboard />
             </div>
