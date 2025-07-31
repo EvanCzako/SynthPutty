@@ -21,7 +21,7 @@ export const FilterControls: React.FC = () => {
 
     return (
         <div className={styles.controls} style={{ fontSize: fontSize }}>
-            <h2>Filter</h2>
+            <h2 className={styles.controlsHeader}>Filter</h2>
 
             <label>
                 <input

@@ -26,9 +26,10 @@ export const OscillatorControls: React.FC = () => {
 
     return (
         <div className={styles.controls} style={{ fontSize: fontSize }}>
-            <h2>Oscillator</h2>
+            
+			<h2 className={styles.controlsHeader}>Oscillator</h2>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Waveform:
                 <select
                     value={waveform}
@@ -41,7 +42,7 @@ export const OscillatorControls: React.FC = () => {
                 </select>
             </label>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Voices:
                 <input
                     type="number"

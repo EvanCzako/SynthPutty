@@ -34,7 +34,7 @@ export const useFontStore = create<FontState>((set) => ({
 		}
 
 
-        const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 7;
+        const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.5;
         set({ fontSize: product });
         set({ vw });
 		

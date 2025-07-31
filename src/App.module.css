@@ -1,6 +1,8 @@
 .app {
-    font-family: sans-serif;
+    /* font-family: sans-serif; */
+	font-family: 'Roboto', sans-serif;
     margin: 0 auto;
+	font-weight: 900;
     background: #000000;
     color: #b8b8b8;
 	display: flex;

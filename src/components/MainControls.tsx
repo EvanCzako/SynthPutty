@@ -10,8 +10,11 @@ export function MainControls() {
 
     return (
         <div className={styles.mainControls}>
-            <label>
-                Master Volume
+
+			<h2 className={styles.controlsHeader}>Main</h2>
+
+            <label className={styles.mainVolumeContainer}>
+                Main Volume
                 <input
                     type="range"
                     min={0}
@@ -24,11 +27,14 @@ export function MainControls() {
                 />
             </label>
 
-            <button onClick={clearAllNotes}>Clear All Notes</button>
+			<div className={styles.buttonsContainer}>
+				<button className={styles.controlsButton} onClick={clearAllNotes}>Clear Notes</button>
 
-            <button onClick={() => setMidiEnabled(!midiEnabled)}>
-                {midiEnabled ? "Disable MIDI" : "Enable MIDI"}
-            </button>
+				<button className={styles.controlsButton} onClick={() => setMidiEnabled(!midiEnabled)}>
+					{midiEnabled ? "Disable MIDI" : "Enable MIDI"}
+				</button>
+			</div>
+
         </div>
     );
 }
