@@ -1,13 +1,14 @@
 // components/MainControls.tsx
 import { useSynthStore } from "../store/synthStore";
 import { useSynthEngine } from "../hooks/useSynthEngine";
+import styles from "../styles/MainControls.module.css";
 
 export function MainControls() {
     const { masterVolume, setMasterVolume } = useSynthStore();
     const { clearAllNotes } = useSynthEngine();
 
     return (
-        <div>
+        <div className={styles.mainControls}>
             <label>
                 Master Volume
                 <input

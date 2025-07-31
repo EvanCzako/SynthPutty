@@ -8,6 +8,35 @@ export function EQVisualizer() {
     const { filterType, filterCutoff, analyserNode } = useSynthStore();
     const { fontSize } = useFontStore();
 
+	useEffect(() => {
+		const handleResize = () => {
+			const canvas = canvasRef.current;
+			if (!canvas) return;
+
+			const ctx = canvas.getContext("2d");
+			if (!ctx) return;
+
+			const cssWidth = canvas.clientWidth;
+			const cssHeight = canvas.clientHeight;
+			const dpr = window.devicePixelRatio || 1;
+
+			canvas.width = cssWidth * dpr;
+			canvas.height = cssHeight * dpr;
+			ctx.scale(dpr, dpr);
+		};
+
+		window.addEventListener("resize", handleResize);
+		window.addEventListener("orientationchange", handleResize); // Some devices need this
+
+		handleResize(); // initial call
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+			window.removeEventListener("orientationchange", handleResize);
+		};
+	}, []);
+
+
     useEffect(() => {
         if (!analyserNode) return;
 
@@ -33,6 +62,7 @@ export function EQVisualizer() {
 
 		let animationId: number;
         const draw = () => {
+
             animationId = requestAnimationFrame(draw);
             analyserNode.getByteFrequencyData(dataArray);
 

@@ -53,7 +53,7 @@ export const OscillatorControls: React.FC = () => {
             </label>
 
             <label className={appStyles.controlsSliderContainer}>
-                Detune (cents): {detune}
+                Detune (¢): {detune}
                 <input
                     type="range"
                     min={0}
@@ -64,7 +64,7 @@ export const OscillatorControls: React.FC = () => {
             </label>
 
             <label className={appStyles.controlsSliderContainer}>
-                Vibrato Rate: {vibratoRate.toFixed(1)} Hz
+                Vibrato Rate (Hz): {vibratoRate.toFixed(1)}
                 <input
                     type="range"
                     min="0"
@@ -76,7 +76,7 @@ export const OscillatorControls: React.FC = () => {
             </label>
 
             <label className={appStyles.controlsSliderContainer}>
-                Vibrato Depth: {vibratoDepth.toFixed(0)} cents
+                Vibrato Depth (¢): {vibratoDepth.toFixed(0)}
                 <input
                     type="range"
                     min="0"

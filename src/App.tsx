@@ -18,8 +18,11 @@ export const App: React.FC = () => {
     useEffect(() => {
         updateFontSize();
         window.addEventListener("resize", updateFontSize);
+		
         return () => window.removeEventListener("resize", updateFontSize);
     }, [updateFontSize]);
+
+	// window.addEventListener("orientationchange", updateFontSize);
 
     return (
         <div className={styles.app}>

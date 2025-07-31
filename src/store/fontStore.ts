@@ -16,6 +16,7 @@ export const useFontStore = create<FontState>((set) => ({
     setVw: (vw: number) => set({ vw }),
     setFontSize: (size: number) => set({ fontSize: size }),
     updateFontSize: () => {
+
         const vw = (window.visualViewport?.width ?? window.innerWidth) / 100;
         const vh = (window.visualViewport?.height ?? window.innerHeight) / 100;
 
