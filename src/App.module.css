@@ -1,5 +1,6 @@
 .app {
     /* font-family: sans-serif; */
+	height: 100%;
 	font-family: 'Roboto', sans-serif;
     margin: 0 auto;
 	font-weight: 900;
@@ -24,6 +25,7 @@
     display: flex;
     flex-direction: column;
 	align-items: center;
+	height: 100%;
 }
 
 .pianoEQwrapper {
@@ -38,12 +40,31 @@
 }
 
 .allControlPanels {
+	height: 100%;
     display: flex;
     flex-direction: column;
 	background-color: #1c0f2d;
 	border-radius: 20px;
 	width: 100%;
     gap: 12px;
+	align-items: center;
+}
+
+.topPanelsContainer {
+
+	display: flex;
+	flex-direction: row;
+
+}
+
+.titleContainer{
+	width: 40%;
+    border: 4px solid #2e13b5;
+    border-radius: 8px;
+    background: #2f1130;
+	min-width: 250px;
+	display: flex;
+	flex-direction: column;
 	align-items: center;
 }
 
@@ -56,15 +77,19 @@
 .mainControlPanel {
     display: flex;
     flex-direction: row;
-    /* border: 3px solid rgb(75, 75, 75); */
 	border-radius: 20px;
 	justify-content: center;
-	align-items: center;
+	align-items: stretch;
 	width: 100%;
-	padding: 5px;
-	height: 50vh;
+	/* padding: 15px; */
 	min-height: 400px;
 	background-color: rgb(59, 34, 20);
+	border-radius: 20px;
+	/* width: 100%;
+	padding: 5px;
+	height: 100%;
+	min-height: 400px;
+	background-color: rgb(59, 34, 20); */
 }
 
 @media (orientation: portrait) or (max-width: 750px) {
@@ -75,4 +100,13 @@
 		height: auto;
 		min-height: auto;
     }
+}
+
+@media (orientation: portrait) and (max-width: 600px) {
+
+	.topPanelsContainer {
+        display: flex;
+        flex-direction: column;
+		align-items: center;
+	}
 }

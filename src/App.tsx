@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { OscillatorControls } from "./components/OscillatorControls";
 import { FilterControls } from "./components/FilterControls";
 import { useSynthEngine } from "./hooks/useSynthEngine";
@@ -13,31 +13,65 @@ export const App: React.FC = () => {
     useSynthEngine(); // audio engine responds to state
     useMIDI();         // optional for now — no-op if not implemented yet
 
-    const updateFontSize = useFontStore((s) => s.updateFontSize);
+	const {
+		updateFontSize,
+		vw,
+		layout
+	} = useFontStore();
+
+	const [titleStackReverse, setTitleStackReverse] = React.useState(false);
 
     useEffect(() => {
         updateFontSize();
+		console.log(vw);
+		console.log(layout);
+		if (layout === "portrait" && vw <= 6){
+			setTitleStackReverse(false);
+		} else {
+			setTitleStackReverse(true);
+		}
+		console.log(titleStackReverse);
         window.addEventListener("resize", updateFontSize);
         return () => window.removeEventListener("resize", updateFontSize);
-    }, [updateFontSize]);
+    }, [updateFontSize, layout, vw]);
 
     return (
         <div className={styles.app}>
-            <h1 className={styles.header}>Dough Synths</h1>
+
 
             <div className={styles.panel}>
 				<div className={styles.allControlPanels}>
-					<MainControls />
+
+					{ titleStackReverse ? 
+						<div className={styles.topPanelsContainer}>
+							<MainControls />
+							<div className={styles.titleContainer}>
+								<h1 className={styles.header}>Dough Synths</h1>
+								<a href="">More by Evan Czako HERE</a>
+							</div>
+						</div>
+										:
+						<div className={styles.topPanelsContainer}>
+							<div className={styles.titleContainer}>
+								<h1 className={styles.header}>Dough awefawea</h1>
+								<a href="">More by Evan Czako HERE</a>
+							</div>
+							<MainControls />
+						</div>
+				}
+
+					<div className={styles.pianoEQwrapper}>
+						<EQVisualizer />
+						<Keyboard />
+					</div>
+
 					<div className={styles.mainControlPanel}>
 						<OscillatorControls />
 						<FilterControls />
 					</div>
 				</div>
 
-				<div className={styles.pianoEQwrapper}>
-					<EQVisualizer />
-					<Keyboard />
-				</div>
+
 
             </div>
         </div>

@@ -4,13 +4,14 @@
     display: flex;
     justify-content: center;
     user-select: none;
-    margin-top: 24px;
+    /* margin-top: 24px; */
     flex-direction: column;
 }
 
 .whiteKey {
+	bottom: 20px;
     width: 30px;
-    height: 160px;
+    height: 120px;
     background: white;
     border: 1px solid #ccc;
     display: inline-flex;
@@ -31,7 +32,7 @@
 
 .blackKey {
     width: 30px;
-    height: 100px;
+    height: 80px;
     background: rgb(20, 20, 20);
     border: 1px solid #ccc;
     display: inline-flex;
@@ -41,7 +42,7 @@
     z-index: 1;
     position: relative;
     left: 15px;
-    top: 80%;
+    top: 45px;
     z-index: 2;
 }
 

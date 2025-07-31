@@ -27,11 +27,12 @@ export const useFontStore = create<FontState>((set) => ({
         document.documentElement.style.setProperty("--vw", `${vw}px`);
 
 		const orientationType = screen.orientation.type;
-		if (orientationType.startsWith("portrait")) {
+		if (vh/vw > 1) {
 			set({ layout: "portrait"});
-		} else if (orientationType.startsWith("landscape")) {
+		} else {
 			set({ layout: "landscape"});
 		}
+		console.log(orientationType);
 
 
         const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.5;
