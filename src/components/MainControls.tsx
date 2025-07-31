@@ -4,7 +4,8 @@ import { useSynthEngine } from "../hooks/useSynthEngine";
 import styles from "../styles/MainControls.module.css";
 
 export function MainControls() {
-    const { masterVolume, setMasterVolume } = useSynthStore();
+    const { masterVolume, setMasterVolume, midiEnabled, setMidiEnabled } =
+        useSynthStore();
     const { clearAllNotes } = useSynthEngine();
 
     return (
@@ -22,7 +23,12 @@ export function MainControls() {
                     }
                 />
             </label>
+
             <button onClick={clearAllNotes}>Clear All Notes</button>
+
+            <button onClick={() => setMidiEnabled(!midiEnabled)}>
+                {midiEnabled ? "Disable MIDI" : "Enable MIDI"}
+            </button>
         </div>
     );
 }

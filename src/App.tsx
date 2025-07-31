@@ -6,12 +6,12 @@ import { Keyboard } from "./components/Keyboard";
 import { MainControls } from "./components/MainControls";
 import { EQVisualizer } from "./components/EQVisualizer";
 import { useFontStore } from "./store/fontStore";
-// import { useMIDI } from './hooks/useMIDI';
+import { useMIDI } from './hooks/useMidi';
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
     useSynthEngine(); // audio engine responds to state
-    //   useMIDI();         // optional for now — no-op if not implemented yet
+    useMIDI();         // optional for now — no-op if not implemented yet
 
     const updateFontSize = useFontStore((s) => s.updateFontSize);
 
