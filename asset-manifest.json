@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/synth-putty/static/css/main.2e2deb1c.css",
+    "main.js": "/synth-putty/static/js/main.c326e8fe.js",
+    "static/js/453.beab08ef.chunk.js": "/synth-putty/static/js/453.beab08ef.chunk.js",
+    "index.html": "/synth-putty/index.html",
+    "main.2e2deb1c.css.map": "/synth-putty/static/css/main.2e2deb1c.css.map",
+    "main.c326e8fe.js.map": "/synth-putty/static/js/main.c326e8fe.js.map",
+    "453.beab08ef.chunk.js.map": "/synth-putty/static/js/453.beab08ef.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2e2deb1c.css",
+    "static/js/main.c326e8fe.js"
+  ]
+}
