@@ -51,6 +51,7 @@ export function useSynthEngine() {
     } = useSynthStore();
 
     const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
+	const prevActiveNotesRef = useRef<Record<number, { velocity: number }>>({});
 
     if (!analyserNode) {
         setAnalyserNode(analyser);
@@ -176,7 +177,88 @@ export function useSynthEngine() {
 
             playingNotes[note] = chains;
         }
-    }, [waveform, voices, activeNotes, masterVolume]);
+    }, [waveform, voices, masterVolume]);
+
+
+useEffect(() => {
+    const prevNotes = prevActiveNotesRef.current;
+    const nextNotes = activeNotes;
+    const now = audioCtx.currentTime;
+
+    const newNotes = Object.keys(nextNotes)
+        .map(Number)
+        .filter((note) => !prevNotes[note]);
+
+    const releasedNotes = Object.keys(prevNotes)
+        .map(Number)
+        .filter((note) => !nextNotes[note]);
+
+    // Release notes
+    for (const note of releasedNotes) {
+        const chains = playingNotesRef.current[note];
+        if (chains) {
+            chains.forEach(({ oscillators, gain }) => {
+                gain.gain.cancelScheduledValues(now);
+                gain.gain.setValueAtTime(gain.gain.value, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + release);
+                oscillators.forEach((osc) => osc.stop(now + release + 0.05));
+            });
+            delete playingNotesRef.current[note];
+        }
+    }
+
+		// Play new notes
+		for (const note of newNotes) {
+			const freq = midiToFreq(note);
+			const velocity = nextNotes[note].velocity;
+			const chains: VoiceChain[] = [];
+
+			const totalOscillators = voices;
+
+			for (let i = 0; i < voices; i++) {
+				const osc = audioCtx.createOscillator();
+				if (vibratoGain) {
+					vibratoGain.connect(osc.detune);
+				}
+				const gain = audioCtx.createGain();
+				const filter = audioCtx.createBiquadFilter();
+
+				const step = voices > 1 ? detune / (voices - 1) : 0;
+				const spread = i * step - detune / 2;
+
+				osc.type = waveform;
+				osc.frequency.value = freq;
+				osc.detune.value = spread;
+
+				filter.type = filterType;
+				filter.frequency.value = filterCutoff;
+				filter.Q.value = filterQ;
+
+				const velocityGain =
+					(velocity / 127) * (masterVolume / (totalOscillators + 1));
+
+				gain.gain.setValueAtTime(0.001, now);
+				gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
+
+				if (filterEnabled) {
+					osc.connect(filter);
+					filter.connect(gain);
+				} else {
+					osc.connect(gain);
+				}
+
+				gain.connect(masterGain);
+				osc.start(now);
+
+				chains.push({ oscillators: [osc], filter, gain });
+			}
+
+			playingNotesRef.current[note] = chains;
+		}
+
+		prevActiveNotesRef.current = { ...nextNotes };
+	}, [activeNotes]);
+
 
     // For detune
     useEffect(() => {
