@@ -6,7 +6,7 @@ import styles from "../styles/EQVisualizer.module.css";
 export function EQVisualizer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const { filterType, filterCutoff, analyserNode } = useSynthStore();
-    const { fontSize } = useFontStore();
+    const { fontSize, layout } = useFontStore();
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -38,6 +38,7 @@ export function EQVisualizer() {
 
 
     useEffect(() => {
+
         if (!analyserNode) return;
 
         const canvas = canvasRef.current;
@@ -84,7 +85,7 @@ export function EQVisualizer() {
             ctx.strokeStyle = "#888";
             ctx.fillStyle = "#aaa";
             ctx.lineWidth = 1;
-            ctx.font = "24px sans-serif";
+            ctx.font = `${fontSize}px sans-serif`;
             ctx.textAlign = "center";
 
             const freqs = [
@@ -108,7 +109,7 @@ export function EQVisualizer() {
 
             // Axis label for frequency (centered below ticks)
             ctx.fillStyle = "#ccc";
-            ctx.font = "bold 20px sans-serif";
+            ctx.font = `bold ${fontSize}px sans-serif`;
             ctx.textAlign = "center";
             ctx.fillText("Freq (Hz)", width / 2, height - 5);
 
@@ -166,7 +167,7 @@ export function EQVisualizer() {
 		return () => {
 			cancelAnimationFrame(animationId);
 		};
-    }, [analyserNode, fontSize]);
+    }, [analyserNode, fontSize, layout]);
 
     return <canvas ref={canvasRef} className={styles.canvas} />;
 }

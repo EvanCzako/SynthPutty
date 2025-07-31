@@ -4,6 +4,7 @@ interface FontState {
     fontSize: number;
     vw: number;
 	octaves: number[];
+	layout: "portrait" | "landscape";
     setVw: (vw: number) => void;
     setFontSize: (size: number) => void;
     updateFontSize: () => void;
@@ -13,8 +14,10 @@ export const useFontStore = create<FontState>((set) => ({
     fontSize: 25,
     vw: 0,
 	octaves: [3,4,5],
+	layout: "landscape",
     setVw: (vw: number) => set({ vw }),
     setFontSize: (size: number) => set({ fontSize: size }),
+	setLayout: (layout: "portrait" | "landscape") => set( {layout}),
     updateFontSize: () => {
 
         const vw = (window.visualViewport?.width ?? window.innerWidth) / 100;
@@ -22,6 +25,14 @@ export const useFontStore = create<FontState>((set) => ({
 
         document.documentElement.style.setProperty("--vh", `${vh}px`);
         document.documentElement.style.setProperty("--vw", `${vw}px`);
+
+		const orientationType = screen.orientation.type;
+		if (orientationType.startsWith("portrait")) {
+			set({ layout: "portrait"});
+		} else if (orientationType.startsWith("landscape")) {
+			set({ layout: "landscape"});
+		}
+
 
         const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 7;
         set({ fontSize: product });
