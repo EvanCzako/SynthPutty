@@ -26,13 +26,19 @@ export const App: React.FC = () => {
             <h1 className={styles.header}>Dough Synths</h1>
 
             <div className={styles.panel}>
-                <MainControls />
-                <div className={styles.mainControlPanel}>
-                    <OscillatorControls />
-                    <FilterControls />
-                </div>
-                <EQVisualizer />
-                <Keyboard />
+				<div className={styles.allControlPanels}>
+					<MainControls />
+					<div className={styles.mainControlPanel}>
+						<OscillatorControls />
+						<FilterControls />
+					</div>
+				</div>
+
+				<div className={styles.pianoEQwrapper}>
+					<EQVisualizer />
+					<Keyboard />
+				</div>
+
             </div>
         </div>
     );
