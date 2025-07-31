@@ -21,6 +21,7 @@ export function MainControls() {
                     max={1}
                     step={0.01}
                     value={masterVolume}
+					className={styles.slider}
                     onChange={(e) =>
                         setMasterVolume(parseFloat(e.target.value))
                     }

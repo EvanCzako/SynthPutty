@@ -34,6 +34,7 @@ export const OscillatorControls: React.FC = () => {
                 <select
                     value={waveform}
                     onChange={(e) => setWaveform(e.target.value as any)}
+					className={styles.comboBox}
                 >
                     <option value="sine">Sine</option>
                     <option value="square">Square</option>
@@ -50,6 +51,7 @@ export const OscillatorControls: React.FC = () => {
                     max={8}
                     value={voices}
                     onChange={(e) => setVoices(Number(e.target.value))}
+					className={styles.voicesPicker}
                 />
             </label>
 
@@ -61,6 +63,7 @@ export const OscillatorControls: React.FC = () => {
                     max={100}
                     value={detune}
                     onChange={(e) => setDetune(Number(e.target.value))}
+					className={styles.slider}
                 />
             </label>
 
@@ -73,6 +76,7 @@ export const OscillatorControls: React.FC = () => {
                     step="0.1"
                     value={vibratoRate}
                     onChange={(e) => setVibratoRate(parseFloat(e.target.value))}
+					className={styles.slider}
                 />
             </label>
 
@@ -84,6 +88,7 @@ export const OscillatorControls: React.FC = () => {
                     max="100"
                     step="1"
                     value={vibratoDepth}
+					className={styles.slider}
                     onChange={(e) =>
                         setVibratoDepth(parseFloat(e.target.value))
                     }
@@ -98,6 +103,7 @@ export const OscillatorControls: React.FC = () => {
                     max="1"
                     step="0.01"
                     value={attack}
+					className={styles.slider}
                     onChange={(e) => setAttack(parseFloat(e.target.value))}
                 />
             </label>
@@ -110,6 +116,7 @@ export const OscillatorControls: React.FC = () => {
                     max="1"
                     step="0.01"
                     value={release}
+					className={styles.slider}
                     onChange={(e) => setRelease(parseFloat(e.target.value))}
                 />
             </label>

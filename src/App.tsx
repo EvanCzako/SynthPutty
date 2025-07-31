@@ -47,14 +47,14 @@ export const App: React.FC = () => {
 							<MainControls />
 							<div className={styles.titleContainer}>
 								<h1 className={styles.header}>Dough Synths</h1>
-								<a href="">More by Evan Czako HERE</a>
+								<a className={styles.link} href="">More by Evan Czako HERE</a>
 							</div>
 						</div>
 										:
 						<div className={styles.topPanelsContainer}>
 							<div className={styles.titleContainer}>
 								<h1 className={styles.header}>Dough awefawea</h1>
-								<a href="">More by Evan Czako HERE</a>
+								<a className={styles.link} href="">More by Evan Czako HERE</a>
 							</div>
 							<MainControls />
 						</div>

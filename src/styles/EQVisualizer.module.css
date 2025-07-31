@@ -1,7 +1,11 @@
+@import './variables.module.css';
+
 .canvas {
     width: 85%;
     height: 300px; /* fixed height */
     display: block;
-    border: 1px solid #444;
-    background-color: #111;
+    border: 3px solid var(--color-purple-1);
+    background-color: var(--color-black-1);
+	border-radius: 10px;
+	padding: 10px;
 }

@@ -32,10 +32,11 @@ export const FilterControls: React.FC = () => {
                 Enable Filter
             </label>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
                 Type:
                 <select
                     value={filterType}
+					className={styles.comboBox}
                     onChange={(e) =>
                         setFilterType(
                             e.target.value as
@@ -59,6 +60,7 @@ export const FilterControls: React.FC = () => {
                     max={10000}
                     step={1}
                     value={filterCutoff}
+					className={styles.slider}
                     onChange={(e) => setFilterCutoff(Number(e.target.value))}
                 />
             </label>
@@ -71,6 +73,7 @@ export const FilterControls: React.FC = () => {
                     max={20}
                     step={0.1}
                     value={filterQ}
+					className={styles.slider}
                     onChange={(e) => setFilterQ(Number(e.target.value))}
                 />
             </label>
