@@ -26,7 +26,7 @@ export const useFontStore = create<FontState>((set) => ({
         set({ fontSize: product });
         set({ vw });
 		
-		const numOctaves = Math.max(1, Math.floor(vw/3.2));
+		const numOctaves = Math.max(1, Math.floor(vw/2.5));
 		let octs = [];
 		if (numOctaves%2 === 0){
 			Math.floor(numOctaves/2);
