@@ -1,8 +1,8 @@
 {
-    "name": "dough-synths",
+    "name": "synth-putty",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://evanczako.github.io/dough-synths",
+    "homepage": "https://evanczako.github.io/synth-putty",
     "dependencies": {
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.6.4",
