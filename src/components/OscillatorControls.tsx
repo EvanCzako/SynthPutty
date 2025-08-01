@@ -44,14 +44,14 @@ export const OscillatorControls: React.FC = () => {
             </label>
 
             <label className={appStyles.controlsSliderContainer}>
-                Voices:
-                <input
-                    type="number"
+                Voices: {voices}
+               <input
+                    type="range"
                     min={1}
                     max={8}
                     value={voices}
                     onChange={(e) => setVoices(Number(e.target.value))}
-					className={styles.voicesPicker}
+					className={styles.slider}
                 />
             </label>
 

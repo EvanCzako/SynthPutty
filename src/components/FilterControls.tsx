@@ -23,13 +23,14 @@ export const FilterControls: React.FC = () => {
         <div className={styles.controls} style={{ fontSize: fontSize }}>
             <h2 className={styles.controlsHeader}>Filter</h2>
 
-            <label>
+            <label className={appStyles.controlsSliderContainer}>
+                Enable Filter
                 <input
                     type="checkbox"
                     checked={filterEnabled}
                     onChange={(e) => setFilterEnabled(e.target.checked)}
+					className={styles.checkBox}
                 />
-                Enable Filter
             </label>
 
             <label className={appStyles.controlsSliderContainer}>

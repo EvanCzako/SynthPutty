@@ -36,6 +36,12 @@ label {
     margin-bottom: 10px;
 }
 
+.checkBox {
+	width: 20px;
+	height: 20px;
+	accent-color: var(--color-mid-blue-1);
+}
+
 @media (orientation: portrait) or (max-width: 750px) {
 	.controls {
 		width: 70%;

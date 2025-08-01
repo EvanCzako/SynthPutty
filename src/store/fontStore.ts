@@ -32,7 +32,6 @@ export const useFontStore = create<FontState>((set) => ({
 		} else {
 			set({ layout: "landscape"});
 		}
-		console.log(orientationType);
 
 
         const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.5;
