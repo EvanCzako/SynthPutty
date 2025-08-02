@@ -20,11 +20,8 @@ export const App: React.FC = () => {
 		layout
 	} = useFontStore();
 
-	const [titleStackReverse, setTitleStackReverse] = React.useState(false);
-
     useEffect(() => {
         updateFontSize();
-		console.log(titleStackReverse);
         window.addEventListener("resize", updateFontSize);
         return () => window.removeEventListener("resize", updateFontSize);
     }, [updateFontSize, layout, vw]);
@@ -41,7 +38,7 @@ export const App: React.FC = () => {
 						
 						<div className={styles.titleContainer}>
 							<img src={logoImg} className={styles.logo} alt="" />
-							<a className={styles.link} href="">More by Evan Czako HERE</a>
+							<a className={styles.link} href="https://evanczako.github.io/DoughLab2/" target="_blank">More by Evan Czako HERE</a>
 						</div>
 						<MainControls />
 					</div>
