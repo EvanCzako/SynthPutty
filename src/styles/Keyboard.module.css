@@ -26,6 +26,7 @@
     cursor: pointer;
     z-index: 1;
     position: relative;
+	border-radius: 5px;
 }
 
 .whiteKey:hover {
@@ -50,6 +51,7 @@
     left: 15px;
     top: 45px;
     z-index: 2;
+	border-radius: 5px;
 }
 
 .blackKey:hover {
