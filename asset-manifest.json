@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/synth-putty/static/css/main.73fec9d4.css",
-    "main.js": "/synth-putty/static/js/main.3d38f647.js",
-    "static/js/453.beab08ef.chunk.js": "/synth-putty/static/js/453.beab08ef.chunk.js",
-    "static/media/SynthPuttyLogo.png": "/synth-putty/static/media/SynthPuttyLogo.0cc4b01311b1201c9760.png",
-    "index.html": "/synth-putty/index.html",
-    "main.73fec9d4.css.map": "/synth-putty/static/css/main.73fec9d4.css.map",
-    "main.3d38f647.js.map": "/synth-putty/static/js/main.3d38f647.js.map",
-    "453.beab08ef.chunk.js.map": "/synth-putty/static/js/453.beab08ef.chunk.js.map"
+    "main.css": "/SynthPutty/static/css/main.73fec9d4.css",
+    "main.js": "/SynthPutty/static/js/main.6ccc1847.js",
+    "static/js/453.2626da80.chunk.js": "/SynthPutty/static/js/453.2626da80.chunk.js",
+    "static/media/SynthPuttyLogo.png": "/SynthPutty/static/media/SynthPuttyLogo.0cc4b01311b1201c9760.png",
+    "index.html": "/SynthPutty/index.html",
+    "main.73fec9d4.css.map": "/SynthPutty/static/css/main.73fec9d4.css.map",
+    "main.6ccc1847.js.map": "/SynthPutty/static/js/main.6ccc1847.js.map",
+    "453.2626da80.chunk.js.map": "/SynthPutty/static/js/453.2626da80.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.73fec9d4.css",
-    "static/js/main.3d38f647.js"
+    "static/js/main.6ccc1847.js"
   ]
 }
