@@ -1,8 +1,8 @@
 {
-    "name": "synth-putty",
+    "name": "SynthPutty",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://evanczako.github.io/synth-putty",
+    "homepage": "https://evanczako.github.io/SynthPutty",
     "dependencies": {
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.6.4",
