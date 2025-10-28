@@ -44,7 +44,7 @@ interface SynthState {
 }
 
 export const useSynthStore = create<SynthState>((set, get) => ({
-    waveform: "sawtooth",
+    waveform: "sine",
     filterType: "lowpass",
     filterCutoff: 800,
     detune: 0,

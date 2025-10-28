@@ -54,7 +54,7 @@ export function MainControls() {
 				setVibratoRate(5);
 				break;
 			default:
-				setWaveform("sawtooth");
+				setWaveform("sine");
 				setFilterEnabled(false);
 				setVoices(1);
 				setDetune(0);
@@ -91,7 +91,7 @@ export function MainControls() {
 						handleSetPreset(e.target.value);
 					}}
                 >
-                    <option value="none">None</option>
+                    <option value="none">Default</option>
                     <option value="preset1">Preset 1</option>
                     <option value="preset2">Preset 2</option>
                     <option value="preset3">Preset 3</option>
