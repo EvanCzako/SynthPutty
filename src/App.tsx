@@ -37,19 +37,21 @@ export const App: React.FC = () => {
 						<MainControls />
 					</div>
 
-					<div className={styles.pianoEQwrapper}>
+					<div className={styles.eqVisualizerWrapper}>
 						<EQVisualizer />
 					</div>
+				</div>
 
+				<div className={styles.controlsAndKeyboardWrapper}>
 					<div className={styles.mainControlPanel}>
 						<SynthControls />
 					</div>
+
+					<div className={styles.keyboardContainer}>
+						<Keyboard />
+					</div>
 				</div>
             </div>
-
-			<div className={styles.keyboardContainer}>
-				<Keyboard />
-			</div>
         </div>
     );
 };
