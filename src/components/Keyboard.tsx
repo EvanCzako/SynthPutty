@@ -28,8 +28,7 @@ export const Keyboard: React.FC = () => {
 
     return (
         <div className={styles.keyboard}>
-			
-            <div>
+            <div className={styles.blackKeyboard}>
                 {octaves.map((octaveIdx) =>
                     blackKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
@@ -61,7 +60,7 @@ export const Keyboard: React.FC = () => {
                 )}
             </div>
 
-            <div>
+            <div className={styles.whiteKeyboard}>
                 {octaves.map((octaveIdx) =>
                     whiteKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
