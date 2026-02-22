@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { OscillatorControls } from "./components/OscillatorControls";
-import { FilterControls } from "./components/FilterControls";
+import { SynthControls } from "./components/SynthControls";
 import { useSynthEngine } from "./hooks/useSynthEngine";
 import { Keyboard } from "./components/Keyboard";
 import { MainControls } from "./components/MainControls";
@@ -47,14 +46,16 @@ export const App: React.FC = () => {
 
 					<div className={styles.pianoEQwrapper}>
 						<EQVisualizer />
-						<Keyboard />
 					</div>
 
 					<div className={styles.mainControlPanel}>
-						<OscillatorControls />
-						<FilterControls />
-					</div>
+					<SynthControls />
 				</div>
+
+				<div className={styles.keyboardContainer}>
+					<Keyboard />
+				</div>
+			</div>
 
 
 

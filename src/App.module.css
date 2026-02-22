@@ -4,16 +4,18 @@
     /* font-family: sans-serif; */
 	height: 100%;
 	font-family: 'Roboto', sans-serif;
-    margin: 0 auto;
+    margin: 0;
+    padding: 0;
 	font-weight: 900;
 	background-color: var(--color-black-1);
 	color: var(--color-dogwood-2);
 	display: flex;
 	flex-direction: column;
-	align-items: center;  
+	align-items: stretch;  
 	justify-content: flex-start;
 	min-height: 100vh;
 	box-sizing: border-box;
+	width: 100%;
 	
 }
 
@@ -44,8 +46,9 @@
 .panel {
     display: flex;
     flex-direction: column;
-	align-items: center;
+	align-items: stretch;
 	height: 100%;
+	width: 100%;
 }
 
 .pianoEQwrapper {
@@ -63,9 +66,11 @@
 	height: 100%;
     display: flex;
     flex-direction: column;
-	border-radius: 20px;
+	border-radius: 0;
 	width: 100%;
 	align-items: center;
+	margin: 0;
+	padding: 0;
 }
 
 .topPanelsContainer {
@@ -106,6 +111,16 @@
 	border-radius: 20px;
 }
 
+.keyboardContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	align-items: center;
+	background-color: var(--color-black-1);
+	padding-bottom: 10px;
+	border-radius: 20px;
+}
+
 @media (orientation: portrait) or (max-width: 740px) {
     .mainControlPanel {
         display: flex;
@@ -115,11 +130,12 @@
 		min-height: auto;
     }
 
-
 	.topPanelsContainer {
-        display: flex;
-        flex-direction: column;
-		align-items: center;
+        display: none;
+	}
+
+	.pianoEQwrapper {
+		display: none;
 	}
 }
 
