@@ -5,6 +5,7 @@ import styles from "../styles/EQVisualizer.module.css";
 
 export function EQVisualizer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const { filterType, filterCutoff, analyserNode } = useSynthStore();
     const { fontSize, layout } = useFontStore();
 
@@ -20,19 +21,29 @@ export function EQVisualizer() {
 			const cssHeight = canvas.clientHeight;
 			const dpr = window.devicePixelRatio || 1;
 
-			canvas.width = cssWidth * dpr;
-			canvas.height = cssHeight * dpr;
-			ctx.scale(dpr, dpr);
+			// Only update if size actually changed to avoid unnecessary redraws
+			if (canvas.width !== cssWidth * dpr || canvas.height !== cssHeight * dpr) {
+				canvas.width = cssWidth * dpr;
+				canvas.height = cssHeight * dpr;
+				ctx.scale(dpr, dpr);
+			}
 		};
 
-		window.addEventListener("resize", handleResize);
-		window.addEventListener("orientationchange", handleResize); // Some devices need this
+		let resizeTimeout: number;
+		const throttledResize = () => {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = window.setTimeout(handleResize, 50);
+		};
+
+		window.addEventListener("resize", throttledResize);
+		window.addEventListener("orientationchange", throttledResize);
 
 		handleResize(); // initial call
 
 		return () => {
-			window.removeEventListener("resize", handleResize);
-			window.removeEventListener("orientationchange", handleResize);
+			window.removeEventListener("resize", throttledResize);
+			window.removeEventListener("orientationchange", throttledResize);
+			clearTimeout(resizeTimeout);
 		};
 	}, []);
 
@@ -47,17 +58,6 @@ export function EQVisualizer() {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Get layout size in CSS pixels
-        const cssWidth = canvas.clientWidth;
-        const cssHeight = canvas.clientHeight;
-
-        // Handle HiDPI displays
-        const dpr = window.devicePixelRatio || 1;
-
-        canvas.width = cssWidth * dpr;
-        canvas.height = cssHeight * dpr;
-        ctx.scale(dpr, dpr);
-
         const bufferLength = analyserNode.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
 
@@ -66,6 +66,20 @@ export function EQVisualizer() {
 
             animationId = requestAnimationFrame(draw);
             analyserNode.getByteFrequencyData(dataArray);
+
+            // Get layout size in CSS pixels (recalculate each frame for responsive resizing)
+            const cssWidth = canvas.clientWidth;
+            const cssHeight = canvas.clientHeight;
+
+            // Handle HiDPI displays
+            const dpr = window.devicePixelRatio || 1;
+
+            // Update canvas dimensions if they changed
+            if (canvas.width !== cssWidth * dpr || canvas.height !== cssHeight * dpr) {
+                canvas.width = cssWidth * dpr;
+                canvas.height = cssHeight * dpr;
+                ctx.scale(dpr, dpr);
+            }
 
             const width = cssWidth;
             const height = cssHeight;
@@ -169,5 +183,5 @@ export function EQVisualizer() {
 		};
     }, [analyserNode, fontSize, layout]);
 
-    return <canvas ref={canvasRef} className={styles.canvas} />;
+    return <div ref={wrapperRef} className={styles.wrapper}><canvas ref={canvasRef} className={styles.canvas} /></div>;
 }
