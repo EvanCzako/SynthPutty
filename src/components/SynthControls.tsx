@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/SynthControls.module.css";
+import appStyles from "../App.module.css";
 
 export const SynthControls: React.FC = () => {
     const {
@@ -27,12 +28,65 @@ export const SynthControls: React.FC = () => {
         setFilterEnabled,
         filterQ,
         setFilterQ,
+        masterVolume,
+        setMasterVolume,
     } = useSynthStore();
 
     const { fontSize } = useFontStore();
+    const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
 
     const waveforms = ["sine", "square", "triangle", "sawtooth"];
     const filterTypes = ["lowpass", "bandpass", "highpass"];
+
+    const presets = [
+        {
+            name: "Default",
+            set: () => {
+                setWaveform("sine");
+                setFilterEnabled(false);
+                setVoices(1);
+                setDetune(0);
+                setVibratoDepth(0);
+                setVibratoRate(0);
+                setFilterCutoff(1200);
+            }
+        },
+        {
+            name: "Preset 1",
+            set: () => {
+                setWaveform("sawtooth");
+                setFilterEnabled(true);
+                setVoices(3);
+                setDetune(20);
+                setVibratoDepth(15);
+                setVibratoRate(5);
+                setFilterCutoff(1200);
+            }
+        },
+        {
+            name: "Preset 2",
+            set: () => {
+                setWaveform("square");
+                setFilterEnabled(true);
+                setVoices(3);
+                setDetune(20);
+                setVibratoDepth(15);
+                setVibratoRate(5);
+                setFilterCutoff(1200);
+            }
+        },
+        {
+            name: "Preset 3",
+            set: () => {
+                setWaveform("sine");
+                setFilterEnabled(false);
+                setVoices(1);
+                setDetune(0);
+                setVibratoDepth(34);
+                setVibratoRate(5);
+            }
+        }
+    ];
 
     const cycleWaveform = () => {
         const currentIndex = waveforms.indexOf(waveform);
@@ -48,10 +102,18 @@ export const SynthControls: React.FC = () => {
         );
     };
 
+    const handleCyclePreset = () => {
+        const nextIndex = (currentPresetIndex + 1) % presets.length;
+        setCurrentPresetIndex(nextIndex);
+        presets[nextIndex].set();
+    }
+
     return (
         <div className={styles.controlsContainer} style={{ fontSize: fontSize }}>
-            {/* Oscillator Controls - Left Column */}
-            <div className={styles.oscColumn}>
+            {/* Oscillator and Filter Controls Wrapper */}
+            <div className={styles.oscFilterWrapper}>
+                {/* Oscillator Controls - Left Column */}
+                <div className={styles.oscColumn}>
                 <div className={styles.controlLabel}>
                     <label>Wave</label>
                     <button
@@ -144,6 +206,26 @@ export const SynthControls: React.FC = () => {
             {/* Filter Controls - Right Column */}
             <div className={styles.filterColumn}>
                 <div className={styles.controlLabel}>
+                    <label>Volume</label>
+                    <input
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={masterVolume}
+                        className={styles.slider}
+                        onChange={(e) => setMasterVolume(Number(e.target.value))}
+                    />
+                </div>
+
+                <div className={styles.controlLabel}>
+                    <label>Preset</label>
+                    <button className={styles.presetButton} onClick={handleCyclePreset}>
+                        {presets[currentPresetIndex].name}
+                    </button>
+                </div>
+
+                <div className={styles.controlLabel}>
                     <label>Filter</label>
                     <button
                         className={styles.toggleButton}
@@ -189,6 +271,7 @@ export const SynthControls: React.FC = () => {
                         onChange={(e) => setFilterQ(Number(e.target.value))}
                     />
                 </div>
+            </div>
             </div>
         </div>
     );

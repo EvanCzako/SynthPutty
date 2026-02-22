@@ -6,7 +6,6 @@ import { MainControls } from "./components/MainControls";
 import { EQVisualizer } from "./components/EQVisualizer";
 import { useFontStore } from "./store/fontStore";
 import { useMIDI } from './hooks/useMidi';
-import logoImg from "./styles/SynthPuttyLogo.png";
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
@@ -29,16 +28,12 @@ export const App: React.FC = () => {
         <div className={styles.app}>
             <div className={styles.panel}>
 				<div className={styles.allControlPanels}>
-					<div className={styles.topPanelsContainer}>
-						<div className={styles.titleContainer}>
-							<img src={logoImg} className={styles.logo} alt="" />
-							<a className={styles.link} href="https://evanczako.github.io/DoughLab2/" target="_blank">More by Evan Czako HERE</a>
-						</div>
-						<MainControls />
-					</div>
-
 					<div className={styles.eqVisualizerWrapper}>
 						<EQVisualizer />
+					</div>
+
+					<div className={styles.topPanelsContainer}>
+						<MainControls />
 					</div>
 				</div>
 

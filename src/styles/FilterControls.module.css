@@ -8,7 +8,9 @@
 	padding-left: 12px;
 	padding-right: 12px;
 	padding-bottom: 12px;
-	min-width: 330px;
+	min-width: 150px;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 .comboBox {
@@ -40,6 +42,26 @@ label {
 	width: 20px;
 	height: 20px;
 	accent-color: var(--color-mid-blue-1);
+}
+
+.slider {
+	accent-color: var(--color-mid-blue-1);
+}
+
+.presetButton {
+	background-color: var(--color-mid-pink-1);
+	padding: 10px;
+	border-radius: 5px;
+	font-weight: 900;
+	color: var(--color-black-1);
+	cursor: pointer;
+	border: none;
+	width: 100%;
+	margin-top: 10px;
+}
+
+.presetButton:hover {
+	background-color: var(--color-bright-pink-1);
 }
 
 @media (orientation: portrait) or (max-width: 750px) {
