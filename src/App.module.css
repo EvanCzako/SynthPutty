@@ -67,7 +67,6 @@
 		width: 100%;
 		height: 100%;
 		min-height: 0;
-		flex-shrink: 0;
 		border-radius: 0;
 		padding: 0;
 		align-self: stretch;
@@ -104,14 +103,12 @@
     display: flex;
     flex-direction: column;
 	width: 100%;
-	height: 100%;
+	flex: 1;
 	align-items: stretch;
 	justify-content: flex-start;
 	background-color: var(--color-black-1);
 	padding: 0;
 	border-radius: 20px;
-	flex: 1;
-	flex-shrink: 1;
 	min-height: 0;
 	border: 4px solid var(--color-mid-pink-1);
 	box-sizing: border-box;
@@ -127,7 +124,6 @@
 	margin: 0;
 	padding: 0;
 	flex: 1;
-	flex-shrink: 1;
 	min-height: 0;
 }
 
@@ -193,4 +189,3 @@
 		width: 100%;
 	}
 }
-

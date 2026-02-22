@@ -183,5 +183,5 @@ export function EQVisualizer() {
 		};
     }, [analyserNode, fontSize, layout]);
 
-    return <div ref={wrapperRef} className={styles.wrapper}><canvas ref={canvasRef} className={styles.canvas} /></div>;
+    return <canvas ref={canvasRef} className={styles.canvas} />;
 }
