@@ -27,14 +27,9 @@ export const App: React.FC = () => {
 
     return (
         <div className={styles.app}>
-
-
             <div className={styles.panel}>
 				<div className={styles.allControlPanels}>
-
-
 					<div className={styles.topPanelsContainer}>
-						
 						<div className={styles.titleContainer}>
 							<img src={logoImg} className={styles.logo} alt="" />
 							<a className={styles.link} href="https://evanczako.github.io/DoughLab2/" target="_blank">More by Evan Czako HERE</a>
@@ -42,24 +37,19 @@ export const App: React.FC = () => {
 						<MainControls />
 					</div>
 
-
-
 					<div className={styles.pianoEQwrapper}>
 						<EQVisualizer />
 					</div>
 
 					<div className={styles.mainControlPanel}>
-					<SynthControls />
+						<SynthControls />
+					</div>
 				</div>
-
-				<div className={styles.keyboardContainer}>
-					<Keyboard />
-				</div>
-			</div>
-
-
-
             </div>
+
+			<div className={styles.keyboardContainer}>
+				<Keyboard />
+			</div>
         </div>
     );
 };
