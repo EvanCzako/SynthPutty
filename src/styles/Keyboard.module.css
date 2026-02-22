@@ -40,6 +40,7 @@
 	height: 160px;
 	align-items: flex-start;
 	padding-left: 0;
+	margin-left: clamp(9px, 3.5vw, 51.5px);
 	box-sizing: border-box;
 	pointer-events: none;
 }

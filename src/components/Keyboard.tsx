@@ -36,7 +36,7 @@ export const Keyboard: React.FC = () => {
                         if (keyNote === "C") {
                             label = noteLabel;
                         } else {
-                            label = keyNote;
+                            label = "";
                         }
                         const note = freqArr.indexOf(noteLabel);
 
@@ -68,7 +68,7 @@ export const Keyboard: React.FC = () => {
                         if (keyNote === "C") {
                             label = noteLabel;
                         } else {
-                            label = keyNote;
+                            label = "";
                         }
                         const note = freqArr.indexOf(noteLabel);
                         let classNames = `${styles.whiteKey}`;
