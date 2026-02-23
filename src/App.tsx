@@ -28,9 +28,7 @@ export const App: React.FC = () => {
         <div className={styles.app}>
             <div className={styles.panel}>
 				<div className={styles.allControlPanels}>
-					<div className={styles.eqVisualizerWrapper}>
-						<EQVisualizer />
-					</div>
+					<EQVisualizer />
 
 					<div className={styles.topPanelsContainer}>
 						<MainControls />
@@ -38,14 +36,9 @@ export const App: React.FC = () => {
 				</div>
 
 				<div className={styles.controlsAndKeyboardWrapper}>
-					<div className={styles.mainControlPanel}>
-						<SynthControls />
-					</div>
-
-					<div className={styles.keyboardContainer}>
-						<Keyboard />
-					</div>
-				</div>
+                    <SynthControls />
+                    <Keyboard />
+                </div>
             </div>
         </div>
     );
