@@ -7,29 +7,131 @@ const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
 const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
 
 export const Keyboard: React.FC = () => {
+        const [, forceUpdate] = React.useState({});
     const { noteOn, noteOff, activeNotes } = useSynthStore();
-	const { octaves } = useFontStore();
+    const { octaves } = useFontStore();
+    // PC keyboard mapping: map QWERTY keys to piano notes
+    // Example mapping: ZSXDCVGBHNJMQ2W3ER5T6Y7U (white/black keys left to right)
+    // We'll use two rows: bottom (Z-M) and top (Q-U)
+    const keyMap: { [key: string]: string } = {
+            // Lower row (C4-B4)
+            z: 'C4',
+            s: 'C#4',
+            x: 'D4',
+            d: 'D#4',
+            c: 'E4',
+            v: 'F4',
+            g: 'F#4',
+            b: 'G4',
+            h: 'G#4',
+            n: 'A4',
+            j: 'A#4',
+            m: 'B4',
+            // Upper row (C5-B5)
+            q: 'C5',
+            2: 'C#5',
+            w: 'D5',
+            3: 'D#5',
+            e: 'E5',
+            r: 'F5',
+            5: 'F#5',
+            t: 'G5',
+            6: 'G#5',
+            y: 'A5',
+            7: 'A#5',
+            u: 'B5',
+        };
+
+        React.useEffect(() => {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                const noteLabel = keyMap[e.key.toLowerCase()];
+                if (noteLabel) {
+                    const note = freqArr.indexOf(noteLabel);
+                    if (note >= 0 && !activeNotes[note]) {
+                        playNote(note);
+                    }
+                }
+            };
+            const handleKeyUp = (e: KeyboardEvent) => {
+                const noteLabel = keyMap[e.key.toLowerCase()];
+                if (noteLabel) {
+                    const note = freqArr.indexOf(noteLabel);
+                    if (note >= 0 && activeNotes[note]) {
+                        stopNote(note);
+                    }
+                }
+            };
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+            return () => {
+                window.removeEventListener('keydown', handleKeyDown);
+                window.removeEventListener('keyup', handleKeyUp);
+            };
+        }, [activeNotes]);
+    // (Removed duplicate hook declarations)
 
     const playNote = (note: number) => {
         noteOn(note, 100);
+        forceUpdate({});
     };
 
     const stopNote = (note: number) => {
         noteOff(note);
     };
 
-    const noteClicked = (note: number) => {
+    // Mouse event handlers for click-and-hold behavior
+    const handleMouseDown = (note: number, e: React.MouseEvent) => {
+        e.preventDefault();
+        playNote(note);
+    };
+
+    const handleMouseUp = (note: number, e: React.MouseEvent) => {
+        e.preventDefault();
         if (activeNotes[note]) {
             stopNote(note);
-        } else {
-            playNote(note);
         }
+    };
+
+    const handleMouseLeave = (note: number, e: React.MouseEvent) => {
+        e.preventDefault();
+        if (activeNotes[note]) {
+            stopNote(note);
+        }
+    };
+
+    // Touch event handlers for mobile
+    const handleTouchStart = (note: number, e: React.TouchEvent) => {
+        e.preventDefault();
+        playNote(note);
+    };
+
+    const handleTouchEnd = (note: number, e: React.TouchEvent) => {
+        e.preventDefault();
+        if (activeNotes[note]) {
+            stopNote(note);
+        }
+    };
+
+    const handleTouchCancel = (note: number, e: React.TouchEvent) => {
+        e.preventDefault();
+        if (activeNotes[note]) {
+            stopNote(note);
+        }
+    };
+
+    // Calculate left margin for black keys so they align with white keys
+    // Each octave has 7 white keys, so total white keys = octaves.length * 7
+    // Each white key is width: clamp(18px, 7vw, 103px)
+    // We'll use percent offset: 100% / (number of white keys * 2)
+    const totalWhiteKeys = octaves.length * 7;
+    const blackKeyOffsetPercent = 100 / (totalWhiteKeys * 2);
+    const blackKeyboardStyle = {
+        marginLeft: `${blackKeyOffsetPercent}%`,
     };
 
     return (
         <div className={styles.keyboard}>
-			
-            <div>
+            <div className={styles.blackKeyboard} style={blackKeyboardStyle}>
                 {octaves.map((octaveIdx) =>
                     blackKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
@@ -37,7 +139,7 @@ export const Keyboard: React.FC = () => {
                         if (keyNote === "C") {
                             label = noteLabel;
                         } else {
-                            label = keyNote;
+                            label = "";
                         }
                         const note = freqArr.indexOf(noteLabel);
 
@@ -52,7 +154,12 @@ export const Keyboard: React.FC = () => {
                             <div
                                 key={`black-${keyNote}-${octaveIdx}`}
                                 className={classNames}
-                                onClick={() => noteClicked(note)}
+                                onMouseDown={(e) => handleMouseDown(note, e)}
+                                onMouseUp={(e) => handleMouseUp(note, e)}
+                                onMouseLeave={(e) => handleMouseLeave(note, e)}
+                                onTouchStart={(e) => handleTouchStart(note, e)}
+                                onTouchEnd={(e) => handleTouchEnd(note, e)}
+                                onTouchCancel={(e) => handleTouchCancel(note, e)}
                             >
                                 {label}
                             </div>
@@ -61,7 +168,7 @@ export const Keyboard: React.FC = () => {
                 )}
             </div>
 
-            <div>
+            <div className={styles.whiteKeyboard}>
                 {octaves.map((octaveIdx) =>
                     whiteKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
@@ -69,7 +176,7 @@ export const Keyboard: React.FC = () => {
                         if (keyNote === "C") {
                             label = noteLabel;
                         } else {
-                            label = keyNote;
+                            label = "";
                         }
                         const note = freqArr.indexOf(noteLabel);
                         let classNames = `${styles.whiteKey}`;
@@ -81,7 +188,12 @@ export const Keyboard: React.FC = () => {
                             <div
                                 key={`white-${keyNote}-${octaveIdx}`}
                                 className={classNames}
-                                onClick={() => noteClicked(note)}
+                                onMouseDown={(e) => handleMouseDown(note, e)}
+                                onMouseUp={(e) => handleMouseUp(note, e)}
+                                onMouseLeave={(e) => handleMouseLeave(note, e)}
+                                onTouchStart={(e) => handleTouchStart(note, e)}
+                                onTouchEnd={(e) => handleTouchEnd(note, e)}
+                                onTouchCancel={(e) => handleTouchCancel(note, e)}
                             >
                                 {label}
                             </div>

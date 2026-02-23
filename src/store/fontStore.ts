@@ -34,11 +34,15 @@ export const useFontStore = create<FontState>((set) => ({
 		}
 
 
-        const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.5;
-        set({ fontSize: product });
+		const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.8;
+		set({ fontSize: product });
         set({ vw });
 		
-		const numOctaves = Math.max(1, Math.floor(vw/2.5));
+		let numOctaves = Math.max(1, Math.floor(vw/2.5));
+		// Ensure at least 2 octaves in portrait mode
+		if (vh/vw > 1) {
+			numOctaves = Math.max(2, numOctaves);
+		}
 		let octs = [];
 		if (numOctaves%2 === 0){
 			Math.floor(numOctaves/2);

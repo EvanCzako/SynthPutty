@@ -1,173 +1,111 @@
-import { useEffect, useRef } from "react";
-import { useSynthStore } from "../store/synthStore";
-import { useFontStore } from "../store/fontStore";
+import React, { useEffect, useRef, useCallback } from "react";
 import styles from "../styles/EQVisualizer.module.css";
+import { useSynthStore } from "../store/synthStore";
+
+
 
 export function EQVisualizer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const { filterType, filterCutoff, analyserNode } = useSynthStore();
-    const { fontSize, layout } = useFontStore();
+    const analyserNode = useSynthStore((s) => s.analyserNode);
 
-	useEffect(() => {
-		const handleResize = () => {
-			const canvas = canvasRef.current;
-			if (!canvas) return;
-
-			const ctx = canvas.getContext("2d");
-			if (!ctx) return;
-
-			const cssWidth = canvas.clientWidth;
-			const cssHeight = canvas.clientHeight;
-			const dpr = window.devicePixelRatio || 1;
-
-			canvas.width = cssWidth * dpr;
-			canvas.height = cssHeight * dpr;
-			ctx.scale(dpr, dpr);
-		};
-
-		window.addEventListener("resize", handleResize);
-		window.addEventListener("orientationchange", handleResize); // Some devices need this
-
-		handleResize(); // initial call
-
-		return () => {
-			window.removeEventListener("resize", handleResize);
-			window.removeEventListener("orientationchange", handleResize);
-		};
-	}, []);
-
-
-    useEffect(() => {
-
-        if (!analyserNode) return;
-
+    // Stable draw function
+    const draw = useCallback(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Get layout size in CSS pixels
-        const cssWidth = canvas.clientWidth;
-        const cssHeight = canvas.clientHeight;
+        // Fill background
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Handle HiDPI displays
-        const dpr = window.devicePixelRatio || 1;
+        // Draw axis at the bottom (logarithmic scale)
+        const axisY = canvas.height - 24;
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(32, axisY);
+        ctx.lineTo(canvas.width - 32, axisY);
+        ctx.stroke();
 
-        canvas.width = cssWidth * dpr;
-        canvas.height = cssHeight * dpr;
-        ctx.scale(dpr, dpr);
+        // Draw log ticks and frequency labels
+        const minFreq = 20;
+        const maxFreq = 20000;
+        const numTicks = 10;
+        ctx.font = "12px sans-serif";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        for (let i = 0; i <= numTicks; i++) {
+            const logFreq = minFreq * Math.pow(maxFreq / minFreq, i / numTicks);
+            const x = 32 + ((Math.log10(logFreq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq))) * (canvas.width - 64);
+            ctx.beginPath();
+            ctx.moveTo(x, axisY);
+            ctx.lineTo(x, axisY + 8);
+            ctx.stroke();
+            // Label (rounded to nearest 10/100/1000)
+            let label: string;
+            if (logFreq < 1000) {
+                label = Math.round(logFreq / 10) * 10 + "";
+            } else {
+                label = (Math.round(logFreq / 100) / 10).toFixed(1) + "k";
+            }
+            ctx.fillText(label, x, axisY + 22);
+        }
 
-        const bufferLength = analyserNode.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-		let animationId: number;
-        const draw = () => {
-
-            animationId = requestAnimationFrame(draw);
+        // Draw spectrum if analyserNode is available
+        if (analyserNode) {
+            const bufferLength = analyserNode.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
             analyserNode.getByteFrequencyData(dataArray);
 
-            const width = cssWidth;
-            const height = cssHeight;
-
-            ctx.clearRect(0, 0, width, height);
-
-            const nyquist = analyserNode.context.sampleRate / 2;
-            const logMin = Math.log10(20);
-            const logMax = Math.log10(nyquist);
-
-            // Draw frequency tick marks BELOW the graph
-            const paddingBottom = 50; // reserve 30px for tick labels
-            const usableHeight = height - paddingBottom;
-            const tickY = usableHeight + 5; // position ticks below the graph
-            const tickHeight = 6;
-
-            ctx.strokeStyle = "#888";
-            ctx.fillStyle = "#aaa";
-            ctx.lineWidth = 1;
-            ctx.font = `${fontSize}px sans-serif`;
-            ctx.textAlign = "center";
-
-            const freqs = [
-                20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000,
-            ];
-
-            for (const freq of freqs) {
-                if (freq > nyquist) continue;
-
-                const logFreq = Math.log10(freq);
-                const x = ((logFreq - logMin) / (logMax - logMin)) * width;
-
-                ctx.beginPath();
-                ctx.moveTo(x, tickY);
-                ctx.lineTo(x, tickY + tickHeight);
-                ctx.stroke();
-
-                const label = freq >= 1000 ? `${freq / 1000}k` : `${freq}`;
-                ctx.fillText(label, x, tickY + tickHeight + 12);
-            }
-
-            // Axis label for frequency (centered below ticks)
-            ctx.fillStyle = "#ccc";
-            ctx.font = `bold ${fontSize}px sans-serif`;
-            ctx.textAlign = "center";
-            ctx.fillText("Freq (Hz)", width / 2, height - 5);
-
-            // Draw horizontal center line
-            ctx.strokeStyle = "#444";
-            ctx.lineWidth = 1;
-            // Draw frequency spectrum with shading under the curve
-            ctx.beginPath();
-            ctx.strokeStyle = "#0af";
-            ctx.fillStyle = "rgba(0, 136, 255, 0.3)"; // semi-transparent blue
+            ctx.strokeStyle = "white";
             ctx.lineWidth = 2;
-
-            for (let x = 0; x < width; x++) {
-                const logFreq = logMin + (x / width) * (logMax - logMin);
-                const freq = Math.pow(10, logFreq);
-                const bin = (freq / nyquist) * bufferLength;
-
-                const indexLow = Math.floor(bin);
-                const indexHigh = Math.min(indexLow + 1, bufferLength - 1);
-                const magLow = dataArray[indexLow] ?? 0;
-                const magHigh = dataArray[indexHigh] ?? 0;
-
-                const frac = bin - indexLow;
-                const magnitude = 0.9 * (magLow + frac * (magHigh - magLow));
-
-                const v = magnitude / 255;
-                const y = usableHeight - v * usableHeight;
-
-                if (x === 0) {
+            ctx.beginPath();
+            for (let i = 0; i < bufferLength; i++) {
+                // Map bin to log frequency axis
+                const freq = analyserNode.context.sampleRate * i / (2 * bufferLength);
+                const x = 32 + ((Math.log10(freq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq))) * (canvas.width - 64);
+                const y = axisY - (dataArray[i] / 255) * (axisY - 16);
+                if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
                     ctx.lineTo(x, y);
                 }
             }
-            // Close path down to baseline and back to start
-            ctx.lineTo(width - 1, usableHeight);
-            ctx.lineTo(0, usableHeight);
-            ctx.closePath();
-
-            // Fill the area under the curve
-            // Create a horizontal gradient from left (low freq) to right (high freq)
-            const fillGradient = ctx.createLinearGradient(0, 0, width, 0);
-            fillGradient.addColorStop(0.0, "rgba(149, 0, 255, 0.8)"); // Low freq - Blue
-            fillGradient.addColorStop(0.5, "rgba(255, 85, 0, 0.8)"); // Mid freq - Green
-            fillGradient.addColorStop(1.0, "rgba(255, 155, 240, 0.8)"); // High freq - Red
-
-            ctx.fillStyle = fillGradient;
-            ctx.fill();
-
-            // Then stroke the curve line on top
             ctx.stroke();
+        }
+    }, [analyserNode]);
+
+    useEffect(() => {
+        let animationId: number;
+        let running = true;
+
+        function animate() {
+            if (!running) return;
+            draw();
+            animationId = requestAnimationFrame(animate);
+        }
+        animate();
+
+        function handleResize() {
+            draw();
+        }
+        window.addEventListener("resize", handleResize);
+        return () => {
+            running = false;
+            window.removeEventListener("resize", handleResize);
+            cancelAnimationFrame(animationId);
         };
+    }, [draw]);
 
-        draw();
-		return () => {
-			cancelAnimationFrame(animationId);
-		};
-    }, [analyserNode, fontSize, layout]);
-
-    return <canvas ref={canvasRef} className={styles.canvas} />;
+    return (
+        <div className={styles.eqvisualizer_wrapper}>
+            <canvas ref={canvasRef} className={styles.eqvisualizer_canvas} />
+        </div>
+    );
 }
+
+export default EQVisualizer;

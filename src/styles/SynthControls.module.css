@@ -1,0 +1,192 @@
+@import './variables.module.css';
+
+.controlsContainer {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	background-color: var(--color-black-1);
+	border: 2px solid var(--color-mid-pink-1);
+	border-radius: 8px;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	min-width: 0;
+	justify-content: space-between;
+}
+
+.topControls {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	padding: 12px;
+	background-color: var(--color-purple-1);
+	border-bottom: 2px solid var(--color-mid-pink-1);
+	box-sizing: border-box;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.presetButton {
+	background-color: var(--color-mid-pink-3);
+	color: var(--color-dogwood-1);
+	padding: 2px 4px;
+	border-radius: 5px;
+	font-weight: 900;
+	cursor: pointer;
+	border: none;
+	flex: 1;
+	max-width: 50%;
+	height: 100%;
+	box-sizing: border-box;
+	font-size: 0.85em;
+	transition: background-color 0.2s;
+}
+
+.presetButton:hover {
+	background-color: var(--color-mid-pink-1);
+}
+
+.presetButton:active {
+	background-color: var(--color-mid-blue-1);
+}
+
+.oscFilterWrapper {
+	display: flex;
+	flex-direction: row;
+	gap: 0;
+	flex: 1;
+	min-width: 0;
+}
+
+.oscColumn {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	padding: 12px;
+	background-color: var(--color-purple-1);
+	border-right: 2px solid var(--color-mid-pink-1);
+	box-sizing: border-box;
+	min-width: 0;
+	justify-content: space-between;
+}
+
+.filterColumn {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	padding: 12px;
+	background-color: var(--color-purple-1);
+	box-sizing: border-box;
+	min-width: 0;
+	justify-content: space-between;
+}
+
+.controlLabel {
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+	margin-bottom: 4px;
+	font-size: inherit;
+	font-weight: 900;
+	align-items: center;
+	justify-content: space-between;
+	height: 24px;
+}
+
+.controlLabel label {
+	margin: 0;
+	display: block;
+	min-width: 40px;
+	flex-shrink: 0;
+}
+
+.controlLabel select,
+.controlLabel input[type="checkbox"] {
+	flex: 1;
+	height: 100%;
+	font-weight: 900;
+	background-color: var(--color-mid-pink-3);
+	color: var(--color-dogwood-1);
+	border-radius: 5px;
+	border: none;
+	padding: 2px 4px;
+	box-sizing: border-box;
+	font-size: inherit;
+}
+
+.controlLabel select:hover {
+	background-color: var(--color-mid-pink-1);
+}
+
+.controlLabel input[type="range"] {
+	max-width: 50%;
+	flex-shrink: 0;
+	height: 6px;
+	align-self: center;
+}
+
+.cycleButton,
+.toggleButton {
+	max-width: 50%;
+	flex: 1;
+	height: 100%;
+	font-weight: 900;
+	background-color: var(--color-mid-pink-3);
+	color: var(--color-dogwood-1);
+	border-radius: 5px;
+	border: none;
+	padding: 2px 4px;
+	box-sizing: border-box;
+	cursor: pointer;
+	font-size: 0.85em;
+	transition: background-color 0.2s;
+}
+
+.cycleButton:hover,
+.toggleButton:hover {
+	background-color: var(--color-mid-pink-1);
+}
+
+.cycleButton:active,
+.toggleButton:active {
+	background-color: var(--color-mid-blue-1);
+}
+
+.slider {
+	accent-color: var(--color-mid-blue-1);
+	flex: 1;
+	height: 6px;
+	cursor: pointer;
+}
+
+.checkBox {
+	width: 18px;
+	height: 18px;
+	accent-color: var(--color-mid-blue-1);
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+@media (orientation: portrait) or (max-width: 750px) {
+	.controlsContainer {
+		flex-direction: row;
+		border: 4px solid var(--color-mid-pink-1);
+		padding: 0;
+		margin: 0;
+	}
+
+	.oscColumn {
+		border-right: 4px solid var(--color-mid-pink-1);
+		padding: 4px;
+	}
+
+	.filterColumn {
+		padding: 4px;
+	}
+
+	.controlLabel {
+		margin-bottom: 4px;
+	}
+}
