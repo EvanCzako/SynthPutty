@@ -1,49 +1,103 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "../styles/EQVisualizer.module.css";
+import { useSynthStore } from "../store/synthStore";
+
+
+
 
 export function EQVisualizer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const analyserNode = useSynthStore((s) => s.analyserNode);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+        let animationId: number;
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        function draw() {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
 
-        const fixedWidth = 200; // Fixed width of the rectangle
-        const fixedHeight = 100; // Fixed height of the rectangle
+            // Fill background
 
-        const drawRectangle = () => {
-            const parent = canvas.parentElement;
-            if (!parent) return;
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const parentWidth = parent.clientWidth;
-            const parentHeight = parent.clientHeight;
+            // Draw axis at the bottom (logarithmic scale)
+            const axisY = canvas.height - 24;
 
-            canvas.width = parentWidth;
-            canvas.height = parentHeight;
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(32, axisY);
+            ctx.lineTo(canvas.width - 32, axisY);
+            ctx.stroke();
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#3498db"; // Blue color
+            // Draw log ticks and frequency labels
+            const minFreq = 20;
+            const maxFreq = 20000;
+            const numTicks = 10;
+            ctx.font = "12px sans-serif";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            for (let i = 0; i <= numTicks; i++) {
+                const logFreq = minFreq * Math.pow(maxFreq / minFreq, i / numTicks);
+                const x = 32 + ((Math.log10(logFreq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq))) * (canvas.width - 64);
+                ctx.beginPath();
+                ctx.moveTo(x, axisY);
+                ctx.lineTo(x, axisY + 8);
+                ctx.stroke();
+                // Label (rounded to nearest 10/100/1000)
+                let label: string;
+                if (logFreq < 1000) {
+                    label = Math.round(logFreq / 10) * 10 + "";
+                } else {
+                    label = (Math.round(logFreq / 100) / 10).toFixed(1) + "k";
+                }
+                ctx.fillText(label, x, axisY + 22);
+            }
 
-            const x = (canvas.width - fixedWidth) / 2;
-            const y = (canvas.height - fixedHeight) / 2;
+            // Draw spectrum if analyserNode is available
+            if (analyserNode) {
+                const bufferLength = analyserNode.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                analyserNode.getByteFrequencyData(dataArray);
 
-            ctx.fillRect(x, y, fixedWidth, fixedHeight);
-        };
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < bufferLength; i++) {
+                    // Map bin to log frequency axis
+                    const freq = analyserNode.context.sampleRate * i / (2 * bufferLength);
+                    const x = 32 + ((Math.log10(freq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq))) * (canvas.width - 64);
+                    const y = axisY - (dataArray[i] / 255) * (axisY - 16);
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
 
-        drawRectangle();
-        window.addEventListener("resize", drawRectangle);
-
+            animationId = requestAnimationFrame(draw);
+        }
+        draw();
+        window.addEventListener("resize", draw);
         return () => {
-            window.removeEventListener("resize", drawRectangle);
+            window.removeEventListener("resize", draw);
+            cancelAnimationFrame(animationId);
         };
-    }, []);
+    }, [analyserNode]);
 
     return (
-        <div className={styles.wrapper}>
-            <canvas ref={canvasRef} className={styles.canvas} />
+        <div className={styles.eqvisualizer_wrapper}>
+            <canvas ref={canvasRef} className={styles.eqvisualizer_canvas} />
         </div>
     );
 }
+
+export default EQVisualizer;
