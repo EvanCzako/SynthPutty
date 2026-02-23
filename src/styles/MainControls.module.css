@@ -23,6 +23,11 @@
 	border-radius: 5px;
 	flex-shrink: 0;
 	object-fit: contain;
+	transition: filter 0.2s;
+}
+
+.logo:hover {
+	filter: brightness(1.5) drop-shadow(0 0 6px var(--color-mid-pink-1));
 }
 
 .comboBox {

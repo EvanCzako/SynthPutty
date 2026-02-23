@@ -260,7 +260,7 @@ export const SynthControls: React.FC = () => {
                 </div>
 
                 <div className={styles.controlLabel}>
-                    <label>Resonance</label>
+                    <label>Res</label>
                     <input
                         type="range"
                         min={0.1}

@@ -14,7 +14,9 @@ export function MainControls() {
 
     return (
         <div className={styles.mainControls}>
-            <img src={logoImg} className={styles.logo} alt="SynthPutty" />
+            <a href="https://evanczako.github.io/DoughLab2/" target="_blank" rel="noopener noreferrer">
+                <img src={logoImg} className={styles.logo} alt="SynthPutty" />
+            </a>
 
             <div className={styles.buttonsContainer}>
                 <button className={styles.controlsButton} onClick={() => setMidiEnabled(!midiEnabled)}>

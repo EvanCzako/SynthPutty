@@ -34,8 +34,8 @@ export const useFontStore = create<FontState>((set) => ({
 		}
 
 
-        const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.5;
-        set({ fontSize: product });
+		const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.8;
+		set({ fontSize: product });
         set({ vw });
 		
 		let numOctaves = Math.max(1, Math.floor(vw/2.5));
