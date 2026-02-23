@@ -7,6 +7,7 @@ const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
 const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
 
 export const Keyboard: React.FC = () => {
+        const [lastTouchedNote, setLastTouchedNote] = React.useState<number | null>(null);
     const { noteOn, noteOff, activeNotes } = useSynthStore();
     const { octaves } = useFontStore();
     // PC keyboard mapping: map QWERTY keys to piano notes
@@ -105,6 +106,7 @@ export const Keyboard: React.FC = () => {
         if (!activeNotes[note]) {
             playNote(note);
         }
+        setLastTouchedNote(note);
     };
 
     const handleTouchEnd = (note: number, e: React.TouchEvent) => {
@@ -112,6 +114,7 @@ export const Keyboard: React.FC = () => {
         if (activeNotes[note]) {
             stopNote(note);
         }
+        setLastTouchedNote(null);
     };
 
     const handleTouchCancel = (note: number, e: React.TouchEvent) => {
@@ -119,6 +122,7 @@ export const Keyboard: React.FC = () => {
         if (activeNotes[note]) {
             stopNote(note);
         }
+        setLastTouchedNote(null);
     };
 
     // Calculate left margin for black keys so they align with white keys
@@ -182,7 +186,7 @@ export const Keyboard: React.FC = () => {
                         }
                         const note = freqArr.indexOf(noteLabel);
                         let classNames = `${styles.whiteKey}`;
-                        if (activeNotes[note]) {
+                        if (activeNotes[note] || lastTouchedNote === note) {
                             classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
                         }
 

@@ -81,7 +81,7 @@
 }
 
 .whiteKey:hover {
-    background-color: pink;
+    background-color: white;
 }
 
 .whiteKeyPressed {
@@ -108,7 +108,7 @@
 }
 
 .blackKey:hover {
-    background-color: pink;
+    background-color: rgb(20, 20, 20);
 }
 
 .blackKeyPressed {

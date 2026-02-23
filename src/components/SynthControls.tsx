@@ -33,7 +33,10 @@ export const SynthControls: React.FC = () => {
     } = useSynthStore();
 
     const { fontSize } = useFontStore();
-    const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
+    const [currentPresetIndex, setCurrentPresetIndex] = useState(1);
+    React.useEffect(() => {
+        presets[1].set();
+    }, []);
 
     const waveforms = ["sine", "square", "triangle", "sawtooth"];
     const filterTypes = ["lowpass", "bandpass", "highpass"];
