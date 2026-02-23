@@ -7,7 +7,7 @@ const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
 const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
 
 export const Keyboard: React.FC = () => {
-        const [lastTouchedNote, setLastTouchedNote] = React.useState<number | null>(null);
+        const [, forceUpdate] = React.useState({});
     const { noteOn, noteOff, activeNotes } = useSynthStore();
     const { octaves } = useFontStore();
     // PC keyboard mapping: map QWERTY keys to piano notes
@@ -72,6 +72,7 @@ export const Keyboard: React.FC = () => {
 
     const playNote = (note: number) => {
         noteOn(note, 100);
+        forceUpdate({});
     };
 
     const stopNote = (note: number) => {
@@ -81,9 +82,7 @@ export const Keyboard: React.FC = () => {
     // Mouse event handlers for click-and-hold behavior
     const handleMouseDown = (note: number, e: React.MouseEvent) => {
         e.preventDefault();
-        if (!activeNotes[note]) {
-            playNote(note);
-        }
+        playNote(note);
     };
 
     const handleMouseUp = (note: number, e: React.MouseEvent) => {
@@ -103,10 +102,7 @@ export const Keyboard: React.FC = () => {
     // Touch event handlers for mobile
     const handleTouchStart = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        if (!activeNotes[note]) {
-            playNote(note);
-        }
-        setLastTouchedNote(note);
+        playNote(note);
     };
 
     const handleTouchEnd = (note: number, e: React.TouchEvent) => {
@@ -114,7 +110,6 @@ export const Keyboard: React.FC = () => {
         if (activeNotes[note]) {
             stopNote(note);
         }
-        setLastTouchedNote(null);
     };
 
     const handleTouchCancel = (note: number, e: React.TouchEvent) => {
@@ -122,7 +117,6 @@ export const Keyboard: React.FC = () => {
         if (activeNotes[note]) {
             stopNote(note);
         }
-        setLastTouchedNote(null);
     };
 
     // Calculate left margin for black keys so they align with white keys
@@ -186,7 +180,7 @@ export const Keyboard: React.FC = () => {
                         }
                         const note = freqArr.indexOf(noteLabel);
                         let classNames = `${styles.whiteKey}`;
-                        if (activeNotes[note] || lastTouchedNote === note) {
+                        if (activeNotes[note]) {
                             classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
                         }
 

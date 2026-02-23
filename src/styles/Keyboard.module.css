@@ -85,7 +85,7 @@
 }
 
 .whiteKeyPressed {
-    background-color: purple;
+    background-color: purple !important;
 }
 
 .blackKey {
