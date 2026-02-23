@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/SynthPutty/static/css/main.9a5323a6.css",
-    "main.js": "/SynthPutty/static/js/main.190c223b.js",
+    "main.css": "/SynthPutty/static/css/main.189df7e9.css",
+    "main.js": "/SynthPutty/static/js/main.d10f710d.js",
     "static/js/453.2626da80.chunk.js": "/SynthPutty/static/js/453.2626da80.chunk.js",
     "static/media/SynthPuttyLogo.png": "/SynthPutty/static/media/SynthPuttyLogo.0cc4b01311b1201c9760.png",
     "index.html": "/SynthPutty/index.html",
-    "main.9a5323a6.css.map": "/SynthPutty/static/css/main.9a5323a6.css.map",
-    "main.190c223b.js.map": "/SynthPutty/static/js/main.190c223b.js.map",
+    "main.189df7e9.css.map": "/SynthPutty/static/css/main.189df7e9.css.map",
+    "main.d10f710d.js.map": "/SynthPutty/static/js/main.d10f710d.js.map",
     "453.2626da80.chunk.js.map": "/SynthPutty/static/js/453.2626da80.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.9a5323a6.css",
-    "static/js/main.190c223b.js"
+    "static/css/main.189df7e9.css",
+    "static/js/main.d10f710d.js"
   ]
 }
