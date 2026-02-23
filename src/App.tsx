@@ -27,16 +27,18 @@ export const App: React.FC = () => {
     return (
         <div className={styles.app}>
             <div className={styles.panel}>
-				<div className={styles.allControlPanels}>
-					<EQVisualizer />
-
-					<div className={styles.topPanelsContainer}>
-						<MainControls />
-					</div>
-				</div>
-
-				<div className={styles.controlsAndKeyboardWrapper}>
+                {/* Top: Logo/MIDI panel */}
+                <div className={styles.logoMidiPanel}>
+                    <MainControls />
+                </div>
+                {/* Middle: 3 panels in a row (landscape only) */}
+                <div className={styles.middleRowPanels}>
+                    <EQVisualizer />
                     <SynthControls />
+                    {/* MainControls is also at top, so skip here */}
+                </div>
+                {/* Bottom: Piano panel (Keyboard) */}
+                <div className={styles.pianoPanel}>
                     <Keyboard />
                 </div>
             </div>
