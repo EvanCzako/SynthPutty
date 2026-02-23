@@ -26,9 +26,19 @@ export const Keyboard: React.FC = () => {
         }
     };
 
+    // Calculate left margin for black keys so they align with white keys
+    // Each octave has 7 white keys, so total white keys = octaves.length * 7
+    // Each white key is width: clamp(18px, 7vw, 103px)
+    // We'll use percent offset: 100% / (number of white keys * 2)
+    const totalWhiteKeys = octaves.length * 7;
+    const blackKeyOffsetPercent = 100 / (totalWhiteKeys * 2);
+    const blackKeyboardStyle = {
+        marginLeft: `${blackKeyOffsetPercent}%`,
+    };
+
     return (
         <div className={styles.keyboard}>
-            <div className={styles.blackKeyboard}>
+            <div className={styles.blackKeyboard} style={blackKeyboardStyle}>
                 {octaves.map((octaveIdx) =>
                     blackKeys.map((keyNote) => {
                         const noteLabel = keyNote + octaveIdx;
