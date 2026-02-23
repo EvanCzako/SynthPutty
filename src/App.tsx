@@ -27,20 +27,40 @@ export const App: React.FC = () => {
     return (
         <div className={styles.app}>
             <div className={styles.panel}>
-                {/* Top: Logo/MIDI panel */}
-                <div className={styles.logoMidiPanel}>
-                    <MainControls />
-                </div>
-                {/* Middle: 3 panels in a row (landscape only) */}
-                <div className={styles.middleRowPanels}>
-                    <EQVisualizer />
-                    <SynthControls />
-                    {/* MainControls is also at top, so skip here */}
-                </div>
-                {/* Bottom: Piano panel (Keyboard) */}
-                <div className={styles.pianoPanel}>
-                    <Keyboard />
-                </div>
+                {/* Portrait: original layout. Landscape: custom split. */}
+                {layout === "landscape" ? (
+                    <>
+                        <div className={styles.middleRowPanels}>
+                            {/* Left column: logo + EQ */}
+                            <div className={styles.leftColumn}>
+                                <div className={styles.logoMidiPanel}>
+                                    <MainControls />
+                                </div>
+                                <EQVisualizer />
+                            </div>
+                            {/* Right column: controls */}
+                            <div className={styles.rightColumn}>
+                                <SynthControls />
+                            </div>
+                        </div>
+                        <div className={styles.pianoPanel}>
+                            <Keyboard />
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className={styles.logoMidiPanel}>
+                            <MainControls />
+                        </div>
+                        <div className={styles.middleRowPanels}>
+                            <EQVisualizer />
+                            <SynthControls />
+                        </div>
+                        <div className={styles.pianoPanel}>
+                            <Keyboard />
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

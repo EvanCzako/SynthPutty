@@ -1,3 +1,61 @@
+@media (orientation: landscape) {
+	.middleRowPanels {
+		flex-direction: row !important;
+		align-items: stretch;
+		justify-content: stretch;
+		width: 100%;
+		min-height: 0;
+		gap: 0;
+		padding: 0;
+		margin: 0;
+		box-sizing: border-box;
+		flex: 1 1 0;
+	}
+	.leftColumn {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-width: 0;
+		min-height: 0;
+	}
+	.rightColumn {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 0;
+		min-width: 0;
+		min-height: 0;
+		height: 100%;
+	}
+	.logoMidiPanel {
+		flex: 0 0 80px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		background: transparent;
+		z-index: 2;
+		margin-top: 0 !important;
+		margin-bottom: 0 !important;
+		padding-top: 0 !important;
+		padding-bottom: 0 !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+		border: none !important;
+	}
+	.leftColumn > .logoMidiPanel {
+		flex-shrink: 0;
+	}
+	.leftColumn > :not(.logoMidiPanel) {
+		flex: 1 1 0;
+		min-height: 0;
+	}
+	.rightColumn > * {
+		flex: 1 1 0;
+		min-height: 0;
+	}
+}
 @media (orientation: portrait) {
    .middleRowPanels {
 	   display: flex;
@@ -109,21 +167,23 @@
 	   flex: 1 1 0;
    }
 
-   .pianoPanel {
-	   flex: 1 1 0;
-	   min-height: 80px;
-	   display: flex;
-	   align-items: stretch;
-	   justify-content: stretch;
-	   width: 100%;
-	   background: transparent;
-	   z-index: 2;
-	   margin: 0;
-	   padding: 0;
-	   position: relative;
-	   overflow: hidden;
-	   border-radius: 0 !important;
-   }
+  .pianoPanel {
+	  height: 25vh;
+	  min-height: 60px;
+	  max-height: 25vh;
+	  flex: none;
+	  display: flex;
+	  align-items: stretch;
+	  justify-content: stretch;
+	  width: 100%;
+	  background: transparent;
+	  z-index: 2;
+	  margin: 0;
+	  padding: 0;
+	  position: relative;
+	  overflow: hidden;
+	  border-radius: 0 !important;
+  }
 }
 
 .pianoEQwrapper {
