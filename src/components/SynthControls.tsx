@@ -75,7 +75,7 @@ export const SynthControls: React.FC = () => {
                 setDetune(20);
                 setVibratoDepth(15);
                 setVibratoRate(5);
-                setFilterCutoff(1200);
+                setFilterCutoff(5050); // Halfway up (range 100-10000)
             }
         },
         {

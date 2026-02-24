@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useCompressor } from "./useCompressor";
 import { useSynthStore } from "../store/synthStore";
 
 type VoiceChain = {
@@ -24,10 +25,13 @@ const masterGain = audioCtx.createGain();
 masterGain.gain.value = 1;
 const analyser = audioCtx.createAnalyser();
 masterGain.connect(analyser);
-analyser.connect(audioCtx.destination);
-masterGain.connect(audioCtx.destination);
+
+// Compressor will connect masterGain to destination
+
 
 export function useSynthEngine() {
+        // Add gentle compression to master output
+        useCompressor(audioCtx, masterGain);
     const {
         waveform,
         filterType,
