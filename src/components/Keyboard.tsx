@@ -7,8 +7,10 @@ const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
 const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
 
 export const Keyboard: React.FC = () => {
-        const [, forceUpdate] = React.useState({});
-        const [pressedNote, setPressedNote] = React.useState<number | null>(null);
+    const [, forceUpdate] = React.useState({});
+    // Multi-touch: track all active touches (touchId -> note)
+    const activeTouches = React.useRef<Map<number, number>>(new Map());
+    const [pressedNote, setPressedNote] = React.useState<number | null>(null); // For mouse only
     const { noteOn, noteOff, activeNotes } = useSynthStore();
     const { octaves } = useFontStore();
     // PC keyboard mapping: map QWERTY keys to piano notes
@@ -119,45 +121,54 @@ export const Keyboard: React.FC = () => {
         window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
 
-    // Touch drag-to-play logic
+    // Multi-touch logic
     const handleTouchStart = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        if (pressedNote !== null && pressedNote !== note) {
-            stopNote(pressedNote);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const touchId = touch.identifier;
+            // Only play if this touchId is new
+            if (!activeTouches.current.has(touchId)) {
+                playNote(note);
+                activeTouches.current.set(touchId, note);
+            }
         }
-        playNote(note);
-        setPressedNote(note);
     };
 
     const handleTouchMove = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        const touch = e.touches[0];
-        const target = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (target && target instanceof HTMLElement && target.dataset.note) {
-            const newNote = parseInt(target.dataset.note, 10);
-            if (pressedNote !== null && pressedNote !== newNote) {
-                stopNote(pressedNote);
-                playNote(newNote);
-                setPressedNote(newNote);
+        // For each changed touch, check if it moved to a new note
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const touchId = touch.identifier;
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target instanceof HTMLElement && target.dataset.note) {
+                const newNote = parseInt(target.dataset.note, 10);
+                const prevNote = activeTouches.current.get(touchId);
+                if (prevNote !== undefined && prevNote !== newNote) {
+                    stopNote(prevNote);
+                    playNote(newNote);
+                    activeTouches.current.set(touchId, newNote);
+                }
             }
         }
     };
 
     const handleTouchEnd = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        if (pressedNote !== null) {
-            stopNote(pressedNote);
-            setPressedNote(null);
+        // For each ended touch, release its note
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const touchId = touch.identifier;
+            const prevNote = activeTouches.current.get(touchId);
+            if (prevNote !== undefined) {
+                stopNote(prevNote);
+                activeTouches.current.delete(touchId);
+            }
         }
     };
 
-    const handleTouchCancel = (note: number, e: React.TouchEvent) => {
-        e.preventDefault();
-        if (pressedNote !== null) {
-            stopNote(pressedNote);
-            setPressedNote(null);
-        }
-    };
+    const handleTouchCancel = handleTouchEnd;
 
     // (Removed duplicate mouse/touch handler declarations; see drag-to-play logic above)
 
