@@ -6,11 +6,13 @@ import logoImg from "../styles/SynthPuttyLogo.png";
 
 export function MainControls() {
     const { 
-		midiEnabled, 
-		setMidiEnabled, 
-	 } =
-        useSynthStore();
-	const { fontSize } = useFontStore();
+        midiEnabled, 
+        setMidiEnabled, 
+    } = useSynthStore();
+    const { fontSize } = useFontStore();
+
+    // Simple mobile detection
+    const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
 
     return (
         <div className={styles.mainControls}>
@@ -19,11 +21,12 @@ export function MainControls() {
             </a>
 
             <div className={styles.buttonsContainer}>
-                <button className={styles.controlsButton} onClick={() => setMidiEnabled(!midiEnabled)}>
-                    {midiEnabled ? "Disable MIDI" : "Enable MIDI"}
-                </button>
+                {!isMobile && (
+                    <button className={styles.controlsButton} onClick={() => setMidiEnabled(!midiEnabled)}>
+                        {midiEnabled ? "Disable MIDI" : "Enable MIDI"}
+                    </button>
+                )}
             </div>
-
         </div>
     );
 }
