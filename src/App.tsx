@@ -6,17 +6,19 @@ import { MainControls } from "./components/MainControls";
 import { EQVisualizer } from "./components/EQVisualizer";
 import { useFontStore } from "./store/fontStore";
 import { useMIDI } from './hooks/useMidi';
+
+import useDisableZoom from './hooks/useDisableZoom';
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
     useSynthEngine(); // audio engine responds to state
     useMIDI();         // optional for now — no-op if not implemented yet
-
-	const {
-		updateFontSize,
-		vw,
-		layout
-	} = useFontStore();
+    useDisableZoom();
+    const {
+        updateFontSize,
+        vw,
+        layout
+    } = useFontStore();
 
     useEffect(() => {
         updateFontSize();
