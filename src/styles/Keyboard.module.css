@@ -112,7 +112,7 @@
 }
 
 .blackKeyPressed {
-    background-color: purple;
+    background-color: purple !important;
 }
 
 .invisibleKey {

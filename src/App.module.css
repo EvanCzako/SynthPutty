@@ -168,9 +168,9 @@
    }
 
   .pianoPanel {
-	height: 25dvh;
+	height: 30dvh;
 	min-height: 60px;
-	max-height: 25dvh;
+	max-height: 30dvh;
 	  flex: none;
 	  display: flex;
 	  align-items: stretch;

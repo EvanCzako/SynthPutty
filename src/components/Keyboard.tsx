@@ -8,6 +8,7 @@ const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
 
 export const Keyboard: React.FC = () => {
         const [, forceUpdate] = React.useState({});
+        const [pressedNote, setPressedNote] = React.useState<number | null>(null);
     const { noteOn, noteOff, activeNotes } = useSynthStore();
     const { octaves } = useFontStore();
     // PC keyboard mapping: map QWERTY keys to piano notes
@@ -79,45 +80,76 @@ export const Keyboard: React.FC = () => {
         noteOff(note);
     };
 
-    // Mouse event handlers for click-and-hold behavior
+    // Mouse drag-to-play logic
     const handleMouseDown = (note: number, e: React.MouseEvent) => {
         e.preventDefault();
+        if (pressedNote !== null && pressedNote !== note) {
+            stopNote(pressedNote);
+        }
         playNote(note);
+        setPressedNote(note);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
     };
 
-    const handleMouseUp = (note: number, e: React.MouseEvent) => {
-        e.preventDefault();
-        if (activeNotes[note]) {
-            stopNote(note);
+    const handleMouseEnter = (note: number, e: React.MouseEvent) => {
+        if (e.buttons === 1) { // Only if mouse is pressed
+            if (pressedNote !== null && pressedNote !== note) {
+                stopNote(pressedNote);
+            }
+            playNote(note);
+            setPressedNote(note);
         }
     };
 
-    const handleMouseLeave = (note: number, e: React.MouseEvent) => {
-        e.preventDefault();
-        if (activeNotes[note]) {
-            stopNote(note);
+    const handleGlobalMouseUp = () => {
+        if (pressedNote !== null) {
+            stopNote(pressedNote);
+            setPressedNote(null);
         }
+        window.removeEventListener('mouseup', handleGlobalMouseUp);
     };
 
-    // Touch event handlers for mobile
+    // Touch drag-to-play logic
     const handleTouchStart = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
+        if (pressedNote !== null && pressedNote !== note) {
+            stopNote(pressedNote);
+        }
         playNote(note);
+        setPressedNote(note);
+    };
+
+    const handleTouchMove = (note: number, e: React.TouchEvent) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (target && target instanceof HTMLElement && target.dataset.note) {
+            const newNote = parseInt(target.dataset.note, 10);
+            if (pressedNote !== null && pressedNote !== newNote) {
+                stopNote(pressedNote);
+                playNote(newNote);
+                setPressedNote(newNote);
+            }
+        }
     };
 
     const handleTouchEnd = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        if (activeNotes[note]) {
-            stopNote(note);
+        if (pressedNote !== null) {
+            stopNote(pressedNote);
+            setPressedNote(null);
         }
     };
 
     const handleTouchCancel = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        if (activeNotes[note]) {
-            stopNote(note);
+        if (pressedNote !== null) {
+            stopNote(pressedNote);
+            setPressedNote(null);
         }
     };
+
+    // (Removed duplicate mouse/touch handler declarations; see drag-to-play logic above)
 
     // Calculate left margin for black keys so they align with white keys
     // Each octave has 7 white keys, so total white keys = octaves.length * 7
@@ -154,10 +186,12 @@ export const Keyboard: React.FC = () => {
                             <div
                                 key={`black-${keyNote}-${octaveIdx}`}
                                 className={classNames}
+                                data-note={note}
                                 onMouseDown={(e) => handleMouseDown(note, e)}
-                                onMouseUp={(e) => handleMouseUp(note, e)}
-                                onMouseLeave={(e) => handleMouseLeave(note, e)}
+                                onMouseEnter={(e) => handleMouseEnter(note, e)}
+                                onMouseUp={handleGlobalMouseUp}
                                 onTouchStart={(e) => handleTouchStart(note, e)}
+                                onTouchMove={(e) => handleTouchMove(note, e)}
                                 onTouchEnd={(e) => handleTouchEnd(note, e)}
                                 onTouchCancel={(e) => handleTouchCancel(note, e)}
                             >
@@ -188,10 +222,12 @@ export const Keyboard: React.FC = () => {
                             <div
                                 key={`white-${keyNote}-${octaveIdx}`}
                                 className={classNames}
+                                data-note={note}
                                 onMouseDown={(e) => handleMouseDown(note, e)}
-                                onMouseUp={(e) => handleMouseUp(note, e)}
-                                onMouseLeave={(e) => handleMouseLeave(note, e)}
+                                onMouseEnter={(e) => handleMouseEnter(note, e)}
+                                onMouseUp={handleGlobalMouseUp}
                                 onTouchStart={(e) => handleTouchStart(note, e)}
+                                onTouchMove={(e) => handleTouchMove(note, e)}
                                 onTouchEnd={(e) => handleTouchEnd(note, e)}
                                 onTouchCancel={(e) => handleTouchCancel(note, e)}
                             >
