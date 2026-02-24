@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSynthStore } from "../store/synthStore";
 
-export function useCompressor(audioCtx: AudioContext, masterGain: GainNode) {
+export function useCompressor(audioCtx: AudioContext, masterGain: GainNode, analyser?: AnalyserNode) {
   useEffect(() => {
     const compressor = audioCtx.createDynamicsCompressor();
     compressor.threshold.value = -18; // dB
@@ -12,11 +12,17 @@ export function useCompressor(audioCtx: AudioContext, masterGain: GainNode) {
 
     masterGain.disconnect();
     masterGain.connect(compressor);
-    compressor.connect(audioCtx.destination);
+    if (analyser) {
+      compressor.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    } else {
+      compressor.connect(audioCtx.destination);
+    }
 
     return () => {
       masterGain.disconnect();
       compressor.disconnect();
+      if (analyser) analyser.disconnect();
     };
-  }, [audioCtx, masterGain]);
+  }, [audioCtx, masterGain, analyser]);
 }

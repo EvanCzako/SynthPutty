@@ -24,14 +24,12 @@ vibOsc.start();
 const masterGain = audioCtx.createGain();
 masterGain.gain.value = 1;
 const analyser = audioCtx.createAnalyser();
-masterGain.connect(analyser);
-
-// Compressor will connect masterGain to destination
+// The analyser will be connected after the compressor in useCompressor
 
 
 export function useSynthEngine() {
-        // Add gentle compression to master output
-        useCompressor(audioCtx, masterGain);
+    // Add gentle compression to master output, and connect analyser after compressor
+    useCompressor(audioCtx, masterGain, analyser);
     const {
         waveform,
         filterType,
