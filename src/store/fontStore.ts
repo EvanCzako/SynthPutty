@@ -3,8 +3,8 @@ import { create } from "zustand";
 interface FontState {
     fontSize: number;
     vw: number;
-	octaves: number[];
-	layout: "portrait" | "landscape";
+    octaves: number[];
+    layout: "portrait" | "landscape";
     setVw: (vw: number) => void;
     setFontSize: (size: number) => void;
     updateFontSize: () => void;
@@ -13,62 +13,67 @@ interface FontState {
 export const useFontStore = create<FontState>((set) => ({
     fontSize: 25,
     vw: 0,
-	octaves: [3,4,5],
-	layout: "landscape",
+    octaves: [3, 4, 5],
+    layout: "landscape",
     setVw: (vw: number) => set({ vw }),
     setFontSize: (size: number) => set({ fontSize: size }),
-	setLayout: (layout: "portrait" | "landscape") => set( {layout}),
+    setLayout: (layout: "portrait" | "landscape") => set({ layout }),
     updateFontSize: () => {
-
         const vw = (window.visualViewport?.width ?? window.innerWidth) / 100;
         const vh = (window.visualViewport?.height ?? window.innerHeight) / 100;
 
         document.documentElement.style.setProperty("--vh", `${vh}px`);
         document.documentElement.style.setProperty("--vw", `${vw}px`);
 
-		const orientationType = screen.orientation.type;
-		if (vh/vw > 1) {
-			set({ layout: "portrait"});
-		} else {
-			set({ layout: "landscape"});
-		}
+        if (vh / vw > 1) {
+            set({ layout: "portrait" });
+        } else {
+            set({ layout: "landscape" });
+        }
 
-
-		const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.8;
-		set({ fontSize: product });
+        const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.8;
+        set({ fontSize: product });
         set({ vw });
-		
-		let numOctaves = Math.max(1, Math.floor(vw/2.5));
 
-		let octs = [];
+        let numOctaves = Math.max(1, Math.floor(vw / 2.5));
 
-		// Pattern: even scales (1,2,3) = full octaves only
-		//          odd scales (1.5,2.5,3.5) = one half-octave + full octaves
-		const isOddScale = numOctaves % 2 === 1;
+        let octs = [];
 
-		if (isOddScale) {
-			// Odd scale: half-octave F3-B3 anchored below C4, full octaves expand upward from C4
-			const numFullOctaves = Math.floor(numOctaves / 2);
-			octs.push(3.5);
-			for (let i = 0; i <= numFullOctaves; i++) {
-				octs.push(4 + i);
-			}
-		} else {
-			// Even scale: only full octaves, expanding outward from C4
-			const numFullOctaves = numOctaves;
-			if (numFullOctaves % 2 === 0) {
-				// Even number of full octaves
-				for (let i = 4.5 - Math.floor(numFullOctaves / 2); i <= 4 + Math.floor(numFullOctaves / 2); i++) {
-					octs.push(Math.floor(i + 1));
-				}
-			} else {
-				// Odd number of full octaves
-				for (let i = 4 - Math.floor(numFullOctaves / 2); i <= 4 + Math.floor(numFullOctaves / 2); i++) {
-					octs.push(i);
-				}
-			}
-		}
-		console.log(octs);
-		set({ octaves: octs })
+        // Pattern: even scales (1,2,3) = full octaves only
+        //          odd scales (1.5,2.5,3.5) = one half-octave + full octaves
+        const isOddScale = numOctaves % 2 === 1;
+
+        if (isOddScale) {
+            // Odd scale: half-octave F3-B3 anchored below C4, full octaves expand upward from C4
+            const numFullOctaves = Math.floor(numOctaves / 2);
+            octs.push(3.5);
+            for (let i = 0; i <= numFullOctaves; i++) {
+                octs.push(4 + i);
+            }
+        } else {
+            // Even scale: only full octaves, expanding outward from C4
+            const numFullOctaves = numOctaves;
+            if (numFullOctaves % 2 === 0) {
+                // Even number of full octaves
+                for (
+                    let i = 4.5 - Math.floor(numFullOctaves / 2);
+                    i <= 4 + Math.floor(numFullOctaves / 2);
+                    i++
+                ) {
+                    octs.push(Math.floor(i + 1));
+                }
+            } else {
+                // Odd number of full octaves
+                for (
+                    let i = 4 - Math.floor(numFullOctaves / 2);
+                    i <= 4 + Math.floor(numFullOctaves / 2);
+                    i++
+                ) {
+                    octs.push(i);
+                }
+            }
+        }
+        console.log(octs);
+        set({ octaves: octs });
     },
 }));

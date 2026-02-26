@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useCallback } from "react";
 import styles from "../styles/EQVisualizer.module.css";
 import { useSynthStore } from "../store/synthStore";
 
-
-
 export function EQVisualizer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const analyserNode = useSynthStore((s) => s.analyserNode);
@@ -40,7 +38,11 @@ export function EQVisualizer() {
         ctx.textAlign = "center";
         for (let i = 0; i <= numTicks; i++) {
             const logFreq = minFreq * Math.pow(maxFreq / minFreq, i / numTicks);
-            const x = 32 + ((Math.log10(logFreq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq))) * (canvas.width - 64);
+            const x =
+                32 +
+                ((Math.log10(logFreq) - Math.log10(minFreq)) /
+                    (Math.log10(maxFreq) - Math.log10(minFreq))) *
+                    (canvas.width - 64);
             ctx.beginPath();
             ctx.moveTo(x, axisY);
             ctx.lineTo(x, axisY + 8);
@@ -66,8 +68,13 @@ export function EQVisualizer() {
             ctx.beginPath();
             for (let i = 0; i < bufferLength; i++) {
                 // Map bin to log frequency axis
-                const freq = analyserNode.context.sampleRate * i / (2 * bufferLength);
-                const x = 32 + ((Math.log10(freq) - Math.log10(minFreq)) / (Math.log10(maxFreq) - Math.log10(minFreq))) * (canvas.width - 64);
+                const freq =
+                    (analyserNode.context.sampleRate * i) / (2 * bufferLength);
+                const x =
+                    32 +
+                    ((Math.log10(freq) - Math.log10(minFreq)) /
+                        (Math.log10(maxFreq) - Math.log10(minFreq))) *
+                        (canvas.width - 64);
                 const y = axisY - (dataArray[i] / 255) * (axisY - 16);
                 if (i === 0) {
                     ctx.moveTo(x, y);

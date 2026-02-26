@@ -34,16 +34,16 @@
 }
 
 .keyboard > div {
-	display: flex;
-	flex-wrap: nowrap;
-	width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
 }
 
 .whiteKeyboard {
-	display: flex;
-	flex-wrap: nowrap;
-	width: 100%;
-	flex: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    flex: 1;
 }
 
 .blackKeyboard {
@@ -61,7 +61,7 @@
 }
 
 .blackKeyboard > div {
-	pointer-events: auto;
+    pointer-events: auto;
 }
 
 .whiteKey {
@@ -75,8 +75,8 @@
     cursor: pointer;
     z-index: 1;
     position: relative;
-	border-radius: 5px;
-	overflow: hidden;
+    border-radius: 5px;
+    overflow: hidden;
 }
 
 .whiteKey:hover {
@@ -97,13 +97,13 @@
     justify-content: center;
     cursor: pointer;
     position: relative;
-	border-radius: 5px;
-	overflow: hidden;
-	z-index: 2;
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 2;
 }
 
 .blackKey::before {
-	content: none;
+    content: none;
 }
 
 .blackKey:hover {

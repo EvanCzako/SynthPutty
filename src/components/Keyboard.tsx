@@ -11,20 +11,20 @@ const whiteKeysFull = ["C", "D", "E", "F", "G", "A", "B"];
 
 // Map: for each white key, what black key comes before it (or undefined)
 const blackKeyBeforeHalf: { [key: string]: string | undefined } = {
-  F: undefined,
-  G: "F#",
-  A: "G#",
-  B: "A#",
+    F: undefined,
+    G: "F#",
+    A: "G#",
+    B: "A#",
 };
 
 const blackKeyBeforeFull: { [key: string]: string | undefined } = {
-  C: undefined,
-  D: "C#",
-  E: "D#",
-  F: undefined,
-  G: "F#",
-  A: "G#",
-  B: "A#",
+    C: undefined,
+    D: "C#",
+    E: "D#",
+    F: undefined,
+    G: "F#",
+    A: "G#",
+    B: "A#",
 };
 
 export const Keyboard: React.FC = () => {
@@ -39,69 +39,70 @@ export const Keyboard: React.FC = () => {
     // We'll use two rows: bottom (Z-M) and top (Q-U)
     const keyMap: { [key: string]: string } = {
         // Lower row (C4-E4)
-        z: 'C4',
-        s: 'C#4',
-        x: 'D4',
-        d: 'D#4',
-        c: 'E4',
-        v: 'F4',
-        g: 'F#4',
-        b: 'G4',
-        h: 'G#4',
-        n: 'A4',
-        j: 'A#4',
-        m: 'B4',
-        ',': 'C5',
-        l: 'C#5',
-        '.': 'D5',
-        ';': 'D#5',
-        '/': 'E5',
+        z: "C4",
+        s: "C#4",
+        x: "D4",
+        d: "D#4",
+        c: "E4",
+        v: "F4",
+        g: "F#4",
+        b: "G4",
+        h: "G#4",
+        n: "A4",
+        j: "A#4",
+        m: "B4",
+        ",": "C5",
+        l: "C#5",
+        ".": "D5",
+        ";": "D#5",
+        "/": "E5",
         // Upper row (C5-E5)
-        q: 'C5',
-        2: 'C#5',
-        w: 'D5',
-        3: 'D#5',
-        e: 'E5',
-        r: 'F5',
-        5: 'F#5',
-        t: 'G5',
-        6: 'G#5',
-        y: 'A5',
-        7: 'A#5',
-        u: 'B5',
-        i: 'C6',
-        9: 'C#6',
-        o: 'D6',
-        0: 'D#6',
-        p: 'E6',
+        q: "C5",
+        2: "C#5",
+        w: "D5",
+        3: "D#5",
+        e: "E5",
+        r: "F5",
+        5: "F#5",
+        t: "G5",
+        6: "G#5",
+        y: "A5",
+        7: "A#5",
+        u: "B5",
+        i: "C6",
+        9: "C#6",
+        o: "D6",
+        0: "D#6",
+        p: "E6",
     };
 
-        React.useEffect(() => {
-            const handleKeyDown = (e: KeyboardEvent) => {
-                const noteLabel = keyMap[e.key.toLowerCase()];
-                if (noteLabel) {
-                    const note = freqArr.indexOf(noteLabel);
-                    if (note >= 0 && !activeNotes[note]) {
-                        playNote(note);
-                    }
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const noteLabel = keyMap[e.key.toLowerCase()];
+            if (noteLabel) {
+                const note = freqArr.indexOf(noteLabel);
+                if (note >= 0 && !activeNotes[note]) {
+                    playNote(note);
                 }
-            };
-            const handleKeyUp = (e: KeyboardEvent) => {
-                const noteLabel = keyMap[e.key.toLowerCase()];
-                if (noteLabel) {
-                    const note = freqArr.indexOf(noteLabel);
-                    if (note >= 0 && activeNotes[note]) {
-                        stopNote(note);
-                    }
+            }
+        };
+        const handleKeyUp = (e: KeyboardEvent) => {
+            const noteLabel = keyMap[e.key.toLowerCase()];
+            if (noteLabel) {
+                const note = freqArr.indexOf(noteLabel);
+                if (note >= 0 && activeNotes[note]) {
+                    stopNote(note);
                 }
-            };
-            window.addEventListener('keydown', handleKeyDown);
-            window.addEventListener('keyup', handleKeyUp);
-            return () => {
-                window.removeEventListener('keydown', handleKeyDown);
-                window.removeEventListener('keyup', handleKeyUp);
-            };
-        }, [activeNotes]);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeNotes]);
     // (Removed duplicate hook declarations)
 
     const playNote = (note: number) => {
@@ -121,11 +122,12 @@ export const Keyboard: React.FC = () => {
         }
         playNote(note);
         setPressedNote(note);
-        window.addEventListener('mouseup', handleGlobalMouseUp);
+        window.addEventListener("mouseup", handleGlobalMouseUp);
     };
 
     const handleMouseEnter = (note: number, e: React.MouseEvent) => {
-        if (e.buttons === 1) { // Only if mouse is pressed
+        if (e.buttons === 1) {
+            // Only if mouse is pressed
             if (pressedNote !== null && pressedNote !== note) {
                 stopNote(pressedNote);
             }
@@ -139,7 +141,7 @@ export const Keyboard: React.FC = () => {
             stopNote(pressedNote);
             setPressedNote(null);
         }
-        window.removeEventListener('mouseup', handleGlobalMouseUp);
+        window.removeEventListener("mouseup", handleGlobalMouseUp);
     };
 
     // Multi-touch logic
@@ -162,8 +164,15 @@ export const Keyboard: React.FC = () => {
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const touchId = touch.identifier;
-            const target = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (target && target instanceof HTMLElement && target.dataset.note) {
+            const target = document.elementFromPoint(
+                touch.clientX,
+                touch.clientY,
+            );
+            if (
+                target &&
+                target instanceof HTMLElement &&
+                target.dataset.note
+            ) {
                 const newNote = parseInt(target.dataset.note, 10);
                 const prevNote = activeTouches.current.get(touchId);
                 if (prevNote !== undefined && prevNote !== newNote) {
@@ -194,7 +203,9 @@ export const Keyboard: React.FC = () => {
     // Calculate total white keys to shift black keys left by half a key width
     const totalWhiteKeys = octaves.reduce((sum, octaveIdx) => {
         const isHalfOctave = octaveIdx % 1 !== 0;
-        return sum + (isHalfOctave ? whiteKeysHalf.length : whiteKeysFull.length);
+        return (
+            sum + (isHalfOctave ? whiteKeysHalf.length : whiteKeysFull.length)
+        );
     }, 0);
 
     const blackKeyboardStyle = {
@@ -207,8 +218,12 @@ export const Keyboard: React.FC = () => {
                 {octaves.map((octaveIdx) => {
                     const isHalfOctave = octaveIdx % 1 !== 0;
                     const actualOctave = Math.floor(octaveIdx);
-                    const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
-                    const blackKeyBefore = isHalfOctave ? blackKeyBeforeHalf : blackKeyBeforeFull;
+                    const whiteKeys = isHalfOctave
+                        ? whiteKeysHalf
+                        : whiteKeysFull;
+                    const blackKeyBefore = isHalfOctave
+                        ? blackKeyBeforeHalf
+                        : blackKeyBeforeFull;
 
                     return whiteKeys.map((whiteKeyNote) => {
                         const blackKeyNote = blackKeyBefore[whiteKeyNote];
@@ -244,7 +259,9 @@ export const Keyboard: React.FC = () => {
                                 onTouchStart={(e) => handleTouchStart(note, e)}
                                 onTouchMove={(e) => handleTouchMove(note, e)}
                                 onTouchEnd={(e) => handleTouchEnd(note, e)}
-                                onTouchCancel={(e) => handleTouchCancel(note, e)}
+                                onTouchCancel={(e) =>
+                                    handleTouchCancel(note, e)
+                                }
                             />
                         );
                     });
@@ -255,7 +272,9 @@ export const Keyboard: React.FC = () => {
                 {octaves.map((octaveIdx) => {
                     const isHalfOctave = octaveIdx % 1 !== 0;
                     const actualOctave = Math.floor(octaveIdx);
-                    const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
+                    const whiteKeys = isHalfOctave
+                        ? whiteKeysHalf
+                        : whiteKeysFull;
 
                     return whiteKeys.map((keyNote) => {
                         const noteLabel = keyNote + actualOctave;
@@ -282,7 +301,9 @@ export const Keyboard: React.FC = () => {
                                 onTouchStart={(e) => handleTouchStart(note, e)}
                                 onTouchMove={(e) => handleTouchMove(note, e)}
                                 onTouchEnd={(e) => handleTouchEnd(note, e)}
-                                onTouchCancel={(e) => handleTouchCancel(note, e)}
+                                onTouchCancel={(e) =>
+                                    handleTouchCancel(note, e)
+                                }
                             >
                                 {showLabel ? keyNote + actualOctave : ""}
                             </div>

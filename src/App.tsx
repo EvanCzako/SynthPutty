@@ -1,24 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { SynthControls } from "./components/SynthControls";
 import { useSynthEngine } from "./hooks/useSynthEngine";
 import { Keyboard } from "./components/Keyboard";
 import { MainControls } from "./components/MainControls";
 import { EQVisualizer } from "./components/EQVisualizer";
 import { useFontStore } from "./store/fontStore";
-import { useMIDI } from './hooks/useMidi';
+import { useMIDI } from "./hooks/useMidi";
 
-import useDisableZoom from './hooks/useDisableZoom';
+import useDisableZoom from "./hooks/useDisableZoom";
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
     useSynthEngine(); // audio engine responds to state
-    useMIDI();         // optional for now — no-op if not implemented yet
+    useMIDI(); // optional for now — no-op if not implemented yet
     useDisableZoom();
-    const {
-        updateFontSize,
-        vw,
-        layout
-    } = useFontStore();
+    const { updateFontSize, vw, layout } = useFontStore();
 
     useEffect(() => {
         updateFontSize();

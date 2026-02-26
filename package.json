@@ -28,7 +28,10 @@
         "eject": "react-scripts eject",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build",
-        "prettier:fix": "npx prettier . --write"
+        "prettier:check": "npx prettier . --check",
+        "prettier:fix": "npx prettier . --write",
+        "lint": "npx eslint src --ext .ts,.tsx",
+        "lint:fix": "npx eslint src --ext .ts,.tsx --fix"
     },
     "browserslist": {
         "production": [

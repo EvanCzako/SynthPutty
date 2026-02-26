@@ -21,9 +21,9 @@ interface SynthState {
     filterQ: number;
     attack: number; // seconds
     release: number; // seconds
-	midiEnabled: boolean;
+    midiEnabled: boolean;
 
-	setMidiEnabled: (enabled: boolean) => void;
+    setMidiEnabled: (enabled: boolean) => void;
     setAttack: (attack: number) => void;
     setRelease: (release: number) => void;
     setFilterQ: (q: number) => void;
@@ -60,9 +60,9 @@ export const useSynthStore = create<SynthState>((set, get) => ({
     filterQ: 1, // default value
     attack: 0.05,
     release: 0.3,
-	midiEnabled: false,
+    midiEnabled: false,
 
-	setMidiEnabled: (enabled: boolean) => set({ midiEnabled: enabled }),
+    setMidiEnabled: (enabled: boolean) => set({ midiEnabled: enabled }),
     setAttack: (attack) => set({ attack }),
     setRelease: (release) => set({ release }),
     setFilterQ: (q: number) => set({ filterQ: q }),

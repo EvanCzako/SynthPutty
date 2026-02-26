@@ -11,7 +11,8 @@ export function useMIDI() {
         let access: any;
         let handleMessage: any;
 
-        (navigator as any).requestMIDIAccess()
+        (navigator as any)
+            .requestMIDIAccess()
             .then((midiAccess: any) => {
                 access = midiAccess;
 
@@ -24,7 +25,10 @@ export function useMIDI() {
                             // Note on
                             console.log([data1, data2]);
                             noteOn(data1, (data2 * 100) / 127);
-                        } else if (command === 0x80 || (command === 0x90 && data2 === 0)) {
+                        } else if (
+                            command === 0x80 ||
+                            (command === 0x90 && data2 === 0)
+                        ) {
                             // Note off
                             noteOff(data1);
                         }
@@ -36,7 +40,10 @@ export function useMIDI() {
                 }
             })
             .catch((err: any) => {
-                alert("MIDI could not be enabled on this device.\n" + (err?.message || err));
+                alert(
+                    "MIDI could not be enabled on this device.\n" +
+                        (err?.message || err),
+                );
                 console.error("MIDI initialization failed:", err);
             });
 
