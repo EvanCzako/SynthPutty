@@ -39,10 +39,6 @@ export const useFontStore = create<FontState>((set) => ({
         set({ vw });
 		
 		let numOctaves = Math.max(1, Math.floor(vw/2.5));
-		// Ensure at least 2 octaves in portrait mode
-		if (vh/vw > 1) {
-			numOctaves = Math.max(2, numOctaves);
-		}
 
 		let octs = [];
 
@@ -75,7 +71,7 @@ export const useFontStore = create<FontState>((set) => ({
 				}
 			}
 		}
-
+		console.log(octs);
 		set({ octaves: octs })
     },
 }));
