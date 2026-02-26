@@ -15,7 +15,7 @@ export function MainControls() {
     const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
 
     return (
-        <div className={styles.mainControls}>
+        <div className={styles.mainControls} style={{ fontSize }}>
             <a href="https://evanczako.github.io/DoughLab2/" target="_blank" rel="noopener noreferrer">
                 <img src={logoImg} className={styles.logo} alt="SynthPutty" />
             </a>
