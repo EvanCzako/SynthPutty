@@ -3,8 +3,29 @@ import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/Keyboard.module.css";
 
-const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
-const blackKeys = ["C#", "D#", "Y#", "F#", "G#", "A#", "Z#"];
+// Half-octave (F-B): 4 white keys, 3 black keys
+const whiteKeysHalf = ["F", "G", "A", "B"];
+
+// Full octave (C-B): 7 white keys, 5 black keys
+const whiteKeysFull = ["C", "D", "E", "F", "G", "A", "B"];
+
+// Map: for each white key, what black key comes before it (or undefined)
+const blackKeyBeforeHalf: { [key: string]: string | undefined } = {
+  F: undefined,
+  G: "F#",
+  A: "G#",
+  B: "A#",
+};
+
+const blackKeyBeforeFull: { [key: string]: string | undefined } = {
+  C: undefined,
+  D: "C#",
+  E: "D#",
+  F: undefined,
+  G: "F#",
+  A: "G#",
+  B: "A#",
+};
 
 export const Keyboard: React.FC = () => {
     const [, forceUpdate] = React.useState({});
@@ -135,7 +156,7 @@ export const Keyboard: React.FC = () => {
         }
     };
 
-    const handleTouchMove = (note: number, e: React.TouchEvent) => {
+    const handleTouchMove = (_note: number, e: React.TouchEvent) => {
         e.preventDefault();
         // For each changed touch, check if it moved to a new note
         for (let i = 0; i < e.changedTouches.length; i++) {
@@ -154,7 +175,7 @@ export const Keyboard: React.FC = () => {
         }
     };
 
-    const handleTouchEnd = (note: number, e: React.TouchEvent) => {
+    const handleTouchEnd = (_note: number, e: React.TouchEvent) => {
         e.preventDefault();
         // For each ended touch, release its note
         for (let i = 0; i < e.changedTouches.length; i++) {
@@ -170,30 +191,39 @@ export const Keyboard: React.FC = () => {
 
     const handleTouchCancel = handleTouchEnd;
 
-    // (Removed duplicate mouse/touch handler declarations; see drag-to-play logic above)
+    // Calculate total white keys to shift black keys left by half a key width
+    const totalWhiteKeys = octaves.reduce((sum, octaveIdx) => {
+        const isHalfOctave = octaveIdx % 1 !== 0;
+        return sum + (isHalfOctave ? whiteKeysHalf.length : whiteKeysFull.length);
+    }, 0);
 
-    // Calculate left margin for black keys so they align with white keys
-    // Each octave has 7 white keys, so total white keys = octaves.length * 7
-    // Each white key is width: clamp(18px, 7vw, 103px)
-    // We'll use percent offset: 100% / (number of white keys * 2)
-    const totalWhiteKeys = octaves.length * 7;
-    const blackKeyOffsetPercent = 100 / (totalWhiteKeys * 2);
     const blackKeyboardStyle = {
-        marginLeft: `${blackKeyOffsetPercent}%`,
+        marginLeft: `${-50 / totalWhiteKeys}%`,
     };
 
     return (
         <div className={styles.keyboard}>
             <div className={styles.blackKeyboard} style={blackKeyboardStyle}>
-                {octaves.map((octaveIdx) =>
-                    blackKeys.map((keyNote) => {
-                        const noteLabel = keyNote + octaveIdx;
-                        let label;
-                        if (keyNote === "C") {
-                            label = noteLabel;
-                        } else {
-                            label = "";
+                {octaves.map((octaveIdx) => {
+                    const isHalfOctave = octaveIdx % 1 !== 0;
+                    const actualOctave = Math.floor(octaveIdx);
+                    const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
+                    const blackKeyBefore = isHalfOctave ? blackKeyBeforeHalf : blackKeyBeforeFull;
+
+                    return whiteKeys.map((whiteKeyNote) => {
+                        const blackKeyNote = blackKeyBefore[whiteKeyNote];
+
+                        if (!blackKeyNote) {
+                            // Invisible spacer where there's no black key
+                            return (
+                                <div
+                                    key={`spacer-${whiteKeyNote}-${octaveIdx}`}
+                                    className={`${styles.blackKey} ${styles.invisibleKey}`}
+                                />
+                            );
                         }
+
+                        const noteLabel = blackKeyNote + actualOctave;
                         const note = freqArr.indexOf(noteLabel);
 
                         let classNames = `${styles.blackKey}`;
@@ -205,7 +235,7 @@ export const Keyboard: React.FC = () => {
 
                         return (
                             <div
-                                key={`black-${keyNote}-${octaveIdx}`}
+                                key={`black-${blackKeyNote}-${octaveIdx}`}
                                 className={classNames}
                                 data-note={note}
                                 onMouseDown={(e) => handleMouseDown(note, e)}
@@ -215,29 +245,31 @@ export const Keyboard: React.FC = () => {
                                 onTouchMove={(e) => handleTouchMove(note, e)}
                                 onTouchEnd={(e) => handleTouchEnd(note, e)}
                                 onTouchCancel={(e) => handleTouchCancel(note, e)}
-                            >
-                                {label}
-                            </div>
+                            />
                         );
-                    }),
-                )}
+                    });
+                })}
             </div>
 
             <div className={styles.whiteKeyboard}>
-                {octaves.map((octaveIdx) =>
-                    whiteKeys.map((keyNote) => {
-                        const noteLabel = keyNote + octaveIdx;
-                        let label;
-                        if (keyNote === "C") {
-                            label = noteLabel;
-                        } else {
-                            label = "";
-                        }
+                {octaves.map((octaveIdx) => {
+                    const isHalfOctave = octaveIdx % 1 !== 0;
+                    const actualOctave = Math.floor(octaveIdx);
+                    const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
+
+                    return whiteKeys.map((keyNote) => {
+                        const noteLabel = keyNote + actualOctave;
                         const note = freqArr.indexOf(noteLabel);
+
                         let classNames = `${styles.whiteKey}`;
                         if (activeNotes[note]) {
                             classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
                         }
+
+                        // Show label at start of each octave section
+                        const showLabel =
+                            (isHalfOctave && keyNote === "F") ||
+                            (!isHalfOctave && keyNote === "C");
 
                         return (
                             <div
@@ -252,11 +284,11 @@ export const Keyboard: React.FC = () => {
                                 onTouchEnd={(e) => handleTouchEnd(note, e)}
                                 onTouchCancel={(e) => handleTouchCancel(note, e)}
                             >
-                                {label}
+                                {showLabel ? keyNote + actualOctave : ""}
                             </div>
                         );
-                    }),
-                )}
+                    });
+                })}
             </div>
         </div>
     );

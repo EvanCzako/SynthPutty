@@ -56,7 +56,6 @@
     height: 160px;
     align-items: flex-start;
     padding-left: 0;
-    /* margin-left is now set dynamically in the component */
     box-sizing: border-box;
     pointer-events: none;
 }
