@@ -1,118 +1,118 @@
 .keyboard {
-    position: relative;
-    height: 160px;
-    display: flex;
-    justify-content: flex-start;
-    user-select: none;
-    flex-direction: column;
-    border: 2px solid var(--color-mid-pink-1);
-    border-radius: 8px;
-    background: var(--color-purple-1);
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
+  position: relative;
+  height: 160px;
+  display: flex;
+  justify-content: flex-start;
+  user-select: none;
+  flex-direction: column;
+  border: 2px solid var(--color-mid-pink-1);
+  border-radius: 8px;
+  background: var(--color-purple-1);
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 @media (orientation: landscape) {
-    .keyboard {
-        height: 100% !important;
-        flex: 1 1 0;
-    }
-    .blackKeyboard {
-        height: 100% !important;
-    }
-    .whiteKey {
-        height: 100% !important;
-    }
-    .blackKey {
-        height: 50% !important;
-    }
+  .keyboard {
+    height: 100% !important;
+    flex: 1 1 0;
+  }
+  .blackKeyboard {
+    height: 100% !important;
+  }
+  .whiteKey {
+    height: 100% !important;
+  }
+  .blackKey {
+    height: 50% !important;
+  }
 }
 
 .keyboard > div {
-    display: flex;
-    flex-wrap: nowrap;
-    width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .whiteKeyboard {
-    display: flex;
-    flex-wrap: nowrap;
-    width: 100%;
-    flex: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  flex: 1;
 }
 
 .blackKeyboard {
-    display: flex;
-    flex-wrap: nowrap;
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 160px;
-    align-items: flex-start;
-    padding-left: 0;
-    box-sizing: border-box;
-    pointer-events: none;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 160px;
+  align-items: flex-start;
+  padding-left: 0;
+  box-sizing: border-box;
+  pointer-events: none;
 }
 
 .blackKeyboard > div {
-    pointer-events: auto;
+  pointer-events: auto;
 }
 
 .whiteKey {
-    flex: 1 1 0;
-    height: 100%;
-    background: white;
-    border: 1px solid #ccc;
-    display: inline-flex;
-    align-items: flex-end;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1;
-    position: relative;
-    border-radius: 5px;
-    overflow: hidden;
+  flex: 1 1 0;
+  height: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 .whiteKey:hover {
-    background-color: white;
+  background-color: white;
 }
 
 .whiteKeyPressed {
-    background-color: purple !important;
+  background-color: purple !important;
 }
 
 .blackKey {
-    flex: 1 1 0;
-    height: 80px;
-    background: rgb(20, 20, 20);
-    border: 1px solid #ccc;
-    display: inline-flex;
-    align-items: flex-end;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    border-radius: 5px;
-    overflow: hidden;
-    z-index: 2;
+  flex: 1 1 0;
+  height: 80px;
+  background: rgb(20, 20, 20);
+  border: 1px solid #ccc;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+  z-index: 2;
 }
 
 .blackKey::before {
-    content: none;
+  content: none;
 }
 
 .blackKey:hover {
-    background-color: rgb(20, 20, 20);
+  background-color: rgb(20, 20, 20);
 }
 
 .blackKeyPressed {
-    background-color: purple !important;
+  background-color: purple !important;
 }
 
 .invisibleKey {
-    visibility: hidden;
+  visibility: hidden;
 }

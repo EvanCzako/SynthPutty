@@ -8,403 +8,386 @@ const whiteKeysHalf = ["F", "G", "A", "B"];
 const whiteKeysFull = ["C", "D", "E", "F", "G", "A", "B"];
 
 const blackKeyBeforeHalf: { [key: string]: string | undefined } = {
-    F: undefined,
-    G: "F#",
-    A: "G#",
-    B: "A#",
+  F: undefined,
+  G: "F#",
+  A: "G#",
+  B: "A#",
 };
 
 const blackKeyBeforeFull: { [key: string]: string | undefined } = {
-    C: undefined,
-    D: "C#",
-    E: "D#",
-    F: undefined,
-    G: "F#",
-    A: "G#",
-    B: "A#",
+  C: undefined,
+  D: "C#",
+  E: "D#",
+  F: undefined,
+  G: "F#",
+  A: "G#",
+  B: "A#",
 };
 
 export const Keyboard: React.FC = () => {
-    const [, forceUpdate] = React.useState({});
-    const activeTouches = React.useRef<Map<number, number>>(new Map());
-    const [pressedNote, setPressedNote] = React.useState<number | null>(null);
-    const { noteOn, noteOff, activeNotes } = useSynthStore();
-    const { octaves } = useFontStore();
-    const keyMap: { [key: string]: string } = {
-        z: "C4",
-        s: "C#4",
-        x: "D4",
-        d: "D#4",
-        c: "E4",
-        v: "F4",
-        g: "F#4",
-        b: "G4",
-        h: "G#4",
-        n: "A4",
-        j: "A#4",
-        m: "B4",
-        ",": "C5",
-        l: "C#5",
-        ".": "D5",
-        ";": "D#5",
-        "/": "E5",
-        q: "C5",
-        2: "C#5",
-        w: "D5",
-        3: "D#5",
-        e: "E5",
-        r: "F5",
-        5: "F#5",
-        t: "G5",
-        6: "G#5",
-        y: "A5",
-        7: "A#5",
-        u: "B5",
-        i: "C6",
-        9: "C#6",
-        o: "D6",
-        0: "D#6",
-        p: "E6",
-    };
+  const [, forceUpdate] = React.useState({});
+  const activeTouches = React.useRef<Map<number, number>>(new Map());
+  const [pressedNote, setPressedNote] = React.useState<number | null>(null);
+  const { noteOn, noteOff, activeNotes } = useSynthStore();
+  const { octaves } = useFontStore();
+  const keyMap: { [key: string]: string } = {
+    z: "C4",
+    s: "C#4",
+    x: "D4",
+    d: "D#4",
+    c: "E4",
+    v: "F4",
+    g: "F#4",
+    b: "G4",
+    h: "G#4",
+    n: "A4",
+    j: "A#4",
+    m: "B4",
+    ",": "C5",
+    l: "C#5",
+    ".": "D5",
+    ";": "D#5",
+    "/": "E5",
+    q: "C5",
+    2: "C#5",
+    w: "D5",
+    3: "D#5",
+    e: "E5",
+    r: "F5",
+    5: "F#5",
+    t: "G5",
+    6: "G#5",
+    y: "A5",
+    7: "A#5",
+    u: "B5",
+    i: "C6",
+    9: "C#6",
+    o: "D6",
+    0: "D#6",
+    p: "E6",
+  };
 
-    React.useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            const noteLabel = keyMap[e.key.toLowerCase()];
-            if (noteLabel) {
-                const note = freqArr.indexOf(noteLabel);
-                if (note >= 0 && !activeNotes[note]) {
-                    playNote(note);
-                }
-            }
-        };
-        const handleKeyUp = (e: KeyboardEvent) => {
-            const noteLabel = keyMap[e.key.toLowerCase()];
-            if (noteLabel) {
-                const note = freqArr.indexOf(noteLabel);
-                if (note >= 0 && activeNotes[note]) {
-                    stopNote(note);
-                }
-            }
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        window.addEventListener("keyup", handleKeyUp);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-            window.removeEventListener("keyup", handleKeyUp);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeNotes]);
-
-    const playNote = (note: number) => {
-        noteOn(note, 100);
-        forceUpdate({});
-    };
-
-    const stopNote = (note: number) => {
-        noteOff(note);
-    };
-
-    const handleMouseDown = (note: number, e: React.MouseEvent) => {
-        e.preventDefault();
-        if (pressedNote !== null && pressedNote !== note) {
-            stopNote(pressedNote);
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const noteLabel = keyMap[e.key.toLowerCase()];
+      if (noteLabel) {
+        const note = freqArr.indexOf(noteLabel);
+        if (note >= 0 && !activeNotes[note]) {
+          playNote(note);
         }
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      const noteLabel = keyMap[e.key.toLowerCase()];
+      if (noteLabel) {
+        const note = freqArr.indexOf(noteLabel);
+        if (note >= 0 && activeNotes[note]) {
+          stopNote(note);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNotes]);
+
+  const playNote = (note: number) => {
+    noteOn(note, 100);
+    forceUpdate({});
+  };
+
+  const stopNote = (note: number) => {
+    noteOff(note);
+  };
+
+  const handleMouseDown = (note: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (pressedNote !== null && pressedNote !== note) {
+      stopNote(pressedNote);
+    }
+    playNote(note);
+    setPressedNote(note);
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+  };
+
+  const handleMouseEnter = (note: number, e: React.MouseEvent) => {
+    if (e.buttons === 1) {
+      if (pressedNote !== null && pressedNote !== note) {
+        stopNote(pressedNote);
+      }
+      playNote(note);
+      setPressedNote(note);
+    }
+  };
+
+  const handleGlobalMouseUp = () => {
+    if (pressedNote !== null) {
+      stopNote(pressedNote);
+      setPressedNote(null);
+    }
+    window.removeEventListener("mouseup", handleGlobalMouseUp);
+  };
+
+  const handleTouchStart = (note: number, e: React.TouchEvent) => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const touchId = touch.identifier;
+      if (!activeTouches.current.has(touchId)) {
         playNote(note);
-        setPressedNote(note);
-        window.addEventListener("mouseup", handleGlobalMouseUp);
-    };
+        activeTouches.current.set(touchId, note);
+      }
+    }
+  };
 
-    const handleMouseEnter = (note: number, e: React.MouseEvent) => {
-        if (e.buttons === 1) {
-            if (pressedNote !== null && pressedNote !== note) {
-                stopNote(pressedNote);
+  const handleTouchMove = (_note: number, e: React.TouchEvent) => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const touchId = touch.identifier;
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (target && target instanceof HTMLElement && target.dataset.note) {
+        const newNote = parseInt(target.dataset.note, 10);
+        const prevNote = activeTouches.current.get(touchId);
+        if (prevNote !== undefined && prevNote !== newNote) {
+          stopNote(prevNote);
+          playNote(newNote);
+          activeTouches.current.set(touchId, newNote);
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = (_note: number, e: React.TouchEvent) => {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const touchId = touch.identifier;
+      const prevNote = activeTouches.current.get(touchId);
+      if (prevNote !== undefined) {
+        stopNote(prevNote);
+        activeTouches.current.delete(touchId);
+      }
+    }
+  };
+
+  const handleTouchCancel = handleTouchEnd;
+
+  const totalWhiteKeys = octaves.reduce((sum, octaveIdx) => {
+    const isHalfOctave = octaveIdx % 1 !== 0;
+    return sum + (isHalfOctave ? whiteKeysHalf.length : whiteKeysFull.length);
+  }, 0);
+
+  const blackKeyboardStyle = {
+    marginLeft: `${-50 / totalWhiteKeys}%`,
+  };
+
+  return (
+    <div className={styles.keyboard}>
+      <div className={styles.blackKeyboard} style={blackKeyboardStyle}>
+        {octaves.map((octaveIdx) => {
+          const isHalfOctave = octaveIdx % 1 !== 0;
+          const actualOctave = Math.floor(octaveIdx);
+          const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
+          const blackKeyBefore = isHalfOctave
+            ? blackKeyBeforeHalf
+            : blackKeyBeforeFull;
+
+          return whiteKeys.map((whiteKeyNote) => {
+            const blackKeyNote = blackKeyBefore[whiteKeyNote];
+
+            if (!blackKeyNote) {
+              return (
+                <div
+                  key={`spacer-${whiteKeyNote}-${octaveIdx}`}
+                  className={`${styles.blackKey} ${styles.invisibleKey}`}
+                />
+              );
             }
-            playNote(note);
-            setPressedNote(note);
-        }
-    };
 
-    const handleGlobalMouseUp = () => {
-        if (pressedNote !== null) {
-            stopNote(pressedNote);
-            setPressedNote(null);
-        }
-        window.removeEventListener("mouseup", handleGlobalMouseUp);
-    };
+            const noteLabel = blackKeyNote + actualOctave;
+            const note = freqArr.indexOf(noteLabel);
 
-    const handleTouchStart = (note: number, e: React.TouchEvent) => {
-        e.preventDefault();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            const touchId = touch.identifier;
-            if (!activeTouches.current.has(touchId)) {
-                playNote(note);
-                activeTouches.current.set(touchId, note);
+            let classNames = `${styles.blackKey}`;
+            if (note < 0) {
+              classNames = `${styles.blackKey} ${styles.invisibleKey}`;
+            } else if (activeNotes[note]) {
+              classNames = `${styles.blackKey} ${styles.blackKeyPressed}`;
             }
-        }
-    };
 
-    const handleTouchMove = (_note: number, e: React.TouchEvent) => {
-        e.preventDefault();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            const touchId = touch.identifier;
-            const target = document.elementFromPoint(
-                touch.clientX,
-                touch.clientY,
+            return (
+              <div
+                key={`black-${blackKeyNote}-${octaveIdx}`}
+                className={classNames}
+                data-note={note}
+                onMouseDown={(e) => handleMouseDown(note, e)}
+                onMouseEnter={(e) => handleMouseEnter(note, e)}
+                onMouseUp={handleGlobalMouseUp}
+                onTouchStart={(e) => handleTouchStart(note, e)}
+                onTouchMove={(e) => handleTouchMove(note, e)}
+                onTouchEnd={(e) => handleTouchEnd(note, e)}
+                onTouchCancel={(e) => handleTouchCancel(note, e)}
+              />
             );
-            if (
-                target &&
-                target instanceof HTMLElement &&
-                target.dataset.note
-            ) {
-                const newNote = parseInt(target.dataset.note, 10);
-                const prevNote = activeTouches.current.get(touchId);
-                if (prevNote !== undefined && prevNote !== newNote) {
-                    stopNote(prevNote);
-                    playNote(newNote);
-                    activeTouches.current.set(touchId, newNote);
-                }
+          });
+        })}
+      </div>
+
+      <div className={styles.whiteKeyboard}>
+        {octaves.map((octaveIdx) => {
+          const isHalfOctave = octaveIdx % 1 !== 0;
+          const actualOctave = Math.floor(octaveIdx);
+          const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
+
+          return whiteKeys.map((keyNote) => {
+            const noteLabel = keyNote + actualOctave;
+            const note = freqArr.indexOf(noteLabel);
+
+            let classNames = `${styles.whiteKey}`;
+            if (activeNotes[note]) {
+              classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
             }
-        }
-    };
 
-    const handleTouchEnd = (_note: number, e: React.TouchEvent) => {
-        e.preventDefault();
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            const touchId = touch.identifier;
-            const prevNote = activeTouches.current.get(touchId);
-            if (prevNote !== undefined) {
-                stopNote(prevNote);
-                activeTouches.current.delete(touchId);
-            }
-        }
-    };
+            const showLabel =
+              (isHalfOctave && keyNote === "F") ||
+              (!isHalfOctave && keyNote === "C");
 
-    const handleTouchCancel = handleTouchEnd;
-
-    const totalWhiteKeys = octaves.reduce((sum, octaveIdx) => {
-        const isHalfOctave = octaveIdx % 1 !== 0;
-        return (
-            sum + (isHalfOctave ? whiteKeysHalf.length : whiteKeysFull.length)
-        );
-    }, 0);
-
-    const blackKeyboardStyle = {
-        marginLeft: `${-50 / totalWhiteKeys}%`,
-    };
-
-    return (
-        <div className={styles.keyboard}>
-            <div className={styles.blackKeyboard} style={blackKeyboardStyle}>
-                {octaves.map((octaveIdx) => {
-                    const isHalfOctave = octaveIdx % 1 !== 0;
-                    const actualOctave = Math.floor(octaveIdx);
-                    const whiteKeys = isHalfOctave
-                        ? whiteKeysHalf
-                        : whiteKeysFull;
-                    const blackKeyBefore = isHalfOctave
-                        ? blackKeyBeforeHalf
-                        : blackKeyBeforeFull;
-
-                    return whiteKeys.map((whiteKeyNote) => {
-                        const blackKeyNote = blackKeyBefore[whiteKeyNote];
-
-                        if (!blackKeyNote) {
-                            return (
-                                <div
-                                    key={`spacer-${whiteKeyNote}-${octaveIdx}`}
-                                    className={`${styles.blackKey} ${styles.invisibleKey}`}
-                                />
-                            );
-                        }
-
-                        const noteLabel = blackKeyNote + actualOctave;
-                        const note = freqArr.indexOf(noteLabel);
-
-                        let classNames = `${styles.blackKey}`;
-                        if (note < 0) {
-                            classNames = `${styles.blackKey} ${styles.invisibleKey}`;
-                        } else if (activeNotes[note]) {
-                            classNames = `${styles.blackKey} ${styles.blackKeyPressed}`;
-                        }
-
-                        return (
-                            <div
-                                key={`black-${blackKeyNote}-${octaveIdx}`}
-                                className={classNames}
-                                data-note={note}
-                                onMouseDown={(e) => handleMouseDown(note, e)}
-                                onMouseEnter={(e) => handleMouseEnter(note, e)}
-                                onMouseUp={handleGlobalMouseUp}
-                                onTouchStart={(e) => handleTouchStart(note, e)}
-                                onTouchMove={(e) => handleTouchMove(note, e)}
-                                onTouchEnd={(e) => handleTouchEnd(note, e)}
-                                onTouchCancel={(e) =>
-                                    handleTouchCancel(note, e)
-                                }
-                            />
-                        );
-                    });
-                })}
-            </div>
-
-            <div className={styles.whiteKeyboard}>
-                {octaves.map((octaveIdx) => {
-                    const isHalfOctave = octaveIdx % 1 !== 0;
-                    const actualOctave = Math.floor(octaveIdx);
-                    const whiteKeys = isHalfOctave
-                        ? whiteKeysHalf
-                        : whiteKeysFull;
-
-                    return whiteKeys.map((keyNote) => {
-                        const noteLabel = keyNote + actualOctave;
-                        const note = freqArr.indexOf(noteLabel);
-
-                        let classNames = `${styles.whiteKey}`;
-                        if (activeNotes[note]) {
-                            classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
-                        }
-
-                        const showLabel =
-                            (isHalfOctave && keyNote === "F") ||
-                            (!isHalfOctave && keyNote === "C");
-
-                        return (
-                            <div
-                                key={`white-${keyNote}-${octaveIdx}`}
-                                className={classNames}
-                                data-note={note}
-                                onMouseDown={(e) => handleMouseDown(note, e)}
-                                onMouseEnter={(e) => handleMouseEnter(note, e)}
-                                onMouseUp={handleGlobalMouseUp}
-                                onTouchStart={(e) => handleTouchStart(note, e)}
-                                onTouchMove={(e) => handleTouchMove(note, e)}
-                                onTouchEnd={(e) => handleTouchEnd(note, e)}
-                                onTouchCancel={(e) =>
-                                    handleTouchCancel(note, e)
-                                }
-                            >
-                                {showLabel ? keyNote + actualOctave : ""}
-                            </div>
-                        );
-                    });
-                })}
-            </div>
-        </div>
-    );
+            return (
+              <div
+                key={`white-${keyNote}-${octaveIdx}`}
+                className={classNames}
+                data-note={note}
+                onMouseDown={(e) => handleMouseDown(note, e)}
+                onMouseEnter={(e) => handleMouseEnter(note, e)}
+                onMouseUp={handleGlobalMouseUp}
+                onTouchStart={(e) => handleTouchStart(note, e)}
+                onTouchMove={(e) => handleTouchMove(note, e)}
+                onTouchEnd={(e) => handleTouchEnd(note, e)}
+                onTouchCancel={(e) => handleTouchCancel(note, e)}
+              >
+                {showLabel ? keyNote + actualOctave : ""}
+              </div>
+            );
+          });
+        })}
+      </div>
+    </div>
+  );
 };
 
 const freqMap: any = {
-    C0: 16.35,
-    "C#0": 17.32,
-    D0: 18.35,
-    "D#0": 19.45,
-    E0: 20.6,
-    F0: 21.83,
-    "F#0": 23.12,
-    G0: 24.5,
-    "G#0": 25.96,
-    A0: 27.5,
-    "A#0": 29.14,
-    B0: 30.87,
-    C1: 32.7,
-    "C#1": 34.65,
-    D1: 36.71,
-    "D#1": 38.89,
-    E1: 41.2,
-    F1: 43.65,
-    "F#1": 46.25,
-    G1: 49,
-    "G#1": 51.91,
-    A1: 55,
-    "A#1": 58.27,
-    B1: 61.74,
-    C2: 65.41,
-    "C#2": 69.3,
-    D2: 73.42,
-    "D#2": 77.78,
-    E2: 82.41,
-    F2: 87.31,
-    "F#2": 92.5,
-    G2: 98,
-    "G#2": 103.83,
-    A2: 110,
-    "A#2": 116.54,
-    B2: 123.47,
-    C3: 130.81,
-    "C#3": 138.59,
-    D3: 146.83,
-    "D#3": 155.56,
-    E3: 164.81,
-    F3: 174.61,
-    "F#3": 185.0,
-    G3: 196.0,
-    "G#3": 207.65,
-    A3: 220.0,
-    "A#3": 233.08,
-    B3: 246.94,
-    C4: 261.63,
-    "C#4": 277.18,
-    D4: 293.66,
-    "D#4": 311.13,
-    E4: 329.63,
-    F4: 349.23,
-    "F#4": 369.99,
-    G4: 392.0,
-    "G#4": 415.3,
-    A4: 440.0,
-    "A#4": 466.16,
-    B4: 493.88,
-    C5: 523.25,
-    "C#5": 554.37,
-    D5: 587.33,
-    "D#5": 622.25,
-    E5: 659.26,
-    F5: 698.46,
-    "F#5": 739.99,
-    G5: 783.99,
-    "G#5": 830.61,
-    A5: 880.0,
-    "A#5": 932.33,
-    B5: 987.77,
-    C6: 1046.5,
-    "C#6": 1108.73,
-    D6: 1174.66,
-    "D#6": 1244.51,
-    E6: 1318.51,
-    F6: 1396.91,
-    "F#6": 1479.98,
-    G6: 1567.98,
-    "G#6": 1661.22,
-    A6: 1760,
-    "A#6": 1864.66,
-    B6: 1975.53,
-    C7: 2093,
-    "C#7": 2217.46,
-    D7: 2349.32,
-    "D#7": 2489,
-    E7: 2637,
-    F7: 2793.83,
-    "F#7": 2959.96,
-    G7: 3135.96,
-    "G#7": 3322.44,
-    A7: 3520,
-    "A#7": 3729.31,
-    B7: 3951,
-    C8: 4186,
-    "C#8": 4434.92,
-    D8: 4698.63,
-    "D#8": 4978,
-    E8: 5274,
-    F8: 5587.65,
-    "F#8": 5919.91,
-    G8: 6271.93,
-    "G#8": 6644.88,
-    A8: 7040.0,
-    "A#8": 7458.62,
-    B8: 7902.13,
+  C0: 16.35,
+  "C#0": 17.32,
+  D0: 18.35,
+  "D#0": 19.45,
+  E0: 20.6,
+  F0: 21.83,
+  "F#0": 23.12,
+  G0: 24.5,
+  "G#0": 25.96,
+  A0: 27.5,
+  "A#0": 29.14,
+  B0: 30.87,
+  C1: 32.7,
+  "C#1": 34.65,
+  D1: 36.71,
+  "D#1": 38.89,
+  E1: 41.2,
+  F1: 43.65,
+  "F#1": 46.25,
+  G1: 49,
+  "G#1": 51.91,
+  A1: 55,
+  "A#1": 58.27,
+  B1: 61.74,
+  C2: 65.41,
+  "C#2": 69.3,
+  D2: 73.42,
+  "D#2": 77.78,
+  E2: 82.41,
+  F2: 87.31,
+  "F#2": 92.5,
+  G2: 98,
+  "G#2": 103.83,
+  A2: 110,
+  "A#2": 116.54,
+  B2: 123.47,
+  C3: 130.81,
+  "C#3": 138.59,
+  D3: 146.83,
+  "D#3": 155.56,
+  E3: 164.81,
+  F3: 174.61,
+  "F#3": 185.0,
+  G3: 196.0,
+  "G#3": 207.65,
+  A3: 220.0,
+  "A#3": 233.08,
+  B3: 246.94,
+  C4: 261.63,
+  "C#4": 277.18,
+  D4: 293.66,
+  "D#4": 311.13,
+  E4: 329.63,
+  F4: 349.23,
+  "F#4": 369.99,
+  G4: 392.0,
+  "G#4": 415.3,
+  A4: 440.0,
+  "A#4": 466.16,
+  B4: 493.88,
+  C5: 523.25,
+  "C#5": 554.37,
+  D5: 587.33,
+  "D#5": 622.25,
+  E5: 659.26,
+  F5: 698.46,
+  "F#5": 739.99,
+  G5: 783.99,
+  "G#5": 830.61,
+  A5: 880.0,
+  "A#5": 932.33,
+  B5: 987.77,
+  C6: 1046.5,
+  "C#6": 1108.73,
+  D6: 1174.66,
+  "D#6": 1244.51,
+  E6: 1318.51,
+  F6: 1396.91,
+  "F#6": 1479.98,
+  G6: 1567.98,
+  "G#6": 1661.22,
+  A6: 1760,
+  "A#6": 1864.66,
+  B6: 1975.53,
+  C7: 2093,
+  "C#7": 2217.46,
+  D7: 2349.32,
+  "D#7": 2489,
+  E7: 2637,
+  F7: 2793.83,
+  "F#7": 2959.96,
+  G7: 3135.96,
+  "G#7": 3322.44,
+  A7: 3520,
+  "A#7": 3729.31,
+  B7: 3951,
+  C8: 4186,
+  "C#8": 4434.92,
+  D8: 4698.63,
+  "D#8": 4978,
+  E8: 5274,
+  F8: 5587.65,
+  "F#8": 5919.91,
+  G8: 6271.93,
+  "G#8": 6644.88,
+  A8: 7040.0,
+  "A#8": 7458.62,
+  B8: 7902.13,
 };
 
 const freqArr = Object.keys(freqMap);

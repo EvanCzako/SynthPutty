@@ -11,52 +11,52 @@ import useDisableZoom from "./hooks/useDisableZoom";
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
-    useSynthEngine();
-    useMIDI();
-    useDisableZoom();
-    const { updateFontSize, vw, layout } = useFontStore();
+  useSynthEngine();
+  useMIDI();
+  useDisableZoom();
+  const { updateFontSize, vw, layout } = useFontStore();
 
-    useEffect(() => {
-        updateFontSize();
-        window.addEventListener("resize", updateFontSize);
-        return () => window.removeEventListener("resize", updateFontSize);
-    }, [updateFontSize, layout, vw]);
+  useEffect(() => {
+    updateFontSize();
+    window.addEventListener("resize", updateFontSize);
+    return () => window.removeEventListener("resize", updateFontSize);
+  }, [updateFontSize, layout, vw]);
 
-    return (
-        <div className={styles.app}>
-            <div className={styles.panel}>
-                {layout === "landscape" ? (
-                    <>
-                        <div className={styles.middleRowPanels}>
-                            <div className={styles.leftColumn}>
-                                <div className={styles.logoMidiPanel}>
-                                    <MainControls />
-                                </div>
-                                <EQVisualizer />
-                            </div>
-                            <div className={styles.rightColumn}>
-                                <SynthControls />
-                            </div>
-                        </div>
-                        <div className={styles.pianoPanel}>
-                            <Keyboard />
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className={styles.logoMidiPanel}>
-                            <MainControls />
-                        </div>
-                        <div className={styles.middleRowPanels}>
-                            <EQVisualizer />
-                            <SynthControls />
-                        </div>
-                        <div className={styles.pianoPanel}>
-                            <Keyboard />
-                        </div>
-                    </>
-                )}
+  return (
+    <div className={styles.app}>
+      <div className={styles.panel}>
+        {layout === "landscape" ? (
+          <>
+            <div className={styles.middleRowPanels}>
+              <div className={styles.leftColumn}>
+                <div className={styles.logoMidiPanel}>
+                  <MainControls />
+                </div>
+                <EQVisualizer />
+              </div>
+              <div className={styles.rightColumn}>
+                <SynthControls />
+              </div>
             </div>
-        </div>
-    );
+            <div className={styles.pianoPanel}>
+              <Keyboard />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.logoMidiPanel}>
+              <MainControls />
+            </div>
+            <div className={styles.middleRowPanels}>
+              <EQVisualizer />
+              <SynthControls />
+            </div>
+            <div className={styles.pianoPanel}>
+              <Keyboard />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
 };
