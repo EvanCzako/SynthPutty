@@ -7,7 +7,7 @@ export function useCompressor(
 ) {
     useEffect(() => {
         const compressor = audioCtx.createDynamicsCompressor();
-        compressor.threshold.value = -18; // dB
+        compressor.threshold.value = -18;
         compressor.knee.value = 18;
         compressor.ratio.value = 4;
         compressor.attack.value = 0.003;

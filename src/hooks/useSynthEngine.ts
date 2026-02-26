@@ -24,10 +24,8 @@ vibOsc.start();
 const masterGain = audioCtx.createGain();
 masterGain.gain.value = 1;
 const analyser = audioCtx.createAnalyser();
-// The analyser will be connected after the compressor in useCompressor
 
 export function useSynthEngine() {
-    // Add gentle compression to master output, and connect analyser after compressor
     useCompressor(audioCtx, masterGain, analyser);
     const {
         waveform,
@@ -61,7 +59,6 @@ export function useSynthEngine() {
         setVibratoOsc(vibOsc, vibGain);
     }
 
-    // Clear function to manually stop all notes
     const clearAllNotes = () => {
         const playingNotes = playingNotesRef.current;
         for (const note in playingNotes) {
@@ -72,11 +69,10 @@ export function useSynthEngine() {
                 gain.gain.cancelScheduledValues(now);
                 gain.gain.setValueAtTime(gain.gain.value, now);
 
-                // Release ramp down to near zero over release seconds
                 gain.gain.linearRampToValueAtTime(0.001, now + release);
 
                 oscillators.forEach(
-                    (osc) => osc.stop(now + release + 0.05), // stop oscillator after release fades out
+                    (osc) => osc.stop(now + release + 0.05),
                 );
             });
         }
@@ -84,7 +80,6 @@ export function useSynthEngine() {
         setActiveNotes({});
     };
 
-    // Update master volume
     useEffect(() => {
         masterGain.gain.setTargetAtTime(
             masterVolume,
@@ -93,7 +88,6 @@ export function useSynthEngine() {
         );
     }, [masterVolume]);
 
-    // Cleanup and rebuild notes if waveform, voices, or detune change
     useEffect(() => {
         const playingNotes = playingNotesRef.current;
 
@@ -101,18 +95,16 @@ export function useSynthEngine() {
             const note = Number(noteStr);
             const chains = playingNotes[note];
 
-            // Fade out existing
             chains.forEach(({ oscillators, gain }) => {
                 const now = audioCtx.currentTime;
 
                 gain.gain.cancelScheduledValues(now);
                 gain.gain.setValueAtTime(gain.gain.value, now);
 
-                // Release ramp down to near zero over release seconds
                 gain.gain.linearRampToValueAtTime(0.001, now + release);
 
                 oscillators.forEach(
-                    (osc) => osc.stop(now + release + 0.05), // stop oscillator after release fades out
+                    (osc) => osc.stop(now + release + 0.05),
                 );
             });
             delete playingNotes[note];
@@ -157,10 +149,8 @@ export function useSynthEngine() {
                 const velocityGain =
                     (velocity / 127) * (masterVolume / (totalOscillators + 1));
 
-                // Start gain at near zero to avoid clicks
                 gain.gain.setValueAtTime(0.001, now);
 
-                // Attack ramp up to full velocityGain over attack seconds
                 gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
 
                 if (filterEnabled) {
@@ -178,7 +168,7 @@ export function useSynthEngine() {
 
             playingNotes[note] = chains;
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [waveform, voices, masterVolume]);
 
     useEffect(() => {
@@ -194,7 +184,6 @@ export function useSynthEngine() {
             .map(Number)
             .filter((note) => !nextNotes[note]);
 
-        // Release notes
         for (const note of releasedNotes) {
             const chains = playingNotesRef.current[note];
             if (chains) {
@@ -210,7 +199,6 @@ export function useSynthEngine() {
             }
         }
 
-        // Play new notes
         for (const note of newNotes) {
             const freq = midiToFreq(note);
             const velocity = nextNotes[note].velocity;
@@ -263,7 +251,6 @@ export function useSynthEngine() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeNotes]);
 
-    // For detune
     useEffect(() => {
         const playingNotes = playingNotesRef.current;
         for (const chains of Object.values(playingNotes)) {
@@ -282,7 +269,6 @@ export function useSynthEngine() {
         }
     }, [detune]);
 
-    // For persisting vibrato
     useEffect(() => {
         if (vibratoOsc) {
             vibratoOsc.frequency.setTargetAtTime(
@@ -291,7 +277,7 @@ export function useSynthEngine() {
                 0.05,
             );
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vibratoRate]);
 
     useEffect(() => {
@@ -305,12 +291,10 @@ export function useSynthEngine() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [vibratoDepth]);
 
-    // When filterEnabled changes, update all playing notes connections
     useEffect(() => {
         const playingNotes = playingNotesRef.current;
         for (const chains of Object.values(playingNotes)) {
             chains.forEach(({ oscillators, filter, gain }) => {
-                // Disconnect existing connections first
                 oscillators.forEach((osc) => {
                     try {
                         osc.disconnect();
@@ -323,7 +307,6 @@ export function useSynthEngine() {
                     gain.disconnect();
                 } catch {}
 
-                // Reconnect based on filterEnabled
                 if (filterEnabled) {
                     oscillators.forEach((osc) => osc.connect(filter));
                     filter.connect(gain);
@@ -332,7 +315,6 @@ export function useSynthEngine() {
                 }
                 gain.connect(masterGain);
 
-                // Update filter params anyway for safety
                 filter.type = filterType;
                 filter.frequency.setTargetAtTime(
                     filterCutoff,
@@ -347,7 +329,6 @@ export function useSynthEngine() {
     return { clearAllNotes };
 }
 
-// Helpers
 function midiToFreq(note: number): number {
     return 440 * Math.pow(2, (note - 69) / 12);
 }

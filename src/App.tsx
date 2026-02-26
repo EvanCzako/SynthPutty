@@ -11,8 +11,8 @@ import useDisableZoom from "./hooks/useDisableZoom";
 import styles from "./App.module.css";
 
 export const App: React.FC = () => {
-    useSynthEngine(); // audio engine responds to state
-    useMIDI(); // optional for now — no-op if not implemented yet
+    useSynthEngine();
+    useMIDI();
     useDisableZoom();
     const { updateFontSize, vw, layout } = useFontStore();
 
@@ -25,18 +25,15 @@ export const App: React.FC = () => {
     return (
         <div className={styles.app}>
             <div className={styles.panel}>
-                {/* Portrait: original layout. Landscape: custom split. */}
                 {layout === "landscape" ? (
                     <>
                         <div className={styles.middleRowPanels}>
-                            {/* Left column: logo + EQ */}
                             <div className={styles.leftColumn}>
                                 <div className={styles.logoMidiPanel}>
                                     <MainControls />
                                 </div>
                                 <EQVisualizer />
                             </div>
-                            {/* Right column: controls */}
                             <div className={styles.rightColumn}>
                                 <SynthControls />
                             </div>

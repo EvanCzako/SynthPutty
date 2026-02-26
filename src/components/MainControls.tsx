@@ -1,4 +1,3 @@
-// components/MainControls.tsx
 import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/MainControls.module.css";
@@ -8,7 +7,6 @@ export function MainControls() {
     const { midiEnabled, setMidiEnabled } = useSynthStore();
     const { fontSize } = useFontStore();
 
-    // Simple mobile detection
     const isMobile =
         typeof navigator !== "undefined" &&
         /Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(

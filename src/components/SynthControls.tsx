@@ -75,7 +75,7 @@ export const SynthControls: React.FC = () => {
                 setDetune(20);
                 setVibratoDepth(15);
                 setVibratoRate(5);
-                setFilterCutoff(5050); // Halfway up (range 100-10000)
+                setFilterCutoff(5050);
             },
         },
         {
@@ -116,9 +116,7 @@ export const SynthControls: React.FC = () => {
             className={styles.controlsContainer}
             style={{ fontSize: fontSize }}
         >
-            {/* Oscillator and Filter Controls Wrapper */}
             <div className={styles.oscFilterWrapper}>
-                {/* Oscillator Controls - Left Column */}
                 <div className={styles.oscColumn}>
                     <div className={styles.controlLabel}>
                         <label>Wave</label>
@@ -216,7 +214,6 @@ export const SynthControls: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Filter Controls - Right Column */}
                 <div className={styles.filterColumn}>
                     <div className={styles.controlLabel}>
                         <label>Volume</label>

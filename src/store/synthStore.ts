@@ -1,4 +1,3 @@
-// src/store/synthStore.ts
 import { create } from "zustand";
 
 export type WaveformType = "sine" | "square" | "triangle" | "sawtooth";
@@ -19,8 +18,8 @@ interface SynthState {
     vibratoOsc: OscillatorNode | null;
     vibratoGain: GainNode | null;
     filterQ: number;
-    attack: number; // seconds
-    release: number; // seconds
+    attack: number;
+    release: number;
     midiEnabled: boolean;
 
     setMidiEnabled: (enabled: boolean) => void;
@@ -52,12 +51,12 @@ export const useSynthStore = create<SynthState>((set, get) => ({
     activeNotes: {},
     masterVolume: 0.5,
     filterEnabled: false,
-    vibratoRate: 0, // in Hz
-    vibratoDepth: 0, // in cents (detune range)
+    vibratoRate: 0,
+    vibratoDepth: 0,
     analyserNode: null,
     vibratoOsc: null as OscillatorNode | null,
     vibratoGain: null as GainNode | null,
-    filterQ: 1, // default value
+    filterQ: 1,
     attack: 0.05,
     release: 0.3,
     midiEnabled: false,

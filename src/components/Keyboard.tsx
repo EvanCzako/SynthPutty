@@ -3,13 +3,10 @@ import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/Keyboard.module.css";
 
-// Half-octave (F-B): 4 white keys, 3 black keys
 const whiteKeysHalf = ["F", "G", "A", "B"];
 
-// Full octave (C-B): 7 white keys, 5 black keys
 const whiteKeysFull = ["C", "D", "E", "F", "G", "A", "B"];
 
-// Map: for each white key, what black key comes before it (or undefined)
 const blackKeyBeforeHalf: { [key: string]: string | undefined } = {
     F: undefined,
     G: "F#",
@@ -29,16 +26,11 @@ const blackKeyBeforeFull: { [key: string]: string | undefined } = {
 
 export const Keyboard: React.FC = () => {
     const [, forceUpdate] = React.useState({});
-    // Multi-touch: track all active touches (touchId -> note)
     const activeTouches = React.useRef<Map<number, number>>(new Map());
-    const [pressedNote, setPressedNote] = React.useState<number | null>(null); // For mouse only
+    const [pressedNote, setPressedNote] = React.useState<number | null>(null);
     const { noteOn, noteOff, activeNotes } = useSynthStore();
     const { octaves } = useFontStore();
-    // PC keyboard mapping: map QWERTY keys to piano notes
-    // Example mapping: ZSXDCVGBHNJMQ2W3ER5T6Y7U (white/black keys left to right)
-    // We'll use two rows: bottom (Z-M) and top (Q-U)
     const keyMap: { [key: string]: string } = {
-        // Lower row (C4-E4)
         z: "C4",
         s: "C#4",
         x: "D4",
@@ -56,7 +48,6 @@ export const Keyboard: React.FC = () => {
         ".": "D5",
         ";": "D#5",
         "/": "E5",
-        // Upper row (C5-E5)
         q: "C5",
         2: "C#5",
         w: "D5",
@@ -101,9 +92,8 @@ export const Keyboard: React.FC = () => {
             window.removeEventListener("keydown", handleKeyDown);
             window.removeEventListener("keyup", handleKeyUp);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeNotes]);
-    // (Removed duplicate hook declarations)
 
     const playNote = (note: number) => {
         noteOn(note, 100);
@@ -114,7 +104,6 @@ export const Keyboard: React.FC = () => {
         noteOff(note);
     };
 
-    // Mouse drag-to-play logic
     const handleMouseDown = (note: number, e: React.MouseEvent) => {
         e.preventDefault();
         if (pressedNote !== null && pressedNote !== note) {
@@ -127,7 +116,6 @@ export const Keyboard: React.FC = () => {
 
     const handleMouseEnter = (note: number, e: React.MouseEvent) => {
         if (e.buttons === 1) {
-            // Only if mouse is pressed
             if (pressedNote !== null && pressedNote !== note) {
                 stopNote(pressedNote);
             }
@@ -144,13 +132,11 @@ export const Keyboard: React.FC = () => {
         window.removeEventListener("mouseup", handleGlobalMouseUp);
     };
 
-    // Multi-touch logic
     const handleTouchStart = (note: number, e: React.TouchEvent) => {
         e.preventDefault();
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const touchId = touch.identifier;
-            // Only play if this touchId is new
             if (!activeTouches.current.has(touchId)) {
                 playNote(note);
                 activeTouches.current.set(touchId, note);
@@ -160,7 +146,6 @@ export const Keyboard: React.FC = () => {
 
     const handleTouchMove = (_note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        // For each changed touch, check if it moved to a new note
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const touchId = touch.identifier;
@@ -186,7 +171,6 @@ export const Keyboard: React.FC = () => {
 
     const handleTouchEnd = (_note: number, e: React.TouchEvent) => {
         e.preventDefault();
-        // For each ended touch, release its note
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const touchId = touch.identifier;
@@ -200,7 +184,6 @@ export const Keyboard: React.FC = () => {
 
     const handleTouchCancel = handleTouchEnd;
 
-    // Calculate total white keys to shift black keys left by half a key width
     const totalWhiteKeys = octaves.reduce((sum, octaveIdx) => {
         const isHalfOctave = octaveIdx % 1 !== 0;
         return (
@@ -229,7 +212,6 @@ export const Keyboard: React.FC = () => {
                         const blackKeyNote = blackKeyBefore[whiteKeyNote];
 
                         if (!blackKeyNote) {
-                            // Invisible spacer where there's no black key
                             return (
                                 <div
                                     key={`spacer-${whiteKeyNote}-${octaveIdx}`}
@@ -285,7 +267,6 @@ export const Keyboard: React.FC = () => {
                             classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
                         }
 
-                        // Show label at start of each octave section
                         const showLabel =
                             (isHalfOctave && keyNote === "F") ||
                             (!isHalfOctave && keyNote === "C");

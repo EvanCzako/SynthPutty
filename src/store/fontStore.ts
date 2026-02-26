@@ -39,22 +39,17 @@ export const useFontStore = create<FontState>((set) => ({
 
         let octs = [];
 
-        // Pattern: even scales (1,2,3) = full octaves only
-        //          odd scales (1.5,2.5,3.5) = one half-octave + full octaves
         const isOddScale = numOctaves % 2 === 1;
 
         if (isOddScale) {
-            // Odd scale: half-octave F3-B3 anchored below C4, full octaves expand upward from C4
             const numFullOctaves = Math.floor(numOctaves / 2);
             octs.push(3.5);
             for (let i = 0; i <= numFullOctaves; i++) {
                 octs.push(4 + i);
             }
         } else {
-            // Even scale: only full octaves, expanding outward from C4
             const numFullOctaves = numOctaves;
             if (numFullOctaves % 2 === 0) {
-                // Even number of full octaves
                 for (
                     let i = 4.5 - Math.floor(numFullOctaves / 2);
                     i <= 4 + Math.floor(numFullOctaves / 2);
@@ -63,7 +58,6 @@ export const useFontStore = create<FontState>((set) => ({
                     octs.push(Math.floor(i + 1));
                 }
             } else {
-                // Odd number of full octaves
                 for (
                     let i = 4 - Math.floor(numFullOctaves / 2);
                     i <= 4 + Math.floor(numFullOctaves / 2);
