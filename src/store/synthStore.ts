@@ -74,8 +74,10 @@ export const useSynthStore = create<SynthState>((set, get) => ({
   setFilterCutoff: (filterCutoff) => set({ filterCutoff }),
   setDetune: (detune) => set({ detune }),
   setVoices: (voices) => set({ voices }),
-  setActiveNotes: (activeNotes: Record<number, { velocity: number }>) =>
-    set({ activeNotes }),
+  setActiveNotes: (activeNotes: Record<number, { velocity: number }>) => {
+		set({ activeNotes });
+	},
+    
   setMasterVolume: (volume: number) => set({ masterVolume: volume }),
 
   noteOn: (note, velocity) =>

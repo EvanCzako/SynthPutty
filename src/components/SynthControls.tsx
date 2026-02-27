@@ -87,6 +87,7 @@ export const SynthControls: React.FC = () => {
         setDetune(0);
         setVibratoDepth(34);
         setVibratoRate(5);
+				setFilterCutoff(5050);
       },
     },
   ];

@@ -21,7 +21,6 @@ export function useMIDI() {
             const command = status & 0xf0;
 
             if (command === 0x90 && data2 > 0) {
-              console.log([data1, data2]);
               noteOn(data1, (data2 * 100) / 127);
             } else if (command === 0x80 || (command === 0x90 && data2 === 0)) {
               noteOff(data1);

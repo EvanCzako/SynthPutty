@@ -1,4 +1,4 @@
-import React from "react";
+import React, { act } from "react";
 import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/Keyboard.module.css";
@@ -7,14 +7,14 @@ const whiteKeysHalf = ["F", "G", "A", "B"];
 
 const whiteKeysFull = ["C", "D", "E", "F", "G", "A", "B"];
 
-const blackKeyBeforeHalf: { [key: string]: string | undefined } = {
+const blackKeysHalf: { [key: string]: string | undefined } = {
   F: undefined,
   G: "F#",
   A: "G#",
   B: "A#",
 };
 
-const blackKeyBeforeFull: { [key: string]: string | undefined } = {
+const blackKeysFull: { [key: string]: string | undefined } = {
   C: undefined,
   D: "C#",
   E: "D#",
@@ -194,8 +194,8 @@ export const Keyboard: React.FC = () => {
           const actualOctave = Math.floor(octaveIdx);
           const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
           const blackKeyBefore = isHalfOctave
-            ? blackKeyBeforeHalf
-            : blackKeyBeforeFull;
+            ? blackKeysHalf
+            : blackKeysFull;
 
           return whiteKeys.map((whiteKeyNote) => {
             const blackKeyNote = blackKeyBefore[whiteKeyNote];

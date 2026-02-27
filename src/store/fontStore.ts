@@ -67,7 +67,6 @@ export const useFontStore = create<FontState>((set) => ({
         }
       }
     }
-    console.log(octs);
     set({ octaves: octs });
   },
 }));
