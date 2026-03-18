@@ -47,11 +47,15 @@ export const SynthControls: React.FC = () => {
       set: () => {
         setWaveform("sine");
         setFilterEnabled(false);
+        setFilterType("lowpass");
+        setFilterCutoff(1200);
+        setFilterQ(1);
         setVoices(1);
         setDetune(0);
         setVibratoDepth(0);
         setVibratoRate(0);
-        setFilterCutoff(1200);
+        setAttack(0.05);
+        setRelease(0.3);
       },
     },
     {
@@ -59,11 +63,15 @@ export const SynthControls: React.FC = () => {
       set: () => {
         setWaveform("sawtooth");
         setFilterEnabled(true);
+        setFilterType("lowpass");
+        setFilterCutoff(1200);
+        setFilterQ(5);
         setVoices(3);
         setDetune(20);
         setVibratoDepth(15);
         setVibratoRate(5);
-        setFilterCutoff(1200);
+        setAttack(0.05);
+        setRelease(0.4);
       },
     },
     {
@@ -71,11 +79,15 @@ export const SynthControls: React.FC = () => {
       set: () => {
         setWaveform("square");
         setFilterEnabled(true);
+        setFilterType("lowpass");
+        setFilterCutoff(5050);
+        setFilterQ(3);
         setVoices(3);
         setDetune(20);
         setVibratoDepth(15);
         setVibratoRate(5);
-        setFilterCutoff(5050);
+        setAttack(0.02);
+        setRelease(0.3);
       },
     },
     {
@@ -83,11 +95,15 @@ export const SynthControls: React.FC = () => {
       set: () => {
         setWaveform("sine");
         setFilterEnabled(false);
+        setFilterType("lowpass");
+        setFilterCutoff(5050);
+        setFilterQ(1);
         setVoices(1);
         setDetune(0);
         setVibratoDepth(34);
         setVibratoRate(5);
-				setFilterCutoff(5050);
+        setAttack(0.1);
+        setRelease(0.5);
       },
     },
   ];
