@@ -35,38 +35,33 @@ export const useFontStore = create<FontState>((set) => ({
     set({ fontSize: product });
     set({ vw });
 
-    let numOctaves = Math.max(1, Math.floor(vw / 2.5));
+    const w = window.visualViewport?.width ?? window.innerWidth;
+    let octs: number[];
 
-    let octs = [];
-
-    const isOddScale = numOctaves % 2 === 1;
-
-    if (isOddScale) {
-      const numFullOctaves = Math.floor(numOctaves / 2);
-      octs.push(3.5);
-      for (let i = 0; i <= numFullOctaves; i++) {
-        octs.push(4 + i);
-      }
+    if (w > 2500) {
+      octs = [1, 2, 3, 4, 5, 6];
+    } else if (w > 2100) {
+      octs = [1.5, 2, 3, 4, 5, 6];
+    } else if (w > 1700) {
+      octs = [2, 3, 4, 5, 6];
+    } else if (w > 1500) {
+      octs = [2.5, 3, 4, 5, 6];
+    } else if (w > 1300) {
+      octs = [3, 4, 5, 6];
+    } else if (w > 1100) {
+      octs = [2.5, 3, 4, 5];
+    } else if (w > 900) {
+      octs = [3, 4, 5];
+    } else if (w > 700) {
+      octs = [3.5, 4, 5];
+    } else if (w > 550) {
+      octs = [4, 5];
+    } else if (w > 360) {
+      octs = [3.5, 4];
     } else {
-      const numFullOctaves = numOctaves;
-      if (numFullOctaves % 2 === 0) {
-        for (
-          let i = 4.5 - Math.floor(numFullOctaves / 2);
-          i <= 4 + Math.floor(numFullOctaves / 2);
-          i++
-        ) {
-          octs.push(Math.floor(i + 1));
-        }
-      } else {
-        for (
-          let i = 4 - Math.floor(numFullOctaves / 2);
-          i <= 4 + Math.floor(numFullOctaves / 2);
-          i++
-        ) {
-          octs.push(i);
-        }
-      }
+      octs = [4];
     }
+
     set({ octaves: octs });
   },
 }));

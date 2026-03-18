@@ -1,7 +1,7 @@
 import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/MainControls.module.css";
-import logoImg from "../styles/SynthPuttyLogo.png";
+import logoImg from "../styles/SynthPuttyLogo-downSaturated.png";
 
 export function MainControls() {
   const { midiEnabled, setMidiEnabled } = useSynthStore();
@@ -15,12 +15,14 @@ export function MainControls() {
 
   return (
     <div className={styles.mainControls} style={{ fontSize }}>
+      <img src={logoImg} className={styles.logo} alt="SynthPutty" />
       <a
         href="https://evanczako.github.io/DoughLab2/"
         target="_blank"
         rel="noopener noreferrer"
+        className={styles.backLink}
       >
-        <img src={logoImg} className={styles.logo} alt="SynthPutty" />
+        Back to Dough's Lab
       </a>
 
       <div className={styles.buttonsContainer}>

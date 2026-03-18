@@ -20,14 +20,25 @@
 .logo {
   width: 54px;
   height: 54px;
-  border-radius: 5px;
+  border-radius: 25%;
   flex-shrink: 0;
   object-fit: contain;
   transition: filter 0.2s;
 }
 
-.logo:hover {
-  filter: brightness(1.5) drop-shadow(0 0 6px var(--color-mid-pink-1));
+.backLink {
+  font-size: clamp(0.72rem, 1.76vw, 1rem);
+  font-weight: 500;
+  color: var(--color-dogwood-1);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  transition: color 0.18s;
+}
+
+.backLink:hover {
+  color: var(--color-mid-pink-1);
+  text-decoration: underline;
 }
 
 .comboBox {
