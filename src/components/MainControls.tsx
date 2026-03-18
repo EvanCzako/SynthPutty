@@ -18,7 +18,6 @@ export function MainControls() {
       <img src={logoImg} className={styles.logo} alt="SynthPutty" />
       <a
         href="https://evanczako.github.io/DoughLab2/"
-        target="_blank"
         rel="noopener noreferrer"
         className={styles.backLink}
       >
