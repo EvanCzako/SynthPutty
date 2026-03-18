@@ -20,7 +20,7 @@ export const App: React.FC = () => {
     updateFontSize();
     window.addEventListener("resize", updateFontSize);
     return () => window.removeEventListener("resize", updateFontSize);
-  }, [updateFontSize, layout, vw]);
+  }, [updateFontSize]);
 
   return (
     <div className={styles.app}>

@@ -1,4 +1,4 @@
-import React, { act } from "react";
+import React from "react";
 import { useSynthStore } from "../store/synthStore";
 import { useFontStore } from "../store/fontStore";
 import styles from "../styles/Keyboard.module.css";
@@ -25,10 +25,12 @@ const blackKeysFull: { [key: string]: string | undefined } = {
 };
 
 export const Keyboard: React.FC = () => {
-  const [, forceUpdate] = React.useState({});
   const activeTouches = React.useRef<Map<number, number>>(new Map());
+  const lastTouchPos = React.useRef<Map<number, { x: number; y: number }>>(new Map());
   const [pressedNote, setPressedNote] = React.useState<number | null>(null);
   const { noteOn, noteOff, activeNotes } = useSynthStore();
+  const activeNotesRef = React.useRef(activeNotes);
+  activeNotesRef.current = activeNotes;
   const { octaves } = useFontStore();
   const keyMap: { [key: string]: string } = {
     z: "C4",
@@ -72,8 +74,8 @@ export const Keyboard: React.FC = () => {
       const noteLabel = keyMap[e.key.toLowerCase()];
       if (noteLabel) {
         const note = freqArr.indexOf(noteLabel);
-        if (note >= 0 && !activeNotes[note]) {
-          playNote(note);
+        if (note >= 0 && !activeNotesRef.current[note]) {
+          noteOn(note, 100);
         }
       }
     };
@@ -81,8 +83,8 @@ export const Keyboard: React.FC = () => {
       const noteLabel = keyMap[e.key.toLowerCase()];
       if (noteLabel) {
         const note = freqArr.indexOf(noteLabel);
-        if (note >= 0 && activeNotes[note]) {
-          stopNote(note);
+        if (note >= 0 && activeNotesRef.current[note]) {
+          noteOff(note);
         }
       }
     };
@@ -92,12 +94,12 @@ export const Keyboard: React.FC = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
+    // noteOn/noteOff are stable Zustand refs; activeNotesRef.current is read at call time
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeNotes]);
+  }, []);
 
   const playNote = (note: number) => {
     noteOn(note, 100);
-    forceUpdate({});
   };
 
   const stopNote = (note: number) => {
@@ -149,6 +151,15 @@ export const Keyboard: React.FC = () => {
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       const touchId = touch.identifier;
+      const lastPos = lastTouchPos.current.get(touchId);
+      if (
+        lastPos &&
+        Math.abs(touch.clientX - lastPos.x) < 5 &&
+        Math.abs(touch.clientY - lastPos.y) < 5
+      ) {
+        continue;
+      }
+      lastTouchPos.current.set(touchId, { x: touch.clientX, y: touch.clientY });
       const target = document.elementFromPoint(touch.clientX, touch.clientY);
       if (target && target instanceof HTMLElement && target.dataset.note) {
         const newNote = parseInt(target.dataset.note, 10);
@@ -171,6 +182,7 @@ export const Keyboard: React.FC = () => {
       if (prevNote !== undefined) {
         stopNote(prevNote);
         activeTouches.current.delete(touchId);
+        lastTouchPos.current.delete(touchId);
       }
     }
   };

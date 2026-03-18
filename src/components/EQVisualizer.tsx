@@ -5,10 +5,25 @@ import { useSynthStore } from "../store/synthStore";
 export function EQVisualizer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const analyserNode = useSynthStore((s) => s.analyserNode);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const drewSilenceRef = useRef(false);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Get frequency data and bail early if already showing silence
+    if (analyserNode) {
+      const bufferLength = analyserNode.frequencyBinCount;
+      if (!dataArrayRef.current || dataArrayRef.current.length !== bufferLength) {
+        dataArrayRef.current = new Uint8Array(bufferLength);
+      }
+      analyserNode.getByteFrequencyData(dataArrayRef.current);
+      const isSilent = !dataArrayRef.current.some((v) => v > 1);
+      if (isSilent && drewSilenceRef.current) return;
+      drewSilenceRef.current = isSilent;
+    }
+
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
@@ -52,11 +67,9 @@ export function EQVisualizer() {
       ctx.fillText(label, x, axisY + 22);
     }
 
-    if (analyserNode) {
-      const bufferLength = analyserNode.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyserNode.getByteFrequencyData(dataArray);
-
+    if (analyserNode && dataArrayRef.current) {
+      const dataArray = dataArrayRef.current;
+      const bufferLength = dataArray.length;
       ctx.strokeStyle = "white";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -90,6 +103,7 @@ export function EQVisualizer() {
     animate();
 
     function handleResize() {
+      drewSilenceRef.current = false; // force a full redraw at new dimensions
       draw();
     }
     window.addEventListener("resize", handleResize);

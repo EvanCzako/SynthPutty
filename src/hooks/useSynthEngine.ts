@@ -102,59 +102,16 @@ export function useSynthEngine() {
       delete playingNotes[note];
     }
 
-    const totalActiveNotes = Object.keys(activeNotes).length || 1;
-    const totalOscillators = totalActiveNotes * voices;
+    const totalOscillators = (Object.keys(activeNotes).length || 1) * voices;
 
     for (const noteStr of Object.keys(activeNotes)) {
       const note = Number(noteStr);
-      const freq = midiToFreq(note);
-      const velocity = activeNotes[note].velocity;
-      const chains: VoiceChain[] = [];
-
-      for (let i = 0; i < voices; i++) {
-        const osc = audioCtx.createOscillator();
-        if (vibratoGain) {
-          vibratoGain.connect(osc.detune);
-        }
-        const gain = audioCtx.createGain();
-        const filter = audioCtx.createBiquadFilter();
-
-        const step = voices > 1 ? detune / (voices - 1) : 0;
-        const spread = i * step - detune / 2;
-
-        osc.type = waveform;
-        osc.frequency.value = freq;
-        if (spread) {
-          osc.detune.setTargetAtTime(spread, audioCtx.currentTime, 0.05);
-        } else {
-          osc.detune.value = 0;
-        }
-
-        filter.type = filterType;
-        filter.frequency.value = filterCutoff;
-
-        const now = audioCtx.currentTime;
-        const velocityGain =
-          (velocity / 127) * (masterVolume / (totalOscillators + 1));
-
-        gain.gain.setValueAtTime(0.001, now);
-
-        gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
-
-        if (filterEnabled) {
-          osc.connect(filter);
-          filter.connect(gain);
-        } else {
-          osc.connect(gain);
-        }
-
-        gain.connect(masterGain);
-        osc.start(now);
-
-        chains.push({ oscillators: [osc], filter, gain });
-      }
-
-      playingNotes[note] = chains;
+      const { velocity } = activeNotes[note];
+      playingNotes[note] = createVoiceChains(
+        voices, midiToFreq(note), velocity, totalOscillators,
+        detune, waveform, filterType, filterCutoff, filterQ,
+        attack, filterEnabled, masterVolume, vibratoGain,
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [waveform, voices, masterVolume]);
@@ -186,51 +143,12 @@ export function useSynthEngine() {
     }
 
     for (const note of newNotes) {
-      const freq = midiToFreq(note);
-      const velocity = nextNotes[note].velocity;
-      const chains: VoiceChain[] = [];
-
-      const totalOscillators = voices;
-
-      for (let i = 0; i < voices; i++) {
-        const osc = audioCtx.createOscillator();
-        if (vibratoGain) {
-          vibratoGain.connect(osc.detune);
-        }
-        const gain = audioCtx.createGain();
-        const filter = audioCtx.createBiquadFilter();
-
-        const step = voices > 1 ? detune / (voices - 1) : 0;
-        const spread = i * step - detune / 2;
-
-        osc.type = waveform;
-        osc.frequency.value = freq;
-        osc.detune.value = spread;
-
-        filter.type = filterType;
-        filter.frequency.value = filterCutoff;
-        filter.Q.value = filterQ;
-
-        const velocityGain =
-          (velocity / 127) * (masterVolume / (totalOscillators + 1));
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
-
-        if (filterEnabled) {
-          osc.connect(filter);
-          filter.connect(gain);
-        } else {
-          osc.connect(gain);
-        }
-
-        gain.connect(masterGain);
-        osc.start(now);
-
-        chains.push({ oscillators: [osc], filter, gain });
-      }
-
-      playingNotesRef.current[note] = chains;
+      const { velocity } = nextNotes[note];
+      playingNotesRef.current[note] = createVoiceChains(
+        voices, midiToFreq(note), velocity, voices,
+        detune, waveform, filterType, filterCutoff, filterQ,
+        attack, filterEnabled, masterVolume, vibratoGain,
+      );
     }
 
     prevActiveNotesRef.current = { ...nextNotes };
@@ -238,14 +156,12 @@ export function useSynthEngine() {
   }, [activeNotes]);
 
   useEffect(() => {
-    const playingNotes = playingNotesRef.current;
-    for (const chains of Object.values(playingNotes)) {
+    for (const chains of Object.values(playingNotesRef.current)) {
       const numVoices = chains.length;
-
+      const step = numVoices > 1 ? detune / (numVoices - 1) : 0;
       chains.forEach((chain, i) => {
-        const spread = (i - (numVoices - 1) / 2) * detune;
         chain.oscillators.forEach((osc) => {
-          osc.detune.setTargetAtTime(spread, audioCtx.currentTime, 0.05);
+          osc.detune.setTargetAtTime(i * step - detune / 2, audioCtx.currentTime, 0.05);
         });
       });
     }
@@ -313,4 +229,56 @@ export function useSynthEngine() {
 
 function midiToFreq(note: number): number {
   return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+function createVoiceChains(
+  voices: number,
+  freq: number,
+  velocity: number,
+  totalOscillators: number,
+  detune: number,
+  waveform: OscillatorType,
+  filterType: BiquadFilterType,
+  filterCutoff: number,
+  filterQ: number,
+  attack: number,
+  filterEnabled: boolean,
+  masterVolume: number,
+  vibratoGain: GainNode | null,
+): VoiceChain[] {
+  const chains: VoiceChain[] = [];
+  const now = audioCtx.currentTime;
+  const step = voices > 1 ? detune / (voices - 1) : 0;
+  const velocityGain = (velocity / 127) * (masterVolume / (totalOscillators + 1));
+
+  for (let i = 0; i < voices; i++) {
+    const osc = audioCtx.createOscillator();
+    if (vibratoGain) vibratoGain.connect(osc.detune);
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = waveform;
+    osc.frequency.value = freq;
+    osc.detune.value = i * step - detune / 2;
+
+    filter.type = filterType;
+    filter.frequency.value = filterCutoff;
+    filter.Q.value = filterQ;
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
+
+    if (filterEnabled) {
+      osc.connect(filter);
+      filter.connect(gain);
+    } else {
+      osc.connect(gain);
+    }
+
+    gain.connect(masterGain);
+    osc.start(now);
+    chains.push({ oscillators: [osc], filter, gain });
+  }
+
+  return chains;
 }

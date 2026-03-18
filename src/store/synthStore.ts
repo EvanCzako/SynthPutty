@@ -81,9 +81,10 @@ export const useSynthStore = create<SynthState>((set, get) => ({
   setMasterVolume: (volume: number) => set({ masterVolume: volume }),
 
   noteOn: (note, velocity) =>
-    set((state) => ({
-      activeNotes: { ...state.activeNotes, [note]: { velocity } },
-    })),
+    set((state) => {
+      if (Object.keys(state.activeNotes).length >= 10) return state;
+      return { activeNotes: { ...state.activeNotes, [note]: { velocity } } };
+    }),
 
   noteOff: (note) =>
     set((state) => {
