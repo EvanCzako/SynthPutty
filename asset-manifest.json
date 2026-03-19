@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/SynthPutty/static/css/main.d18f4986.css",
-    "main.js": "/SynthPutty/static/js/main.3ae4cefe.js",
+    "main.js": "/SynthPutty/static/js/main.60ad8ded.js",
     "static/js/453.2626da80.chunk.js": "/SynthPutty/static/js/453.2626da80.chunk.js",
     "static/media/SynthPuttyLogo-downSaturated.png": "/SynthPutty/static/media/SynthPuttyLogo-downSaturated.097164f83b9092196fc3.png",
     "index.html": "/SynthPutty/index.html",
     "main.d18f4986.css.map": "/SynthPutty/static/css/main.d18f4986.css.map",
-    "main.3ae4cefe.js.map": "/SynthPutty/static/js/main.3ae4cefe.js.map",
+    "main.60ad8ded.js.map": "/SynthPutty/static/js/main.60ad8ded.js.map",
     "453.2626da80.chunk.js.map": "/SynthPutty/static/js/453.2626da80.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d18f4986.css",
-    "static/js/main.3ae4cefe.js"
+    "static/js/main.60ad8ded.js"
   ]
 }
