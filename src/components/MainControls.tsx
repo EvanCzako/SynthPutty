@@ -17,11 +17,11 @@ export function MainControls() {
     <div className={styles.mainControls} style={{ fontSize }}>
       <img src={logoImg} className={styles.logo} alt="SynthPutty" />
       <a
-        href="https://evanczako.github.io/DoughLab2/"
+        href="https://evanczako.com"
         rel="noopener noreferrer"
         className={styles.backLink}
       >
-        Back to Dough's Lab
+        Back to Bakery
       </a>
 
       <div className={styles.buttonsContainer}>
