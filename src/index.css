@@ -1,29 +1,58 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import './styles/variables.module.css';
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
 html,
 body,
 #root {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw;
-  height: 100dvh;
-  box-sizing: border-box;
-  touch-action: manipulation;
-  overscroll-behavior: none;
+    margin: 0;
+    padding: 0;
+    /* 100% rather than 100vw: on a desktop browser with a classic scrollbar,
+       100vw is the viewport INCLUDING the scrollbar and overflows the page. */
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    touch-action: manipulation;
+    overscroll-behavior: none;
 }
+
 body {
-  font-family: 'Space Grotesk', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #1a1b26;
-  color: #c0caf5;
+    background-color: var(--ui-page-bg);
+    color: var(--ui-text-primary);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family:
-    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-.root {
-  height: 100%;
+/* Global default; components override it where a ring would be clipped. */
+:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+/* Sliders are the app's densest control, so they are styled once here rather
+   than in every module that happens to contain one. */
+input[type='range'] {
+    accent-color: var(--slider-thumb);
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

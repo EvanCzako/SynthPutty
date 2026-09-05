@@ -1,284 +1,328 @@
-import { useEffect, useRef } from "react";
-import { useCompressor } from "./useCompressor";
-import { useSynthStore } from "../store/synthStore";
+import { useEffect, useRef } from 'react';
+import { getAudio, midiToFreq } from '../audio/engine';
+import { useSynthStore } from '../store/synthStore';
 
-type VoiceChain = {
-  oscillators: OscillatorNode[];
-  filter: BiquadFilterNode;
-  gain: GainNode;
+type Voice = {
+    osc: OscillatorNode;
+    filter: BiquadFilterNode;
+    gain: GainNode;
 };
 
-const audioCtx = new (window.AudioContext ||
-  (window as any).webkitAudioContext)();
+/* A gain of exactly 0 is illegal for an exponential ramp and inaudible for a
+ * linear one, so releases ramp to this instead. */
+const SILENCE = 0.001;
 
-const vibOsc = audioCtx.createOscillator();
-const vibGain = audioCtx.createGain();
+/* Extra time after a release finishes before the oscillator is stopped, so the
+ * ramp is never cut off mid-fade. */
+const STOP_PAD_S = 0.05;
 
-vibOsc.type = "sine";
-vibOsc.frequency.value = useSynthStore.getState().vibratoRate;
-vibGain.gain.value = useSynthStore.getState().vibratoDepth;
+/* Every parameter that can be nudged rather than rebuilt uses this time
+ * constant, which is short enough to feel instant and long enough not to click. */
+const RAMP_S = 0.02;
 
-vibOsc.connect(vibGain);
-vibOsc.start();
-
-const masterGain = audioCtx.createGain();
-masterGain.gain.value = 1;
-const analyser = audioCtx.createAnalyser();
-
+/*
+ * Drives the audio graph from the store.
+ *
+ * The division of labour matters: parameters that a running oscillator can
+ * accept live (waveform, detune, filter, vibrato, volume) are *ramped* on the
+ * existing nodes. Only `voices`, which changes how many oscillators a note
+ * needs, rebuilds anything -- and masterVolume is applied once, on masterGain,
+ * so dragging the volume slider no longer tears down and restarts every note.
+ */
 export function useSynthEngine() {
-  useCompressor(audioCtx, masterGain, analyser);
-  const {
-    waveform,
-    filterType,
-    filterCutoff,
-    detune,
-    voices,
-    activeNotes,
-    setActiveNotes,
-    masterVolume,
-    filterEnabled,
-    vibratoRate,
-    vibratoDepth,
-    setAnalyserNode,
-    analyserNode,
-    setVibratoOsc,
-    vibratoOsc,
-    vibratoGain,
-    filterQ,
-    attack,
-    release,
-  } = useSynthStore();
+    const activeNotes = useSynthStore((s) => s.activeNotes);
+    const waveform = useSynthStore((s) => s.waveform);
+    const voices = useSynthStore((s) => s.voices);
+    const detune = useSynthStore((s) => s.detune);
+    const filterType = useSynthStore((s) => s.filterType);
+    const filterCutoff = useSynthStore((s) => s.filterCutoff);
+    const filterQ = useSynthStore((s) => s.filterQ);
+    const filterEnabled = useSynthStore((s) => s.filterEnabled);
+    const vibratoRate = useSynthStore((s) => s.vibratoRate);
+    const vibratoDepth = useSynthStore((s) => s.vibratoDepth);
+    const attack = useSynthStore((s) => s.attack);
+    const release = useSynthStore((s) => s.release);
+    const masterVolume = useSynthStore((s) => s.masterVolume);
+    /* Flips exactly once, when the first gesture creates the graph. Every
+     * parameter effect below bails while it is false, so each one takes it
+     * as a dependency to re-apply itself the moment audio exists. */
+    const audioReady = useSynthStore((s) => s.audioReady);
 
-  const playingNotesRef = useRef<Record<number, VoiceChain[]>>({});
-  const prevActiveNotesRef = useRef<Record<number, { velocity: number }>>({});
+    const playing = useRef<Record<number, Voice[]>>({});
+    const prevNotes = useRef<Record<number, { velocity: number }>>({});
 
-  if (!analyserNode) {
-    setAnalyserNode(analyser);
-  }
-  if (!vibratoOsc) {
-    setVibratoOsc(vibOsc, vibGain);
-  }
+    /* The note-start path reads these, and it runs from an effect rather than
+     * from the render that changed them, so a ref is the honest source. */
+    const params = useRef({
+        waveform,
+        voices,
+        detune,
+        filterType,
+        filterCutoff,
+        filterQ,
+        filterEnabled,
+        attack,
+        release,
+    });
+    params.current = {
+        waveform,
+        voices,
+        detune,
+        filterType,
+        filterCutoff,
+        filterQ,
+        filterEnabled,
+        attack,
+        release,
+    };
 
-  const clearAllNotes = () => {
-    const playingNotes = playingNotesRef.current;
-    for (const note in playingNotes) {
-      const chains = playingNotes[note];
-      chains.forEach(({ oscillators, gain }) => {
-        const now = audioCtx.currentTime;
+    /* ---- Note on / note off ------------------------------------------- */
 
-        gain.gain.cancelScheduledValues(now);
-        gain.gain.setValueAtTime(gain.gain.value, now);
+    useEffect(() => {
+        /* Notes cannot start before the first gesture created the context.
+         * The gesture handlers call ensureAudio(); this only observes. */
+        const audio = getAudio();
+        if (!audio) return;
 
-        gain.gain.linearRampToValueAtTime(0.001, now + release);
+        const { ctx, masterGain, vibratoGain } = audio;
+        const now = ctx.currentTime;
+        const p = params.current;
 
-        oscillators.forEach((osc) => osc.stop(now + release + 0.05));
-      });
-    }
-    playingNotesRef.current = {};
-    setActiveNotes({});
-  };
-
-  useEffect(() => {
-    masterGain.gain.setTargetAtTime(masterVolume, audioCtx.currentTime, 0.01);
-  }, [masterVolume]);
-
-  useEffect(() => {
-    const playingNotes = playingNotesRef.current;
-
-    for (const noteStr of Object.keys(playingNotes)) {
-      const note = Number(noteStr);
-      const chains = playingNotes[note];
-
-      chains.forEach(({ oscillators, gain }) => {
-        const now = audioCtx.currentTime;
-
-        gain.gain.cancelScheduledValues(now);
-        gain.gain.setValueAtTime(gain.gain.value, now);
-
-        gain.gain.linearRampToValueAtTime(0.001, now + release);
-
-        oscillators.forEach((osc) => osc.stop(now + release + 0.05));
-      });
-      delete playingNotes[note];
-    }
-
-    const totalOscillators = (Object.keys(activeNotes).length || 1) * voices;
-
-    for (const noteStr of Object.keys(activeNotes)) {
-      const note = Number(noteStr);
-      const { velocity } = activeNotes[note];
-      playingNotes[note] = createVoiceChains(
-        voices, midiToFreq(note), velocity, totalOscillators,
-        detune, waveform, filterType, filterCutoff, filterQ,
-        attack, filterEnabled, masterVolume, vibratoGain,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [waveform, voices, masterVolume]);
-
-  useEffect(() => {
-    const prevNotes = prevActiveNotesRef.current;
-    const nextNotes = activeNotes;
-    const now = audioCtx.currentTime;
-
-    const newNotes = Object.keys(nextNotes)
-      .map(Number)
-      .filter((note) => !prevNotes[note]);
-
-    const releasedNotes = Object.keys(prevNotes)
-      .map(Number)
-      .filter((note) => !nextNotes[note]);
-
-    for (const note of releasedNotes) {
-      const chains = playingNotesRef.current[note];
-      if (chains) {
-        chains.forEach(({ oscillators, gain }) => {
-          gain.gain.cancelScheduledValues(now);
-          gain.gain.setValueAtTime(gain.gain.value, now);
-          gain.gain.linearRampToValueAtTime(0.001, now + release);
-          oscillators.forEach((osc) => osc.stop(now + release + 0.05));
-        });
-        delete playingNotesRef.current[note];
-      }
-    }
-
-    for (const note of newNotes) {
-      const { velocity } = nextNotes[note];
-      playingNotesRef.current[note] = createVoiceChains(
-        voices, midiToFreq(note), velocity, voices,
-        detune, waveform, filterType, filterCutoff, filterQ,
-        attack, filterEnabled, masterVolume, vibratoGain,
-      );
-    }
-
-    prevActiveNotesRef.current = { ...nextNotes };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeNotes]);
-
-  useEffect(() => {
-    for (const chains of Object.values(playingNotesRef.current)) {
-      const numVoices = chains.length;
-      const step = numVoices > 1 ? detune / (numVoices - 1) : 0;
-      chains.forEach((chain, i) => {
-        chain.oscillators.forEach((osc) => {
-          osc.detune.setTargetAtTime(i * step - detune / 2, audioCtx.currentTime, 0.05);
-        });
-      });
-    }
-  }, [detune]);
-
-  useEffect(() => {
-    if (vibratoOsc) {
-      vibratoOsc.frequency.setTargetAtTime(
-        vibratoRate,
-        audioCtx.currentTime,
-        0.05,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vibratoRate]);
-
-  useEffect(() => {
-    if (vibratoGain) {
-      vibratoGain.gain.setTargetAtTime(
-        vibratoDepth,
-        audioCtx.currentTime,
-        0.05,
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vibratoDepth]);
-
-  useEffect(() => {
-    const playingNotes = playingNotesRef.current;
-    for (const chains of Object.values(playingNotes)) {
-      chains.forEach(({ oscillators, filter, gain }) => {
-        oscillators.forEach((osc) => {
-          try {
-            osc.disconnect();
-          } catch {}
-        });
-        try {
-          filter.disconnect();
-        } catch {}
-        try {
-          gain.disconnect();
-        } catch {}
-
-        if (filterEnabled) {
-          oscillators.forEach((osc) => osc.connect(filter));
-          filter.connect(gain);
-        } else {
-          oscillators.forEach((osc) => osc.connect(gain));
+        for (const key of Object.keys(prevNotes.current)) {
+            const note = Number(key);
+            if (activeNotes[note]) continue;
+            releaseVoices(playing.current[note], ctx, p.release);
+            delete playing.current[note];
         }
-        gain.connect(masterGain);
+
+        for (const key of Object.keys(activeNotes)) {
+            const note = Number(key);
+            if (prevNotes.current[note]) continue;
+            playing.current[note] = startVoices({
+                ctx,
+                destination: masterGain,
+                vibratoGain,
+                freq: midiToFreq(note),
+                velocity: activeNotes[note].velocity,
+                now,
+                ...p,
+            });
+        }
+
+        prevNotes.current = activeNotes;
+    }, [activeNotes, audioReady]);
+
+    /* Stop everything still sounding when the hook unmounts, so a hot reload
+     * or a route change does not leave oscillators running forever. */
+    useEffect(() => {
+        const held = playing.current;
+        return () => {
+            const audio = getAudio();
+            if (!audio) return;
+            for (const chains of Object.values(held)) {
+                releaseVoices(chains, audio.ctx, 0);
+            }
+        };
+    }, []);
+
+    /* ---- Live parameter ramps ------------------------------------------ */
+
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        audio.masterGain.gain.setTargetAtTime(masterVolume, audio.ctx.currentTime, RAMP_S);
+    }, [masterVolume, audioReady]);
+
+    useEffect(() => {
+        forEachVoice((voice) => {
+            voice.osc.type = waveform;
+        });
+    }, [waveform, audioReady]);
+
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        const now = audio.ctx.currentTime;
+        for (const chains of Object.values(playing.current)) {
+            const spread = chains.length > 1 ? detune / (chains.length - 1) : 0;
+            chains.forEach((voice, i) => {
+                voice.osc.detune.setTargetAtTime(i * spread - detune / 2, now, RAMP_S);
+            });
+        }
+    }, [detune, audioReady]);
+
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        const now = audio.ctx.currentTime;
+        forEachVoice((voice) => {
+            voice.filter.type = filterType;
+            voice.filter.frequency.setTargetAtTime(filterCutoff, now, RAMP_S);
+            voice.filter.Q.setTargetAtTime(filterQ, now, RAMP_S);
+        });
+    }, [filterType, filterCutoff, filterQ, audioReady]);
+
+    /* Bypassing the filter is a rewiring rather than a ramp, so it is the one
+     * filter change that touches connections. */
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        forEachVoice((voice) => {
+            voice.osc.disconnect();
+            voice.filter.disconnect();
+            if (filterEnabled) {
+                voice.osc.connect(voice.filter);
+                voice.filter.connect(voice.gain);
+            } else {
+                voice.osc.connect(voice.gain);
+            }
+        });
+    }, [filterEnabled, audioReady]);
+
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        audio.vibratoOsc.frequency.setTargetAtTime(vibratoRate, audio.ctx.currentTime, RAMP_S);
+    }, [vibratoRate, audioReady]);
+
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        audio.vibratoGain.gain.setTargetAtTime(vibratoDepth, audio.ctx.currentTime, RAMP_S);
+    }, [vibratoDepth, audioReady]);
+
+    /* Changing the voice count changes how many oscillators a note owns, so
+     * this is the only parameter that has to rebuild sounding notes. */
+    useEffect(() => {
+        const audio = getAudio();
+        if (!audio) return;
+        const { ctx, masterGain, vibratoGain } = audio;
+        const now = ctx.currentTime;
+        const p = params.current;
+        const held = useSynthStore.getState().activeNotes;
+
+        for (const key of Object.keys(playing.current)) {
+            const note = Number(key);
+            releaseVoices(playing.current[note], ctx, p.release);
+            delete playing.current[note];
+        }
+        for (const key of Object.keys(held)) {
+            const note = Number(key);
+            playing.current[note] = startVoices({
+                ctx,
+                destination: masterGain,
+                vibratoGain,
+                freq: midiToFreq(note),
+                velocity: held[note].velocity,
+                now,
+                ...p,
+            });
+        }
+        // Rebuilding on any other parameter would restart every held note.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [voices]);
+
+    function forEachVoice(fn: (voice: Voice) => void) {
+        for (const chains of Object.values(playing.current)) chains.forEach(fn);
+    }
+}
+
+/* ---- Voice construction and teardown ----------------------------------- */
+
+type StartArgs = {
+    ctx: AudioContext;
+    destination: AudioNode;
+    vibratoGain: GainNode;
+    freq: number;
+    velocity: number;
+    now: number;
+    waveform: OscillatorType;
+    voices: number;
+    detune: number;
+    filterType: BiquadFilterType;
+    filterCutoff: number;
+    filterQ: number;
+    filterEnabled: boolean;
+    attack: number;
+};
+
+function startVoices(args: StartArgs): Voice[] {
+    const {
+        ctx,
+        destination,
+        vibratoGain,
+        freq,
+        velocity,
+        now,
+        waveform,
+        voices,
+        detune,
+        filterType,
+        filterCutoff,
+        filterQ,
+        filterEnabled,
+        attack,
+    } = args;
+
+    const chains: Voice[] = [];
+    const spread = voices > 1 ? detune / (voices - 1) : 0;
+    /* Headroom only: master volume lives on masterGain, and the compressor
+     * catches what stacking several notes adds on top. Applying volume here
+     * too was what forced a full rebuild on every volume change. */
+    const peak = (velocity / 127) * (1 / (voices + 1));
+
+    for (let i = 0; i < voices; i++) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = waveform;
+        osc.frequency.value = freq;
+        osc.detune.value = i * spread - detune / 2;
+        vibratoGain.connect(osc.detune);
 
         filter.type = filterType;
-        filter.frequency.setTargetAtTime(
-          filterCutoff,
-          audioCtx.currentTime,
-          0.01,
-        );
+        filter.frequency.value = filterCutoff;
         filter.Q.value = filterQ;
-      });
-    }
-  }, [filterEnabled, filterType, filterCutoff, filterQ]);
 
-  return { clearAllNotes };
-}
+        gain.gain.setValueAtTime(SILENCE, now);
+        gain.gain.linearRampToValueAtTime(peak, now + attack);
 
-function midiToFreq(note: number): number {
-  return 440 * Math.pow(2, (note - 69) / 12);
-}
+        if (filterEnabled) {
+            osc.connect(filter);
+            filter.connect(gain);
+        } else {
+            osc.connect(gain);
+        }
+        gain.connect(destination);
 
-function createVoiceChains(
-  voices: number,
-  freq: number,
-  velocity: number,
-  totalOscillators: number,
-  detune: number,
-  waveform: OscillatorType,
-  filterType: BiquadFilterType,
-  filterCutoff: number,
-  filterQ: number,
-  attack: number,
-  filterEnabled: boolean,
-  masterVolume: number,
-  vibratoGain: GainNode | null,
-): VoiceChain[] {
-  const chains: VoiceChain[] = [];
-  const now = audioCtx.currentTime;
-  const step = voices > 1 ? detune / (voices - 1) : 0;
-  const velocityGain = (velocity / 127) * (masterVolume / (totalOscillators + 1));
+        /* Without this every played note leaves a vibratoGain -> osc.detune
+         * edge and three orphaned nodes behind for the life of the page. */
+        osc.onended = () => {
+            try {
+                vibratoGain.disconnect(osc.detune);
+            } catch {
+                /* Already torn down by a previous release. */
+            }
+            osc.disconnect();
+            filter.disconnect();
+            gain.disconnect();
+        };
 
-  for (let i = 0; i < voices; i++) {
-    const osc = audioCtx.createOscillator();
-    if (vibratoGain) vibratoGain.connect(osc.detune);
-    const gain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
-
-    osc.type = waveform;
-    osc.frequency.value = freq;
-    osc.detune.value = i * step - detune / 2;
-
-    filter.type = filterType;
-    filter.frequency.value = filterCutoff;
-    filter.Q.value = filterQ;
-
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.linearRampToValueAtTime(velocityGain, now + attack);
-
-    if (filterEnabled) {
-      osc.connect(filter);
-      filter.connect(gain);
-    } else {
-      osc.connect(gain);
+        osc.start(now);
+        chains.push({ osc, filter, gain });
     }
 
-    gain.connect(masterGain);
-    osc.start(now);
-    chains.push({ oscillators: [osc], filter, gain });
-  }
+    return chains;
+}
 
-  return chains;
+function releaseVoices(chains: Voice[] | undefined, ctx: AudioContext, release: number): void {
+    if (!chains) return;
+    const now = ctx.currentTime;
+    for (const { osc, gain } of chains) {
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(Math.max(gain.gain.value, SILENCE), now);
+        gain.gain.linearRampToValueAtTime(SILENCE, now + release);
+        osc.stop(now + release + STOP_PAD_S);
+    }
 }

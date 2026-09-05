@@ -1,405 +1,394 @@
-import React from "react";
-import { useSynthStore } from "../store/synthStore";
-import { useFontStore } from "../store/fontStore";
-import styles from "../styles/Keyboard.module.css";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSynthStore } from '../store/synthStore';
+import { useFontStore } from '../store/fontStore';
+import styles from '../styles/Keyboard.module.css';
 
-const whiteKeysHalf = ["F", "G", "A", "B"];
+/*
+ * Notes are real MIDI note numbers throughout (middle C = C4 = 60). They used
+ * to be indices into a table of note names, which is a whole octave below the
+ * MIDI number for the same name -- so a hardware controller and the on-screen
+ * keys played different pitches for the same key.
+ */
 
-const whiteKeysFull = ["C", "D", "E", "F", "G", "A", "B"];
-
-const blackKeysHalf: { [key: string]: string | undefined } = {
-  F: undefined,
-  G: "F#",
-  A: "G#",
-  B: "A#",
+const PITCH_CLASS: Record<string, number> = {
+    C: 0,
+    'C#': 1,
+    D: 2,
+    'D#': 3,
+    E: 4,
+    F: 5,
+    'F#': 6,
+    G: 7,
+    'G#': 8,
+    A: 9,
+    'A#': 10,
+    B: 11,
 };
 
-const blackKeysFull: { [key: string]: string | undefined } = {
-  C: undefined,
-  D: "C#",
-  E: "D#",
-  F: undefined,
-  G: "F#",
-  A: "G#",
-  B: "A#",
+/* A fractional octave (3.5) means its upper half, F..B. */
+const WHITE_KEYS_FULL = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
+const WHITE_KEYS_HALF = ['F', 'G', 'A', 'B'] as const;
+
+/* The black key immediately to the LEFT of each white key, if there is one.
+ * The black row renders one slot per white key so the two rows stay aligned. */
+const BLACK_BEFORE: Record<string, string | undefined> = {
+    C: undefined,
+    D: 'C#',
+    E: 'D#',
+    F: undefined,
+    G: 'F#',
+    A: 'G#',
+    B: 'A#',
 };
+
+/* Two overlapping rows, as on a tracker: the lower row starts at C4 and the
+ * upper at C5, so the ranges deliberately share an octave. */
+const COMPUTER_KEYS: Record<string, string> = {
+    z: 'C4',
+    s: 'C#4',
+    x: 'D4',
+    d: 'D#4',
+    c: 'E4',
+    v: 'F4',
+    g: 'F#4',
+    b: 'G4',
+    h: 'G#4',
+    n: 'A4',
+    j: 'A#4',
+    m: 'B4',
+    ',': 'C5',
+    l: 'C#5',
+    '.': 'D5',
+    ';': 'D#5',
+    '/': 'E5',
+    q: 'C5',
+    2: 'C#5',
+    w: 'D5',
+    3: 'D#5',
+    e: 'E5',
+    r: 'F5',
+    5: 'F#5',
+    t: 'G5',
+    6: 'G#5',
+    y: 'A5',
+    7: 'A#5',
+    u: 'B5',
+    i: 'C6',
+    9: 'C#6',
+    o: 'D6',
+    0: 'D#6',
+    p: 'E6',
+};
+
+const KEYBOARD_VELOCITY = 100;
+
+/* How far a touch must travel before it is re-tested against the key under
+ * it, in CSS pixels. Below this a resting finger would re-trigger constantly. */
+const GLIDE_THRESHOLD_PX = 5;
+
+function midiNumber(name: string, octave: number): number {
+    return (octave + 1) * 12 + PITCH_CLASS[name];
+}
+
+/* "C#4" -> 61 */
+function parseNoteName(label: string): number {
+    const match = /^([A-G]#?)(-?\d+)$/.exec(label);
+    return match ? midiNumber(match[1], Number(match[2])) : -1;
+}
+
+function accessibleName(name: string, octave: number): string {
+    return `${name.replace('#', ' sharp')} ${octave}`;
+}
+
+type WhiteKey = { note: number; name: string; octave: number; label: string | null };
+type BlackSlot = { note: number; name: string; octave: number } | null;
 
 export const Keyboard: React.FC = () => {
-  const activeTouches = React.useRef<Map<number, number>>(new Map());
-  const lastTouchPos = React.useRef<Map<number, { x: number; y: number }>>(new Map());
-  const [pressedNote, setPressedNote] = React.useState<number | null>(null);
-  const { noteOn, noteOff, activeNotes } = useSynthStore();
-  const activeNotesRef = React.useRef(activeNotes);
-  activeNotesRef.current = activeNotes;
-  const { octaves } = useFontStore();
-  const keyMap: { [key: string]: string } = {
-    z: "C4",
-    s: "C#4",
-    x: "D4",
-    d: "D#4",
-    c: "E4",
-    v: "F4",
-    g: "F#4",
-    b: "G4",
-    h: "G#4",
-    n: "A4",
-    j: "A#4",
-    m: "B4",
-    ",": "C5",
-    l: "C#5",
-    ".": "D5",
-    ";": "D#5",
-    "/": "E5",
-    q: "C5",
-    2: "C#5",
-    w: "D5",
-    3: "D#5",
-    e: "E5",
-    r: "F5",
-    5: "F#5",
-    t: "G5",
-    6: "G#5",
-    y: "A5",
-    7: "A#5",
-    u: "B5",
-    i: "C6",
-    9: "C#6",
-    o: "D6",
-    0: "D#6",
-    p: "E6",
-  };
+    const octaves = useFontStore((s) => s.octaves);
+    const activeNotes = useSynthStore((s) => s.activeNotes);
+    const noteOn = useSynthStore((s) => s.noteOn);
+    const noteOff = useSynthStore((s) => s.noteOff);
 
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const noteLabel = keyMap[e.key.toLowerCase()];
-      if (noteLabel) {
-        const note = freqArr.indexOf(noteLabel);
-        if (note >= 0 && !activeNotesRef.current[note]) {
-          noteOn(note, 100);
+    const { whites, blacks, ordered } = useMemo(() => {
+        const whiteKeys: WhiteKey[] = [];
+        const blackSlots: BlackSlot[] = [];
+
+        for (const entry of octaves) {
+            const isHalf = entry % 1 !== 0;
+            const octave = Math.floor(entry);
+            const names = isHalf ? WHITE_KEYS_HALF : WHITE_KEYS_FULL;
+
+            names.forEach((name, i) => {
+                whiteKeys.push({
+                    note: midiNumber(name, octave),
+                    name,
+                    octave,
+                    /* Label the first white key of each run, so the player can
+                     * find their bearings without labelling all 60 keys. */
+                    label: i === 0 ? `${name}${octave}` : null,
+                });
+
+                /* C and F have no black key to their left, so they push an
+                 * empty slot -- the two rows must stay index-aligned. */
+                const blackName = BLACK_BEFORE[name];
+                blackSlots.push(
+                    blackName
+                        ? { note: midiNumber(blackName, octave), name: blackName, octave }
+                        : null
+                );
+            });
         }
-      }
+
+        const orderedNotes = [
+            ...whiteKeys.map((k) => k.note),
+            ...blackSlots.filter((s): s is NonNullable<BlackSlot> => s !== null).map((s) => s.note),
+        ].sort((a, b) => a - b);
+
+        return { whites: whiteKeys, blacks: blackSlots, ordered: orderedNotes };
+    }, [octaves]);
+
+    /* Roving tabindex: one key in the tab order, arrows move between them.
+     * Sixty tabbable keys between the piano and the rest of the page is worse
+     * than none. */
+    const [rovingNote, setRovingNote] = useState<number | null>(null);
+    const activeRoving =
+        rovingNote !== null && ordered.includes(rovingNote) ? rovingNote : ordered[0];
+
+    const keyboardRef = useRef<HTMLDivElement>(null);
+
+    /* Mouse gliding across keys reads its held note from a ref, not state: the
+     * global mouseup listener is registered once and must see the note that is
+     * actually sounding, not the one captured by the render that added it. */
+    const mouseNote = useRef<number | null>(null);
+    const touchNotes = useRef(new Map<number, number>());
+    const touchPositions = useRef(new Map<number, { x: number; y: number }>());
+
+    const play = useCallback(
+        (note: number) => {
+            if (note >= 0) noteOn(note, KEYBOARD_VELOCITY);
+        },
+        [noteOn]
+    );
+
+    /* ---- Computer keyboard --------------------------------------------- */
+
+    useEffect(() => {
+        /* The two key rows overlap, so C5 has two physical keys. Counting the
+         * physical keys holding each note stops releasing one from cutting a
+         * note the other is still holding. */
+        const held = new Map<string, number>();
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+            const label = COMPUTER_KEYS[e.key.toLowerCase()];
+            if (!label) return;
+            const note = parseNoteName(label);
+            if (note < 0 || held.has(e.key.toLowerCase())) return;
+            held.set(e.key.toLowerCase(), note);
+            noteOn(note, KEYBOARD_VELOCITY);
+        };
+
+        const onKeyUp = (e: KeyboardEvent) => {
+            const key = e.key.toLowerCase();
+            const note = held.get(key);
+            if (note === undefined) return;
+            held.delete(key);
+            if (![...held.values()].includes(note)) noteOff(note);
+        };
+
+        /* A window that loses focus never delivers the keyup, so the note
+         * would sustain until the key was pressed and released again. */
+        const onBlur = () => {
+            held.forEach((note) => noteOff(note));
+            held.clear();
+        };
+
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
+        window.addEventListener('blur', onBlur);
+        return () => {
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
+            window.removeEventListener('blur', onBlur);
+            onBlur();
+        };
+    }, [noteOn, noteOff]);
+
+    /* ---- Mouse ---------------------------------------------------------- */
+
+    useEffect(() => {
+        const onMouseUp = () => {
+            if (mouseNote.current !== null) {
+                noteOff(mouseNote.current);
+                mouseNote.current = null;
+            }
+        };
+        window.addEventListener('mouseup', onMouseUp);
+        return () => window.removeEventListener('mouseup', onMouseUp);
+    }, [noteOff]);
+
+    const handleMouseDown = (note: number) => (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (mouseNote.current !== null && mouseNote.current !== note) noteOff(mouseNote.current);
+        mouseNote.current = note;
+        play(note);
+        setRovingNote(note);
     };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const noteLabel = keyMap[e.key.toLowerCase()];
-      if (noteLabel) {
-        const note = freqArr.indexOf(noteLabel);
-        if (note >= 0 && activeNotesRef.current[note]) {
-          noteOff(note);
+
+    const handleMouseEnter = (note: number) => (e: React.MouseEvent) => {
+        if (e.buttons !== 1 || mouseNote.current === note) return;
+        if (mouseNote.current !== null) noteOff(mouseNote.current);
+        mouseNote.current = note;
+        play(note);
+    };
+
+    /* ---- Touch ---------------------------------------------------------- */
+
+    const handleTouchStart = (note: number) => (e: React.TouchEvent) => {
+        e.preventDefault();
+        for (const touch of Array.from(e.changedTouches)) {
+            if (touchNotes.current.has(touch.identifier)) continue;
+            touchNotes.current.set(touch.identifier, note);
+            /* Seed the position here or the first move always clears the
+             * glide threshold and re-tests a finger that has not moved. */
+            touchPositions.current.set(touch.identifier, { x: touch.clientX, y: touch.clientY });
+            play(note);
         }
-      }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-    // noteOn/noteOff are stable Zustand refs; activeNotesRef.current is read at call time
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  const playNote = (note: number) => {
-    noteOn(note, 100);
-  };
+    const handleTouchMove = (e: React.TouchEvent) => {
+        e.preventDefault();
+        for (const touch of Array.from(e.changedTouches)) {
+            const id = touch.identifier;
+            const last = touchPositions.current.get(id);
+            if (
+                last &&
+                Math.abs(touch.clientX - last.x) < GLIDE_THRESHOLD_PX &&
+                Math.abs(touch.clientY - last.y) < GLIDE_THRESHOLD_PX
+            ) {
+                continue;
+            }
+            touchPositions.current.set(id, { x: touch.clientX, y: touch.clientY });
 
-  const stopNote = (note: number) => {
-    noteOff(note);
-  };
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            const noteAttr = target instanceof HTMLElement ? target.dataset.note : undefined;
+            if (!noteAttr) continue;
 
-  const handleMouseDown = (note: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    if (pressedNote !== null && pressedNote !== note) {
-      stopNote(pressedNote);
-    }
-    playNote(note);
-    setPressedNote(note);
-    window.addEventListener("mouseup", handleGlobalMouseUp);
-  };
-
-  const handleMouseEnter = (note: number, e: React.MouseEvent) => {
-    if (e.buttons === 1) {
-      if (pressedNote !== null && pressedNote !== note) {
-        stopNote(pressedNote);
-      }
-      playNote(note);
-      setPressedNote(note);
-    }
-  };
-
-  const handleGlobalMouseUp = () => {
-    if (pressedNote !== null) {
-      stopNote(pressedNote);
-      setPressedNote(null);
-    }
-    window.removeEventListener("mouseup", handleGlobalMouseUp);
-  };
-
-  const handleTouchStart = (note: number, e: React.TouchEvent) => {
-    e.preventDefault();
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      const touch = e.changedTouches[i];
-      const touchId = touch.identifier;
-      if (!activeTouches.current.has(touchId)) {
-        playNote(note);
-        activeTouches.current.set(touchId, note);
-      }
-    }
-  };
-
-  const handleTouchMove = (_note: number, e: React.TouchEvent) => {
-    e.preventDefault();
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      const touch = e.changedTouches[i];
-      const touchId = touch.identifier;
-      const lastPos = lastTouchPos.current.get(touchId);
-      if (
-        lastPos &&
-        Math.abs(touch.clientX - lastPos.x) < 5 &&
-        Math.abs(touch.clientY - lastPos.y) < 5
-      ) {
-        continue;
-      }
-      lastTouchPos.current.set(touchId, { x: touch.clientX, y: touch.clientY });
-      const target = document.elementFromPoint(touch.clientX, touch.clientY);
-      if (target && target instanceof HTMLElement && target.dataset.note) {
-        const newNote = parseInt(target.dataset.note, 10);
-        const prevNote = activeTouches.current.get(touchId);
-        if (prevNote !== undefined && prevNote !== newNote) {
-          stopNote(prevNote);
-          playNote(newNote);
-          activeTouches.current.set(touchId, newNote);
+            const next = Number(noteAttr);
+            const previous = touchNotes.current.get(id);
+            if (previous !== undefined && previous !== next) {
+                noteOff(previous);
+                touchNotes.current.set(id, next);
+                play(next);
+            }
         }
-      }
-    }
-  };
+    };
 
-  const handleTouchEnd = (_note: number, e: React.TouchEvent) => {
-    e.preventDefault();
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      const touch = e.changedTouches[i];
-      const touchId = touch.identifier;
-      const prevNote = activeTouches.current.get(touchId);
-      if (prevNote !== undefined) {
-        stopNote(prevNote);
-        activeTouches.current.delete(touchId);
-        lastTouchPos.current.delete(touchId);
-      }
-    }
-  };
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        e.preventDefault();
+        for (const touch of Array.from(e.changedTouches)) {
+            const note = touchNotes.current.get(touch.identifier);
+            if (note === undefined) continue;
+            noteOff(note);
+            touchNotes.current.delete(touch.identifier);
+            touchPositions.current.delete(touch.identifier);
+        }
+    };
 
-  const handleTouchCancel = handleTouchEnd;
+    /* ---- Keyboard navigation within the piano --------------------------- */
 
-  const totalWhiteKeys = octaves.reduce((sum, octaveIdx) => {
-    const isHalfOctave = octaveIdx % 1 !== 0;
-    return sum + (isHalfOctave ? whiteKeysHalf.length : whiteKeysFull.length);
-  }, 0);
+    const focusNote = (note: number) => {
+        setRovingNote(note);
+        keyboardRef.current?.querySelector<HTMLButtonElement>(`[data-note="${note}"]`)?.focus();
+    };
 
-  const blackKeyboardStyle = {
-    marginLeft: `${-50 / totalWhiteKeys}%`,
-  };
+    const handleKeyNav = (note: number) => (e: React.KeyboardEvent) => {
+        const index = ordered.indexOf(note);
 
-  return (
-    <div className={styles.keyboard}>
-      <div className={styles.blackKeyboard} style={blackKeyboardStyle}>
-        {octaves.map((octaveIdx) => {
-          const isHalfOctave = octaveIdx % 1 !== 0;
-          const actualOctave = Math.floor(octaveIdx);
-          const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
-          const blackKeyBefore = isHalfOctave
-            ? blackKeysHalf
-            : blackKeysFull;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const next = index + (e.key === 'ArrowRight' ? 1 : -1);
+            if (next >= 0 && next < ordered.length) focusNote(ordered[next]);
+            return;
+        }
+        if (e.key === 'Home' || e.key === 'End') {
+            e.preventDefault();
+            focusNote(e.key === 'Home' ? ordered[0] : ordered[ordered.length - 1]);
+            return;
+        }
+        if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
+            e.preventDefault();
+            play(note);
+        }
+    };
 
-          return whiteKeys.map((whiteKeyNote) => {
-            const blackKeyNote = blackKeyBefore[whiteKeyNote];
+    const handleKeyRelease = (note: number) => (e: React.KeyboardEvent) => {
+        if (e.key === ' ' || e.key === 'Enter') noteOff(note);
+    };
 
-            if (!blackKeyNote) {
-              return (
-                <div
-                  key={`spacer-${whiteKeyNote}-${octaveIdx}`}
-                  className={`${styles.blackKey} ${styles.invisibleKey}`}
-                />
-              );
-            }
+    /* The stylesheet derives the black row's offset from this; see the
+     * .blackKeyboard rule in Keyboard.module.css. */
+    const keyboardStyle = { '--white-count': Math.max(whites.length, 1) } as React.CSSProperties;
 
-            const noteLabel = blackKeyNote + actualOctave;
-            const note = freqArr.indexOf(noteLabel);
+    const keyProps = (note: number, name: string, octave: number) => ({
+        type: 'button' as const,
+        'data-note': note,
+        'aria-label': accessibleName(name, octave),
+        'aria-pressed': Boolean(activeNotes[note]),
+        tabIndex: note === activeRoving ? 0 : -1,
+        onMouseDown: handleMouseDown(note),
+        onMouseEnter: handleMouseEnter(note),
+        onTouchStart: handleTouchStart(note),
+        onTouchMove: handleTouchMove,
+        onTouchEnd: handleTouchEnd,
+        onTouchCancel: handleTouchEnd,
+        onKeyDown: handleKeyNav(note),
+        onKeyUp: handleKeyRelease(note),
+        onFocus: () => setRovingNote(note),
+    });
 
-            let classNames = `${styles.blackKey}`;
-            if (note < 0) {
-              classNames = `${styles.blackKey} ${styles.invisibleKey}`;
-            } else if (activeNotes[note]) {
-              classNames = `${styles.blackKey} ${styles.blackKeyPressed}`;
-            }
+    return (
+        <div
+            ref={keyboardRef}
+            className={styles.keyboard}
+            style={keyboardStyle}
+            role="group"
+            aria-label="Piano keyboard"
+        >
+            <div className={styles.blackKeyboard}>
+                {/* One slot per white key, whether or not it holds a black
+                    key, so the two rows stay aligned. */}
+                {blacks.map((slot, i) => (
+                    <span key={slot ? slot.note : `gap-${i}`} className={styles.blackSlot}>
+                        {slot && (
+                            <button
+                                {...keyProps(slot.note, slot.name, slot.octave)}
+                                className={`${styles.blackKey} ${
+                                    activeNotes[slot.note] ? styles.blackKeyPressed : ''
+                                }`}
+                            />
+                        )}
+                    </span>
+                ))}
+            </div>
 
-            return (
-              <div
-                key={`black-${blackKeyNote}-${octaveIdx}`}
-                className={classNames}
-                data-note={note}
-                onMouseDown={(e) => handleMouseDown(note, e)}
-                onMouseEnter={(e) => handleMouseEnter(note, e)}
-                onMouseUp={handleGlobalMouseUp}
-                onTouchStart={(e) => handleTouchStart(note, e)}
-                onTouchMove={(e) => handleTouchMove(note, e)}
-                onTouchEnd={(e) => handleTouchEnd(note, e)}
-                onTouchCancel={(e) => handleTouchCancel(note, e)}
-              />
-            );
-          });
-        })}
-      </div>
-
-      <div className={styles.whiteKeyboard}>
-        {octaves.map((octaveIdx) => {
-          const isHalfOctave = octaveIdx % 1 !== 0;
-          const actualOctave = Math.floor(octaveIdx);
-          const whiteKeys = isHalfOctave ? whiteKeysHalf : whiteKeysFull;
-
-          return whiteKeys.map((keyNote) => {
-            const noteLabel = keyNote + actualOctave;
-            const note = freqArr.indexOf(noteLabel);
-
-            let classNames = `${styles.whiteKey}`;
-            if (activeNotes[note]) {
-              classNames = `${styles.whiteKey} ${styles.whiteKeyPressed}`;
-            }
-
-            const showLabel =
-              (isHalfOctave && keyNote === "F") ||
-              (!isHalfOctave && keyNote === "C");
-
-            return (
-              <div
-                key={`white-${keyNote}-${octaveIdx}`}
-                className={classNames}
-                data-note={note}
-                onMouseDown={(e) => handleMouseDown(note, e)}
-                onMouseEnter={(e) => handleMouseEnter(note, e)}
-                onMouseUp={handleGlobalMouseUp}
-                onTouchStart={(e) => handleTouchStart(note, e)}
-                onTouchMove={(e) => handleTouchMove(note, e)}
-                onTouchEnd={(e) => handleTouchEnd(note, e)}
-                onTouchCancel={(e) => handleTouchCancel(note, e)}
-              >
-                {showLabel ? keyNote + actualOctave : ""}
-              </div>
-            );
-          });
-        })}
-      </div>
-    </div>
-  );
+            <div className={styles.whiteKeyboard}>
+                {whites.map((key) => (
+                    <button
+                        key={key.note}
+                        {...keyProps(key.note, key.name, key.octave)}
+                        className={`${styles.whiteKey} ${
+                            activeNotes[key.note] ? styles.whiteKeyPressed : ''
+                        }`}
+                    >
+                        <span className={styles.keyLabel} aria-hidden="true">
+                            {key.label}
+                        </span>
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
 };
 
-const freqMap: any = {
-  C0: 16.35,
-  "C#0": 17.32,
-  D0: 18.35,
-  "D#0": 19.45,
-  E0: 20.6,
-  F0: 21.83,
-  "F#0": 23.12,
-  G0: 24.5,
-  "G#0": 25.96,
-  A0: 27.5,
-  "A#0": 29.14,
-  B0: 30.87,
-  C1: 32.7,
-  "C#1": 34.65,
-  D1: 36.71,
-  "D#1": 38.89,
-  E1: 41.2,
-  F1: 43.65,
-  "F#1": 46.25,
-  G1: 49,
-  "G#1": 51.91,
-  A1: 55,
-  "A#1": 58.27,
-  B1: 61.74,
-  C2: 65.41,
-  "C#2": 69.3,
-  D2: 73.42,
-  "D#2": 77.78,
-  E2: 82.41,
-  F2: 87.31,
-  "F#2": 92.5,
-  G2: 98,
-  "G#2": 103.83,
-  A2: 110,
-  "A#2": 116.54,
-  B2: 123.47,
-  C3: 130.81,
-  "C#3": 138.59,
-  D3: 146.83,
-  "D#3": 155.56,
-  E3: 164.81,
-  F3: 174.61,
-  "F#3": 185.0,
-  G3: 196.0,
-  "G#3": 207.65,
-  A3: 220.0,
-  "A#3": 233.08,
-  B3: 246.94,
-  C4: 261.63,
-  "C#4": 277.18,
-  D4: 293.66,
-  "D#4": 311.13,
-  E4: 329.63,
-  F4: 349.23,
-  "F#4": 369.99,
-  G4: 392.0,
-  "G#4": 415.3,
-  A4: 440.0,
-  "A#4": 466.16,
-  B4: 493.88,
-  C5: 523.25,
-  "C#5": 554.37,
-  D5: 587.33,
-  "D#5": 622.25,
-  E5: 659.26,
-  F5: 698.46,
-  "F#5": 739.99,
-  G5: 783.99,
-  "G#5": 830.61,
-  A5: 880.0,
-  "A#5": 932.33,
-  B5: 987.77,
-  C6: 1046.5,
-  "C#6": 1108.73,
-  D6: 1174.66,
-  "D#6": 1244.51,
-  E6: 1318.51,
-  F6: 1396.91,
-  "F#6": 1479.98,
-  G6: 1567.98,
-  "G#6": 1661.22,
-  A6: 1760,
-  "A#6": 1864.66,
-  B6: 1975.53,
-  C7: 2093,
-  "C#7": 2217.46,
-  D7: 2349.32,
-  "D#7": 2489,
-  E7: 2637,
-  F7: 2793.83,
-  "F#7": 2959.96,
-  G7: 3135.96,
-  "G#7": 3322.44,
-  A7: 3520,
-  "A#7": 3729.31,
-  B7: 3951,
-  C8: 4186,
-  "C#8": 4434.92,
-  D8: 4698.63,
-  "D#8": 4978,
-  E8: 5274,
-  F8: 5587.65,
-  "F#8": 5919.91,
-  G8: 6271.93,
-  "G#8": 6644.88,
-  A8: 7040.0,
-  "A#8": 7458.62,
-  B8: 7902.13,
-};
-
-const freqArr = Object.keys(freqMap);
+export default Keyboard;

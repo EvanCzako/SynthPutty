@@ -1,86 +1,119 @@
-@import "./variables.module.css";
-
 .mainControls {
-  width: 100%;
-  height: 80px;
-  min-height: 80px;
-  max-height: 80px;
-  padding: 0 16px !important;
-  border: 2px solid var(--color-mid-pink-1);
-  border-radius: 8px !important;
-  background: var(--color-purple-1) !important;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    min-height: calc(var(--text-sm) * 4);
+    padding: 0 0.9em;
+    background: var(--ui-panel-bg);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--radius-md);
 }
 
 .logo {
-  width: 54px;
-  height: 54px;
-  border-radius: 25%;
-  flex-shrink: 0;
-  object-fit: contain;
-  transition: filter 0.2s;
+    width: calc(var(--text-sm) * 2.9);
+    height: calc(var(--text-sm) * 2.9);
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
 }
 
 .backLink {
-  font-size: clamp(0.72rem, 1.76vw, 1rem);
-  font-weight: 500;
-  color: var(--color-dogwood-1);
-  text-decoration: none;
-  white-space: nowrap;
-  letter-spacing: 0.02em;
-  transition: color 0.18s;
+    flex-shrink: 0;
+    color: var(--ui-text-gold);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color var(--transition-fast);
 }
 
 .backLink:hover {
-  color: var(--color-mid-pink-1);
-  text-decoration: underline;
+    color: var(--ui-accent);
+    text-decoration: underline;
 }
 
-.comboBox {
-  width: 120px;
-  font-weight: 900;
-  background-color: var(--color-mid-pink-3);
-  color: var(--color-dogwood-1);
-  border-radius: 5px;
+/* Takes the slack so the buttons stay pinned right. */
+.status {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    color: var(--ui-text-muted);
+    font-size: var(--text-sm);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.controlsHeader {
-  justify-content: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 36px;
+.statusError {
+    color: var(--danger);
 }
 
-.buttonsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: stretch;
+.buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
-.controlsButton {
-  background-color: var(--color-mid-pink-3);
-  color: var(--color-dogwood-1);
-  padding: 8px 12px;
-  border-radius: 5px;
-  font-weight: 900;
-  font-size: 0.6em;
-  border: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  transition: background-color 0.2s;
+.button {
+    height: 2.2em;
+    padding: 0 0.9em;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--ui-border-soft);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
 }
 
-.controlsButton:hover {
-  background-color: var(--color-mid-pink-1);
+.button:hover:not(:disabled) {
+    background: var(--button-bg-hover);
+    border-color: var(--ui-accent);
 }
 
-.controlsButton:active {
-  background-color: var(--color-mid-blue-1);
+.button:active:not(:disabled) {
+    background: var(--button-bg-active);
+}
+
+.button[aria-pressed='true'] {
+    background: var(--ui-accent-2);
+    border-color: var(--ui-accent);
+    color: var(--ui-text-primary);
+}
+
+.button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* ---- Responsive overrides (last: media queries add no specificity) ------ */
+
+@media (max-width: 700px) {
+    .backLink,
+    .status {
+        display: none;
+    }
+
+    .mainControls {
+        justify-content: space-between;
+        padding: 0 8px;
+    }
+
+    .buttons {
+        gap: 6px;
+    }
+
+    .button {
+        padding: 0 8px;
+    }
 }

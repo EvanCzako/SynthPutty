@@ -1,67 +1,70 @@
-import { create } from "zustand";
+import { create } from 'zustand';
+
+/*
+ * Viewport-derived metrics: the type scale and how much of the keyboard fits.
+ *
+ * Orientation deliberately does NOT live here. `@media (orientation: ...)` in
+ * App.module.css already decides the layout, and two mechanisms for one
+ * decision drift apart.
+ */
+
+/* A fractional octave means "the upper half of that octave", i.e. F..B --
+ * 3.5 renders F3 G3 A3 B3. See whiteKeysHalf in Keyboard.tsx. */
+type Octave = number;
+
+/*
+ * Widest-first ladder of how many octaves to show. Must stay monotonic:
+ * widening the window may never remove keys. The thresholds work out to
+ * roughly 340px of width per octave, which is about the narrowest a white key
+ * can get and still be hittable with a thumb.
+ */
+const OCTAVE_LADDER: readonly { minWidth: number; octaves: readonly Octave[] }[] = [
+    { minWidth: 2400, octaves: [1, 2, 3, 4, 5, 6] },
+    { minWidth: 2100, octaves: [1.5, 2, 3, 4, 5, 6] },
+    { minWidth: 1800, octaves: [2, 3, 4, 5, 6] },
+    { minWidth: 1550, octaves: [2.5, 3, 4, 5, 6] },
+    { minWidth: 1300, octaves: [3, 4, 5, 6] },
+    { minWidth: 1100, octaves: [3.5, 4, 5, 6] },
+    { minWidth: 900, octaves: [3, 4, 5] },
+    { minWidth: 720, octaves: [3.5, 4, 5] },
+    { minWidth: 550, octaves: [4, 5] },
+    { minWidth: 400, octaves: [4.5, 5] },
+    { minWidth: 0, octaves: [4] },
+];
 
 interface FontState {
-  fontSize: number;
-  vw: number;
-  octaves: number[];
-  layout: "portrait" | "landscape";
-  setVw: (vw: number) => void;
-  setFontSize: (size: number) => void;
-  updateFontSize: () => void;
+    fontSize: number;
+    octaves: readonly Octave[];
+    updateMetrics: () => void;
 }
 
-export const useFontStore = create<FontState>((set) => ({
-  fontSize: 25,
-  vw: 0,
-  octaves: [3, 4, 5],
-  layout: "landscape",
-  setVw: (vw: number) => set({ vw }),
-  setFontSize: (size: number) => set({ fontSize: size }),
-  setLayout: (layout: "portrait" | "landscape") => set({ layout }),
-  updateFontSize: () => {
-    const vw = (window.visualViewport?.width ?? window.innerWidth) / 100;
-    const vh = (window.visualViewport?.height ?? window.innerHeight) / 100;
+function octavesFor(width: number): readonly Octave[] {
+    return (OCTAVE_LADDER.find((step) => width > step.minWidth) ?? OCTAVE_LADDER[0]).octaves;
+}
 
-    document.documentElement.style.setProperty("--vh", `${vh}px`);
-    document.documentElement.style.setProperty("--vw", `${vw}px`);
+export const useFontStore = create<FontState>((set, get) => ({
+    fontSize: 25,
+    octaves: [3, 4, 5],
 
-    if (vh / vw > 1) {
-      set({ layout: "portrait" });
-    } else {
-      set({ layout: "landscape" });
-    }
+    updateMetrics: () => {
+        /* visualViewport reflects the area actually visible on mobile once the
+         * URL bar and any on-screen keyboard are accounted for. */
+        const width = window.visualViewport?.width ?? window.innerWidth;
+        const height = window.visualViewport?.height ?? window.innerHeight;
 
-    const product = Math.sqrt(0.5 * vh + 0.5 * vw) * 6.8;
-    set({ fontSize: product });
-    set({ vw });
+        /* Geometric-ish mean of the two axes: scales type with the smaller
+         * dimension without collapsing on very wide, short windows. */
+        const fontSize = Math.sqrt(0.5 * (height / 100) + 0.5 * (width / 100)) * 6.8;
+        const octaves = octavesFor(width);
 
-    const w = window.visualViewport?.width ?? window.innerWidth;
-    let octs: number[];
+        /* CSS reads this for controls that must track the type scale but are
+         * not inside a component that sets font-size inline. */
+        document.documentElement.style.setProperty('--base-font-size', `${fontSize}px`);
 
-    if (w > 2500) {
-      octs = [1, 2, 3, 4, 5, 6];
-    } else if (w > 2100) {
-      octs = [1.5, 2, 3, 4, 5, 6];
-    } else if (w > 1700) {
-      octs = [2, 3, 4, 5, 6];
-    } else if (w > 1500) {
-      octs = [2.5, 3, 4, 5, 6];
-    } else if (w > 1300) {
-      octs = [3, 4, 5, 6];
-    } else if (w > 1100) {
-      octs = [2.5, 3, 4, 5];
-    } else if (w > 900) {
-      octs = [3, 4, 5];
-    } else if (w > 700) {
-      octs = [3.5, 4, 5];
-    } else if (w > 550) {
-      octs = [4, 5];
-    } else if (w > 360) {
-      octs = [3.5, 4];
-    } else {
-      octs = [4];
-    }
-
-    set({ octaves: octs });
-  },
+        /* Reuse the previous array when the ladder step has not changed, so a
+         * resize that only nudges the font size does not re-render the 60-odd
+         * keys of the piano. One set() call, so one render. */
+        const previous = get().octaves;
+        set({ fontSize, octaves: octaves === previous ? previous : octaves });
+    },
 }));
