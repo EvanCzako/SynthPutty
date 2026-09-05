@@ -1,16 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-    THEMES,
-    SHAPES,
-    DEFAULT_THEME,
-    ThemeId,
-    ShapeId,
-    applyTheme,
-    applyShape,
-    readStoredTheme,
-    readStoredShape,
-} from '../theme';
+import { THEMES, DEFAULT_THEME, ThemeId, applyTheme, readStoredTheme } from '../theme';
 import styles from '../styles/ThemeSwitcher.module.css';
 
 /* Gap between the trigger and the panel below it. */
@@ -28,7 +18,6 @@ const TONE_GROUPS = [
  */
 export default function ThemeSwitcher() {
     const [theme, setTheme] = useState<ThemeId>(readStoredTheme);
-    const [shape, setShape] = useState<ShapeId>(readStoredShape);
     const [open, setOpen] = useState(false);
     const [pos, setPos] = useState({ top: 0, right: 0 });
 
@@ -36,7 +25,6 @@ export default function ThemeSwitcher() {
     const panelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => applyTheme(theme), [theme]);
-    useEffect(() => applyShape(shape), [shape]);
 
     useLayoutEffect(() => {
         if (!open) return;
@@ -96,7 +84,6 @@ export default function ThemeSwitcher() {
                     <i style={{ background: 'var(--seed-active)' }} />
                     <i style={{ background: 'var(--seed-playhead)' }} />
                 </span>
-                <span className={styles.triggerLabel}>{currentLabel}</span>
             </button>
 
             {open &&
@@ -108,25 +95,6 @@ export default function ThemeSwitcher() {
                         role="dialog"
                         aria-label="Theme"
                     >
-                        <div className={styles.panelHead}>
-                            <span className={styles.tag}>theme</span>
-                            <div className={styles.shapeRow} role="group" aria-label="Corner shape">
-                                {SHAPES.map((option) => (
-                                    <button
-                                        key={option.id}
-                                        type="button"
-                                        className={`${styles.shapeButton} ${
-                                            option.id === shape ? styles.shapeActive : ''
-                                        }`}
-                                        aria-pressed={option.id === shape}
-                                        onClick={() => setShape(option.id)}
-                                    >
-                                        {option.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
                         {TONE_GROUPS.map((group) => (
                             <div key={group.tone}>
                                 <div className={styles.groupLabel}>{group.label}</div>

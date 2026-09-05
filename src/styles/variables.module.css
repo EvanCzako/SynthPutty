@@ -373,19 +373,3 @@
     --seed-vol: #a87a3a;
     --seed-danger: #b83a34;
 }
-
-/* ---- Shape variants (after themes: equal specificity, order wins) ------- */
-
-[data-shape='sharp'] {
-    --radius-sm: 0px;
-    --radius-md: 0px;
-    --radius-lg: 0px;
-    --radius-key: 0;
-}
-
-[data-shape='round'] {
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 22px;
-    --radius-key: 0 0 40% 40%;
-}

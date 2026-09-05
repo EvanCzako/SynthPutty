@@ -1,18 +1,17 @@
+/* The swatches alone identify the theme; the name for it lives in the panel
+   this opens, and in the button's aria-label. The font size stays because the
+   height below is in em. */
 .trigger {
     display: flex;
     align-items: center;
-    gap: 6px;
     flex: 0 0 auto;
-    padding: 8px 10px;
+    padding: 8px;
     height: 2.2em;
     background: var(--ui-surface-light);
-    color: var(--ui-text-primary);
     border: 1px solid var(--ui-border);
     border-radius: var(--radius-md);
     font: inherit;
     font-size: var(--text-sm);
-    font-weight: 600;
-    white-space: nowrap;
     cursor: pointer;
     transition:
         background-color var(--transition-fast),
@@ -50,56 +49,6 @@
     border: 1px solid var(--ui-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
-}
-
-.panelHead {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.tag {
-    color: var(--ui-text-primary);
-    opacity: 0.5;
-    font-size: var(--text-xs);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.shapeRow {
-    display: flex;
-    gap: 2px;
-    padding: 2px;
-    background: var(--ui-surface);
-    border: 1px solid var(--ui-border);
-    border-radius: 999px;
-}
-
-.shapeButton {
-    padding: 3px 10px;
-    background: none;
-    color: var(--ui-text-primary);
-    border: none;
-    border-radius: 999px;
-    font: inherit;
-    font-size: var(--text-xs);
-    font-weight: 600;
-    cursor: pointer;
-    opacity: 0.6;
-    transition:
-        background-color var(--transition-fast),
-        opacity var(--transition-fast);
-}
-
-.shapeButton:hover {
-    opacity: 1;
-}
-
-.shapeActive {
-    background: var(--ui-accent-2);
-    opacity: 1;
 }
 
 .groupLabel {
@@ -161,18 +110,4 @@
 
 .swatchChip i {
     border-radius: 1px;
-}
-
-/* Responsive overrides last: a media query adds no specificity, so these beat
-   their unconditional counterparts on source order alone. */
-
-/* Portrait headers are tight -- the swatch alone identifies the theme. */
-@media (orientation: portrait) {
-    .triggerLabel {
-        display: none;
-    }
-
-    .trigger {
-        padding: 8px;
-    }
 }

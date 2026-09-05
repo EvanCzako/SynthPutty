@@ -1,10 +1,9 @@
 /*
- * Theme and shape selection.
+ * Theme selection.
  *
  * A theme is nothing but a block of seed colours in
- * `styles/variables.module.css`; a shape is nothing but a block of radii. Both
- * are applied as an attribute on <html>, so adding one means editing that
- * stylesheet and this list -- no component changes.
+ * `styles/variables.module.css`, applied as an attribute on <html>, so adding
+ * one means editing that stylesheet and this list -- no component changes.
  *
  * The palettes are shared with DoughLoops2 and ChordFinder so the three apps
  * read as one family.
@@ -27,24 +26,15 @@ export const THEMES = [
     { id: 'sand', label: 'Sand', tone: 'light' },
 ] as const;
 
-export const SHAPES = [
-    { id: 'soft', label: 'Soft' },
-    { id: 'sharp', label: 'Sharp' },
-    { id: 'round', label: 'Round' },
-] as const;
-
 export type ThemeId = (typeof THEMES)[number]['id'];
-export type ShapeId = (typeof SHAPES)[number]['id'];
 
-/* The defaults are the bare :root values, so selecting one writes no attribute
- * at all rather than an attribute that means "the default". */
+/* The default is the bare :root values, so selecting it writes no attribute at
+ * all rather than an attribute that means "the default". */
 export const DEFAULT_THEME: ThemeId = 'midnight';
-export const DEFAULT_SHAPE: ShapeId = 'soft';
 
 /* Namespaced because the sibling apps share an origin when served from one
  * GitHub Pages account. */
 const THEME_KEY = 'synthputty.theme';
-const SHAPE_KEY = 'synthputty.shape';
 
 /* Reading storage is the trust boundary: anything not in the current list is
  * discarded rather than written to the DOM. */
@@ -70,10 +60,6 @@ export function readStoredTheme(): ThemeId {
     return read(THEME_KEY, THEMES, DEFAULT_THEME);
 }
 
-export function readStoredShape(): ShapeId {
-    return read(SHAPE_KEY, SHAPES, DEFAULT_SHAPE);
-}
-
 export function applyTheme(theme: ThemeId): void {
     const root = document.documentElement;
     if (theme === DEFAULT_THEME) root.removeAttribute('data-theme');
@@ -81,19 +67,11 @@ export function applyTheme(theme: ThemeId): void {
     write(THEME_KEY, theme);
 }
 
-export function applyShape(shape: ShapeId): void {
-    const root = document.documentElement;
-    if (shape === DEFAULT_SHAPE) root.removeAttribute('data-shape');
-    else root.setAttribute('data-shape', shape);
-    write(SHAPE_KEY, shape);
-}
-
 /* Used by the error boundary's recovery button: a corrupt or unreadable
  * preference must not be able to re-break the app on every reload. */
 export function clearStoredPreferences(): void {
     try {
         localStorage.removeItem(THEME_KEY);
-        localStorage.removeItem(SHAPE_KEY);
     } catch {
         /* Nothing to clear if storage is unavailable. */
     }
