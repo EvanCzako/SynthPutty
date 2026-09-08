@@ -2,7 +2,7 @@
   "name": "SynthPutty",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://evanczako.github.io/SynthPutty",
+  "homepage": "https://synthputty.evanczako.com",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
