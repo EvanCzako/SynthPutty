@@ -64,6 +64,7 @@ npm run typecheck  # tsc --noEmit
 npm run lint       # eslint src --ext .ts,.tsx  (also :fix)
 npm run prettier:check  # 4 spaces, single quotes, 100 cols  (also :fix)
 npm run deploy     # builds, pushes build/ to gh-pages
+npm run og         # re-render public/og.png from tools/og-card.html
 ```
 
 `npm test` exists because CRA ships it; there are no meaningful tests. Do not
@@ -129,15 +130,20 @@ existing comments are unusually dense and deliberately so, and several name the
 specific bug they prevent. Keep that register when editing — a change that
 strips a "why" comment loses the only record of the bug.
 
-## Current working state (as of 2026-09-05)
+## Current working state (as of 2026-09-14)
 
-Branch `main`, five files modified and uncommitted. The change in flight is the
-**removal of the corner-shape ("Soft / Sharp / Round") feature** from the theme
-switcher: `SHAPES`, `ShapeId`, `applyShape`, `readStoredShape`, the
+Branch `main`, clean and deployed. Nothing in flight.
+
+The **removal of the corner-shape ("Soft / Sharp / Round") feature** from the
+theme switcher — `SHAPES`, `ShapeId`, `applyShape`, `readStoredShape`, the
 `synthputty.shape` key, the panel's shape row and its CSS, and the switcher's
-text label (the swatches alone now identify the theme). If you arrive mid-task,
-that is what these diffs are — not stray edits. Check `git diff` and finish or
-revert it deliberately.
+text label — landed in `8c15cd6` on 2026-09-05. The swatches alone now identify
+the theme.
+
+Most recent work was SEO metadata (`bda4315`): a descriptive `<title>`, og tags
+and a 1200x630 card in `public/og.png`, `sitemap.xml`, a `Sitemap:` line in
+`robots.txt`, and a `manifest.json` rewritten off CRA's stock "React App"
+placeholder. See `PLAN.md` in the `Portfolio` repo for the family-wide plan.
 
 ## Traps
 

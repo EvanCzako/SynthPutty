@@ -2,15 +2,25 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <link rel="icon" href="%PUBLIC_URL%/SynthPuttyLogo.png" />
+        <!--
+            64px, not the 3333x3333 logo. The logo was being served as the
+            favicon: 430 KB downloaded on every page load to be painted at
+            16px. SynthPuttyLogo.png stays in public/ as the og card's source.
+        -->
+        <link rel="icon" type="image/png" sizes="64x64" href="%PUBLIC_URL%/favicon-64.png" />
         <!-- Space Grotesk itself is requested from index.css; preconnecting here
          starts the TLS handshake before the CSS has even parsed. -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-        />
+        <!--
+            No maximum-scale / user-scalable=no. Blocking pinch-zoom page-wide
+            fails WCAG 1.4.4, and it was never the right tool: what it was
+            guarding is the keyboard, and .keyboard already carries
+            `touch-action: none`, which stops the browser reading a touch on a
+            key as a scroll or zoom gesture. That is scoped to the instrument,
+            so the controls, labels and spectrum stay zoomable.
+        -->
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!-- Matches --seed-page of the default Midnight theme. -->
         <meta name="theme-color" content="#0b0b10" />
         <meta

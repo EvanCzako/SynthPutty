@@ -6,7 +6,6 @@ import { EQVisualizer } from './components/EQVisualizer';
 import { useSynthEngine } from './hooks/useSynthEngine';
 import { useMIDI } from './hooks/useMidi';
 import { useAudioGate } from './hooks/useAudioGate';
-import useDisableZoom from './hooks/useDisableZoom';
 import { useFontStore } from './store/fontStore';
 import styles from './App.module.css';
 
@@ -21,7 +20,6 @@ export const App: React.FC = () => {
     useAudioGate();
     useSynthEngine();
     useMIDI();
-    useDisableZoom();
 
     const updateMetrics = useFontStore((s) => s.updateMetrics);
 
