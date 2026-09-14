@@ -5,7 +5,7 @@
   than views.
 
   A sitemap may only list URLs on the host that serves it, so the hub and the
-  sibling apps are deliberately absent -- each has its own. They are tied
+  sibling apps are deliberately absent — each has its own. They are tied
   together by the domain property in Search Console, not by cross-listing.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
