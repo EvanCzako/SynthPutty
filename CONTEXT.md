@@ -21,7 +21,7 @@ thing, and you will meet all of them:
 | `package.json`, `localStorage` keys, logo asset, deploy URL | `SynthPutty`   |
 | `ARCHITECTURE.md` heading                                   | "Dough Synths" |
 
-Deployed to GitHub Pages at `https://evanczako.github.io/SynthPutty` via
+Deployed to GitHub Pages at `https://synthputty.evanczako.com/` via
 `npm run deploy` (gh-pages, `predeploy` builds first). Don't "fix" the naming
 without checking the deploy URL and the `synthputty.*` storage keys — renaming
 the keys silently discards every user's saved theme.
@@ -33,8 +33,10 @@ One of four sibling portfolio apps under `Portfolio apps/`: `DoughLoops2`,
 language — the same 14 seed palettes live in each app's
 `styles/variables.module.css`, and `STYLE_GUIDE.md` was written for the family,
 not for this app alone. A palette change here is usually a change you owe the
-siblings. They also share the `evanczako.github.io` origin, which is why the
-storage keys are namespaced (`synthputty.theme`).
+siblings. Each now has its own subdomain of `evanczako.com`, and localStorage
+is keyed by origin rather than by registrable domain, so they do not in fact
+share storage -- but the keys stay namespaced (`synthputty.theme`) so the four
+files stay copy-pasteable.
 
 The header's "Back to Bakery" link points at `https://evanczako.com`.
 

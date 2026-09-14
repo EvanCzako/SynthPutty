@@ -1,0 +1,223 @@
+<!doctype html>
+<!--
+  Source for public/og.png -- the social share preview (Slack, LinkedIn,
+  iMessage). Not published as a page: it lives in tools/, which CRA never
+  copies, so only the rendered PNG in public/ ships.
+
+  Regenerate after editing:
+      npm run og
+
+  The seeds below are copied verbatim from the Midnight block in
+  src/styles/variables.module.css, and the --eq-* colours use the same
+  color-mix() formulas EQVisualizer reads at runtime, so the card drifts out of
+  brand only if someone edits the palette and forgets to re-run the script.
+
+  The motif is the spectrum panel: a harmonic series under a resonant lowpass,
+  which is what the app draws while a chord is held. The curve is a static
+  synthetic trace, not a capture -- peaks on a harmonic series spaced
+  evenly on a log-frequency axis the way an analyser plots them, decaying as
+  1/n^0.8, with a resonant lift at the cutoff and a steep rolloff past it.
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="./space-grotesk-latin.css" />
+        <style>
+            :root {
+                /* Midnight seeds -- see variables.module.css */
+                --seed-page: #0b0b10;
+                --seed-bg: #16161e;
+                --seed-surface: #24283b;
+                --seed-text: #c0caf5;
+                --seed-accent: #bb9af7;
+                --seed-playhead: #f7768e;
+
+                --ui-text-muted: color-mix(in srgb, var(--seed-text) 78%, var(--seed-surface));
+
+                /* Spectrum visualiser -- same formulas EQVisualizer pulls from
+                   getComputedStyle(). */
+                --eq-bg: color-mix(in srgb, var(--seed-bg) 92%, var(--seed-page));
+                --eq-axis: color-mix(in srgb, var(--seed-text) 55%, var(--seed-page));
+                --eq-trace: color-mix(in srgb, var(--seed-playhead) 58%, var(--seed-text));
+                --eq-fill: color-mix(in srgb, var(--eq-trace) 22%, transparent);
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            /* The screenshot is taken at exactly this size; the body must not
+               introduce scrollbars or the capture picks up a grey gutter. */
+            body {
+                width: 1200px;
+                height: 630px;
+                overflow: hidden;
+                background: var(--seed-page);
+                font-family: 'Space Grotesk', system-ui, sans-serif;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            .card {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                padding: 74px 84px 66px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .glow {
+                position: absolute;
+                top: -200px;
+                right: -170px;
+                width: 760px;
+                height: 760px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    color-mix(in srgb, var(--seed-accent) 15%, transparent) 0%,
+                    transparent 65%
+                );
+            }
+
+            .top {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 48px;
+            }
+
+            /* The badge is matted on pure black rather than transparent, so on
+               the #0b0b10 page it would read as a hard-edged black square.
+               screen blending maps those black pixels to the page colour
+               exactly -- screen against #000 is a no-op -- leaving the pink
+               frame and purple field. */
+            .logo {
+                width: 196px;
+                height: 196px;
+                flex: none;
+                mix-blend-mode: screen;
+            }
+
+            .tagline {
+                font-size: 40px;
+                font-weight: 700;
+                line-height: 1.15;
+                letter-spacing: -0.01em;
+                color: var(--seed-text);
+            }
+
+            .domain {
+                margin-top: 18px;
+                font-size: 26px;
+                font-weight: 500;
+                color: var(--seed-accent);
+            }
+
+            .bottom {
+                position: relative;
+            }
+
+            .readout {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                margin-bottom: 22px;
+            }
+
+            .label {
+                font-size: 22px;
+                font-weight: 500;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: var(--ui-text-muted);
+            }
+
+            .caption {
+                font-size: 23px;
+                font-weight: 400;
+                color: var(--ui-text-muted);
+            }
+
+            /* The panel the visualiser draws into: its own recessed ground,
+               not the page colour. */
+            .eq {
+                display: block;
+                width: 1032px;
+                height: 190px;
+                border-radius: 10px;
+                background: var(--eq-bg);
+                box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--seed-surface) 70%, transparent);
+            }
+
+            .grid-line {
+                stroke: var(--eq-axis);
+                stroke-width: 1;
+                opacity: 0.16;
+            }
+
+            .axis {
+                stroke: var(--eq-axis);
+                stroke-width: 1;
+                opacity: 0.42;
+            }
+
+            .fill {
+                fill: var(--eq-fill);
+            }
+
+            .trace {
+                fill: none;
+                stroke: var(--eq-trace);
+                stroke-width: 2.6;
+                stroke-linejoin: round;
+                stroke-linecap: round;
+                filter: drop-shadow(0 0 7px color-mix(in srgb, var(--eq-trace) 55%, transparent));
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="glow"></div>
+
+            <div class="top">
+                <img class="logo" src="../public/SynthPuttyLogo.png" alt="" />
+                <div>
+                    <div class="tagline">Polyphonic synthesizer<br />that runs in the browser</div>
+                    <div class="domain">synthputty.evanczako.com</div>
+                </div>
+            </div>
+
+            <div class="bottom">
+                <div class="readout">
+                    <div class="label">Live frequency spectrum</div>
+                    <div class="caption">Keyboard, filter, vibrato. No install.</div>
+                </div>
+
+                <svg class="eq" viewBox="0 0 1032 200" preserveAspectRatio="none">
+                    <!-- Decorative gridlines only: no frequency numbers, because
+                         the trace is synthetic and labelled axes would imply a
+                         precision the picture does not have. -->
+                    <line class="grid-line" x1="172" y1="0" x2="172" y2="200" />
+                    <line class="grid-line" x1="344" y1="0" x2="344" y2="200" />
+                    <line class="grid-line" x1="516" y1="0" x2="516" y2="200" />
+                    <line class="grid-line" x1="688" y1="0" x2="688" y2="200" />
+                    <line class="grid-line" x1="860" y1="0" x2="860" y2="200" />
+
+                    <polygon
+                        class="fill"
+                        points="0.0,193.9 4.0,193.6 8.0,192.8 12.0,192.0 16.1,191.5 20.1,190.8 24.1,189.0 28.1,184.4 32.1,175.3 36.1,160.4 40.2,139.1 44.2,112.1 48.2,81.7 52.2,51.9 56.2,27.9 60.2,14.5 64.2,15.1 68.3,29.7 72.3,55.3 76.3,86.7 80.3,117.9 84.3,144.3 88.3,163.9 92.4,176.6 96.4,184.0 100.4,188.2 104.4,190.8 108.4,192.6 112.4,193.6 116.5,193.7 120.5,193.2 124.5,192.5 128.5,192.2 132.5,192.5 136.5,193.2 140.5,193.8 144.6,193.8 148.6,193.3 152.6,192.6 156.6,192.2 160.6,192.4 164.6,193.1 168.7,193.8 172.7,193.9 176.7,193.4 180.7,192.7 184.7,192.2 188.7,192.4 192.7,193.0 196.8,193.7 200.8,193.9 204.8,193.5 208.8,192.7 212.8,192.2 216.8,192.3 220.9,192.9 224.9,193.6 228.9,193.7 232.9,193.1 236.9,191.7 240.9,189.6 244.9,186.7 249.0,182.1 253.0,174.6 257.0,162.9 261.0,147.1 265.0,128.6 269.0,110.5 273.1,96.6 277.1,89.8 281.1,91.4 285.1,100.8 289.1,115.6 293.1,132.7 297.2,149.5 301.2,164.2 305.2,175.8 309.2,184.1 313.2,189.1 317.2,191.5 321.2,192.1 325.3,192.0 329.3,192.1 333.3,192.6 337.3,193.3 341.3,193.9 345.3,193.8 349.4,193.1 353.4,192.4 357.4,192.0 361.4,192.0 365.4,192.1 369.4,191.2 373.4,188.4 377.5,183.2 381.5,175.4 385.5,165.2 389.5,153.4 393.5,141.1 397.5,129.9 401.6,121.7 405.6,118.4 409.6,120.9 413.6,129.2 417.6,141.4 421.6,155.0 425.6,167.6 429.7,177.4 433.7,183.8 437.7,187.6 441.7,189.7 445.7,191.1 449.7,192.3 453.8,192.8 457.8,192.3 461.8,190.2 465.8,186.5 469.8,181.2 473.8,174.3 477.9,165.9 481.9,156.4 485.9,146.6 489.9,138.4 493.9,133.6 497.9,133.7 501.9,138.9 506.0,148.2 510.0,159.1 514.0,169.4 518.0,177.5 522.0,182.9 526.0,186.0 530.1,187.4 534.1,187.2 538.1,185.2 542.1,180.6 546.1,173.3 550.1,163.9 554.1,153.9 558.2,145.4 562.2,140.3 566.2,139.3 570.2,142.3 574.2,148.3 578.2,156.0 582.3,163.9 586.3,171.1 590.3,176.4 594.3,178.7 598.3,177.1 602.3,171.3 606.4,162.0 610.4,151.1 614.4,141.1 618.4,134.4 622.4,132.5 626.4,135.2 630.4,141.3 634.5,149.0 638.5,156.4 642.5,162.3 646.5,165.4 650.5,165.0 654.5,161.2 658.6,154.7 662.6,147.7 666.6,142.6 670.6,141.3 674.6,144.5 678.6,150.9 682.6,158.1 686.7,163.7 690.7,166.3 694.7,166.0 698.7,163.7 702.7,161.0 706.7,159.1 710.8,158.8 714.8,159.9 718.8,162.1 722.8,164.7 726.8,167.1 730.8,168.8 734.8,169.4 738.9,169.0 742.9,167.9 746.9,166.9 750.9,166.6 754.9,167.3 758.9,169.1 763.0,171.0 767.0,172.3 771.0,172.6 775.0,172.1 779.0,171.3 783.0,171.0 787.1,171.6 791.1,173.0 795.1,174.4 799.1,175.2 803.1,175.3 807.1,175.0 811.1,174.8 815.2,175.2 819.2,176.1 823.2,177.2 827.2,178.0 831.2,178.3 835.2,178.3 839.3,178.3 843.3,178.6 847.3,179.3 851.3,180.2 855.3,180.8 859.3,181.2 863.3,181.3 867.4,181.5 871.4,181.8 875.4,182.4 879.4,183.0 883.4,183.6 887.4,184.0 891.5,184.2 895.5,184.4 899.5,184.6 903.5,185.1 907.5,185.7 911.5,186.3 915.5,186.9 919.6,187.3 923.6,187.9 927.6,188.7 931.6,189.8 935.6,191.0 939.6,192.2 943.7,193.2 947.7,194.0 951.7,194.5 955.7,194.8 959.7,195.1 963.7,195.4 967.8,195.6 971.8,195.7 975.8,195.6 979.8,195.6 983.8,195.5 987.8,195.6 991.8,195.6 995.9,195.7 999.9,195.8 1003.9,195.8 1007.9,195.7 1011.9,195.7 1015.9,195.7 1020.0,195.7 1024.0,195.8 1028.0,195.8 1032.0,195.8 1032.0,200 0,200"
+                    />
+                    <polyline
+                        class="trace"
+                        points="0.0,193.9 4.0,193.6 8.0,192.8 12.0,192.0 16.1,191.5 20.1,190.8 24.1,189.0 28.1,184.4 32.1,175.3 36.1,160.4 40.2,139.1 44.2,112.1 48.2,81.7 52.2,51.9 56.2,27.9 60.2,14.5 64.2,15.1 68.3,29.7 72.3,55.3 76.3,86.7 80.3,117.9 84.3,144.3 88.3,163.9 92.4,176.6 96.4,184.0 100.4,188.2 104.4,190.8 108.4,192.6 112.4,193.6 116.5,193.7 120.5,193.2 124.5,192.5 128.5,192.2 132.5,192.5 136.5,193.2 140.5,193.8 144.6,193.8 148.6,193.3 152.6,192.6 156.6,192.2 160.6,192.4 164.6,193.1 168.7,193.8 172.7,193.9 176.7,193.4 180.7,192.7 184.7,192.2 188.7,192.4 192.7,193.0 196.8,193.7 200.8,193.9 204.8,193.5 208.8,192.7 212.8,192.2 216.8,192.3 220.9,192.9 224.9,193.6 228.9,193.7 232.9,193.1 236.9,191.7 240.9,189.6 244.9,186.7 249.0,182.1 253.0,174.6 257.0,162.9 261.0,147.1 265.0,128.6 269.0,110.5 273.1,96.6 277.1,89.8 281.1,91.4 285.1,100.8 289.1,115.6 293.1,132.7 297.2,149.5 301.2,164.2 305.2,175.8 309.2,184.1 313.2,189.1 317.2,191.5 321.2,192.1 325.3,192.0 329.3,192.1 333.3,192.6 337.3,193.3 341.3,193.9 345.3,193.8 349.4,193.1 353.4,192.4 357.4,192.0 361.4,192.0 365.4,192.1 369.4,191.2 373.4,188.4 377.5,183.2 381.5,175.4 385.5,165.2 389.5,153.4 393.5,141.1 397.5,129.9 401.6,121.7 405.6,118.4 409.6,120.9 413.6,129.2 417.6,141.4 421.6,155.0 425.6,167.6 429.7,177.4 433.7,183.8 437.7,187.6 441.7,189.7 445.7,191.1 449.7,192.3 453.8,192.8 457.8,192.3 461.8,190.2 465.8,186.5 469.8,181.2 473.8,174.3 477.9,165.9 481.9,156.4 485.9,146.6 489.9,138.4 493.9,133.6 497.9,133.7 501.9,138.9 506.0,148.2 510.0,159.1 514.0,169.4 518.0,177.5 522.0,182.9 526.0,186.0 530.1,187.4 534.1,187.2 538.1,185.2 542.1,180.6 546.1,173.3 550.1,163.9 554.1,153.9 558.2,145.4 562.2,140.3 566.2,139.3 570.2,142.3 574.2,148.3 578.2,156.0 582.3,163.9 586.3,171.1 590.3,176.4 594.3,178.7 598.3,177.1 602.3,171.3 606.4,162.0 610.4,151.1 614.4,141.1 618.4,134.4 622.4,132.5 626.4,135.2 630.4,141.3 634.5,149.0 638.5,156.4 642.5,162.3 646.5,165.4 650.5,165.0 654.5,161.2 658.6,154.7 662.6,147.7 666.6,142.6 670.6,141.3 674.6,144.5 678.6,150.9 682.6,158.1 686.7,163.7 690.7,166.3 694.7,166.0 698.7,163.7 702.7,161.0 706.7,159.1 710.8,158.8 714.8,159.9 718.8,162.1 722.8,164.7 726.8,167.1 730.8,168.8 734.8,169.4 738.9,169.0 742.9,167.9 746.9,166.9 750.9,166.6 754.9,167.3 758.9,169.1 763.0,171.0 767.0,172.3 771.0,172.6 775.0,172.1 779.0,171.3 783.0,171.0 787.1,171.6 791.1,173.0 795.1,174.4 799.1,175.2 803.1,175.3 807.1,175.0 811.1,174.8 815.2,175.2 819.2,176.1 823.2,177.2 827.2,178.0 831.2,178.3 835.2,178.3 839.3,178.3 843.3,178.6 847.3,179.3 851.3,180.2 855.3,180.8 859.3,181.2 863.3,181.3 867.4,181.5 871.4,181.8 875.4,182.4 879.4,183.0 883.4,183.6 887.4,184.0 891.5,184.2 895.5,184.4 899.5,184.6 903.5,185.1 907.5,185.7 911.5,186.3 915.5,186.9 919.6,187.3 923.6,187.9 927.6,188.7 931.6,189.8 935.6,191.0 939.6,192.2 943.7,193.2 947.7,194.0 951.7,194.5 955.7,194.8 959.7,195.1 963.7,195.4 967.8,195.6 971.8,195.7 975.8,195.6 979.8,195.6 983.8,195.5 987.8,195.6 991.8,195.6 995.9,195.7 999.9,195.8 1003.9,195.8 1007.9,195.7 1011.9,195.7 1015.9,195.7 1020.0,195.7 1024.0,195.8 1028.0,195.8 1032.0,195.8"
+                    />
+                    <line class="axis" x1="0" y1="199" x2="1032" y2="199" />
+                </svg>
+            </div>
+        </div>
+    </body>
+</html>
